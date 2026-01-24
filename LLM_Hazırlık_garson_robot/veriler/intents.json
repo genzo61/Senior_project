@@ -1,0 +1,1904 @@
+{
+  "intents": [
+    {
+      "tag": "saudações",
+      "patterns": [
+        "Bom dia",
+        "Boa tarde",
+        "Boa noite",
+        "Oi, tudo bem?",
+        "Ola, como vai?",
+        "Boa tarde, tudo certo?",
+        "Oi, posso fazer um pedido?",
+        "E aí, beleza?",
+        "oi, !",
+        "oi, boa tarde!",
+        "Boa noite, como estão as coisas?",
+        "oi! Posso pedir algo especial hoje?",
+        "oi, vocês estão bem?",
+        "E aí, qual é a boa de hoje?",
+        "oi, algum lanche novo no cardápio?",
+        "oi, tudo tranquilo por aqui?",
+        "oi, posso ver o cardápio?",
+        "oi, qual a sugestão para hoje?",
+        "Ei, tudo em cima?",
+        "oi, quais são as promoções de hoje?",
+        "oi, posso pedir já ou espero um pouco?",
+        "oi, tudo ótimo por aqui?",
+        "E aí, pronto para me ajudar com um lanche delicioso?",
+        "oi, qual lanche você recomenda hoje?",
+        "Boa tarde, algum lanche especial hoje?",
+        "oi, como está o dia hoje?",
+        "oi, pronto para um pedido grande?",
+        "E aí, posso pedir um favorito da casa?",
+        "oi, tem algum lanche que é a cara do dia?",
+        "oi, qual lanche está fazendo sucesso hoje?",
+        "Ei, qual é o lanche mais pedido por aqui?",
+        "oi, vocês estão tendo algum lanche novo?",
+        "oi, tem algum lanche sazonal no momento?",
+        "oi, que tal me surpreender com um lanche hoje?",
+        "E aí, quais são os lanches mais pedidos hoje?",
+        "oi, eu estava ansioso(a) para vir aqui hoje!",
+        "oi, você tem alguma recomendação para mim?",
+        "E aí, como estão as coisas na cozinha?",
+        "oi, tem alguma coisa que você acha que eu deveria experimentar?",
+        "oi, tudo bem por aí? Vamos de lanche?",
+        "Ei, qual lanche tem o seu toque especial hoje?",
+        "oi, estou com uma fome... O que você sugere?",
+        "oi, tem algum lanche que combina com o clima de hoje?",
+        "E aí, alguma novidade gostosa para me contar?",
+        "oi, estou pensando em experimentar algo novo. Sugestões?",
+        "oi, algum lanche leve e gostoso para recomendar?",
+        "Ei, o que você me diz de um lanche bem caprichado hoje?",
+        "oi, qual é a especialidade da casa hoje?",
+        "oi, estou com vontade de um lanche. O que você sugere?",
+        "Ei, tem algum lanche que é imperdível aqui?",
+        "oi, quero algo delicioso. O que você me recomenda?",
+        "oi, estou aqui para o meu lanche favorito. Está disponível?",
+        "E aí, algum lanche especial para acompanhar o café?"
+      ],
+      "responses": [
+        "!Olá! Como posso tornar seu dia ainda melhor com nosso cardapio? Aqui esta nosso cardápio para dar uma olhada!!",
+        "!Olá! Tudo bem? O que posso preparar para você hoje? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá! Está procurando algo especial hoje? Como posso ajudar? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!, tudo bem? Espero que sim! Tem algum pedido em mente? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!! Temos algumas delícias em nosso cardapio. Quer dar uma olhada ? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!, Como posso melhorar seu dia? Que tal um delicioso lanche? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Como vai? Espero que tudo ótimo! Já sabe o que vai querer hoje? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!! Algum pedido em especial hoje? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!! Como posso fazer seu dia melhor? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!, tudo bem? Vamos fazer aquele pedido especial hoje? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá! Que alegria te ver. Já tem algo em mente? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!! Pronto para escolher algo delicioso hoje? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!, Tudo tranquilo? Aqui esta nosso cardápio para dar uma olhada!!",
+        "E aí, minha jóia rara! Já decidiu o que quer comer? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!, como você está? Aqui esta o cardapio! Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!! Que bom te ver por aqui. O que vai ser hoje? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!! Procurando por algo especial hoje? Aqui esta o cardapio!",
+        "Que bom ver você! Está com vontade de provar o que hoje? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá minha celebridade! Ja pensou o que vai comer hoje? Aqui esta nosso cardápio para dar uma olhada!!",
+        "Olá!! Como posso fazer seu pedido ainda mais especial hoje? Aqui esta nosso cardápio para dar uma olhada!! "
+      ]
+    },
+    {
+      "tag": "davi burguer triplo",
+      "patterns": [
+        "Que tal me preparar um Davi Burger Triplo? !",
+        "Estou pensando em um Davi Burger Triplo seria perfeito.",
+        "Pode me fazer o favor de caprichar num Davi Burger Triplo?",
+        "Hoje eu mereço um Davi Burger Triplo.",
+        "Quero celebrar o dia com um Davi Burger Triplo",
+        "Estou com vontade de algo especial. Um Davi Burger Triplo",
+        "Queria um Davi Burger Triplo, com todo o carinho que vocês colocam.",
+        "Um Davi Burger Triplo seria ótimo.",
+        "Que tal um Davi Burger Triplo hoje?",
+        "Um Davi Burger Triplo "
+                
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "dog queijo com bacon",
+      "patterns": [
+        "Me veja um Dog Queijo com Bacon, para dar aquele toque especial ao meu dia.",
+        "Que tal um Dog Queijo com Bacon? Só de pensar, já me dá água na boca.",
+        "Poderia me preparar um Dog Queijo com Bacon? Estou ansioso por um.",
+        "Hoje, estou no clima de um Dog Queijo com Bacon. O que acha?",
+        "Um Dog Queijo com Bacon cairia bem agora.",
+        "Vou de Dog Queijo com Bacon hoje. Preciso dessa delícia!",
+        "Pode ser um Dog Queijo com Bacon? Acho que vai alegrar meu dia.",
+        "Um Dog Queijo com Bacon. Quero me presentear!",
+        "Que tal me fazer feliz com um Dog Queijo com Bacon?",
+        "Um Dog Queijo com Bacon. "
+
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X alcatra",
+      "patterns": [
+        "O X Alcatra é feito com a melhor parte da carne, certo? Mal posso esperar para provar.",
+        "Estou sentindo que hoje é um dia para um X Alcatra. Você recomenda?",
+        "Vou me dar um presente e pedir um X Alcatra.",
+        "Um X Alcatra parece ser a pedida perfeita para agora.",
+        "Eu estava sonhando com um X Alcatra.",
+        "O X Alcatra é tão bom quanto parece? Estou pronto para descobrir.",
+        "Hoje mereço um X Alcatra. Você pode caprichar para mim?",
+        "Um X Alcatra é a minha escolha de hoje.",
+        "O X Alcatra é o meu favorito. Você pode fazer um bem especial para mim?",
+        "Estou aqui pelo X Alcatra.",
+        "Gostaria de um x alcatra",
+        "Um x alcatra por favor",
+        "Gostaria de um x alcatra ",
+        "Um x alcatra por favor",
+        "Me ve um x alcatra",
+        "Quero um x alcatra",
+        "X alcatra",
+        "Um x alcatra com bastante molho por favor",
+        "Um x alcatra no capricho",
+        "Acho que vou quere um x alcatra"
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "x bacon com salada",
+      "patterns": [
+        "Quero algo equilibrado. Acho que um X Bacon com Salada vai ser perfeito.",
+        "Pode me fazer um X Bacon com Salada? ",
+        "Um X Bacon com Salada soa como a escolha saudável que eu preciso hoje.",
+        "Estou de olho no X Bacon com Salada. ",
+        "Vou de X Bacon com Salada hoje. ",
+        "Meu pedido? Vai ser um X Bacon com Salada. ",
+        "Estou pensando em algo que balance sabor e saúde. Um X Bacon com Salada!",
+        "Por favor, me vê um X Bacon com Salada.",
+        "O X Bacon com Salada é uma ótima escolha, certo? ",
+        "Decidi por um X Bacon com Salada hoje.",
+        "Um x bacom com salada por favor",
+        "Um x bacon com salada por favor",
+        "Gostaria de um x bacon com salada",
+        "Me ve um x bacon com salada",
+        "Um x bacon com salada caprichado por favor",
+        "Quero um x bacon com salada"
+
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+    
+      ]
+    }
+    ,
+    {
+      "tag": "Hot Dog Duplo",
+      "patterns": [
+        "Que tal um Hot Dog Duplo para saciar?",
+        "Vou precisar de um Hot Dog Duplo.",
+        "Pode me preparar um Hot Dog Duplo?",
+        "Então, um Hot Dog Duplo.",
+        "Estou pensando grande: um Hot Dog Duplo. Acha que dou conta?",
+        "Um Hot Dog Duplo soa como o desafio perfeito para agora.",
+        "Para mim, vai ser um Hot Dog Duplo.",
+        "Hoje estou por conta do Hot Dog Duplo. Pode caprichar no meu?",
+        "Um Hot Dog Duplo é a minha escolha.",
+        "Vou no Hot Dog Duplo hoje. Parece ser a escolha campeã!",
+        "Um hot dog duplo por favor",
+        "Vou querer um hot dog duplo por favor",
+        "me ve um hot dog duplo por favor",
+        "Gostaria de um hot dog duplo",
+        "Me ve um hot dog duplo",
+        "gostaria de um hot dog duplo",
+        "um hot dog duplo por favor",
+        "Ola, gostaria de um hot dog duplo",
+        "Um hot dog duplo por favor",
+        "Me ve um hot dog duplo",
+        "Quero um hot dog duplo",
+        "hot dog duplo",
+        "Um hot dog duplo com bastante molho por favor",
+        "Um hot dog duplo no capricho",
+        "Acho que vou quere um hot dog duplo"
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "Misto Quente",
+      "patterns": [
+        "Nada como um Misto Quente para confortar a alma. Me faz um?",
+        "Um Misto Quente. Quero algo quentinho e acolhedor.",
+        "Pode preparar um Misto Quente? Parece ser a pedida perfeita.",
+        "Misto Quente.",
+        "Um Misto Quente soa tão bem agora.",
+        "Vou de Misto Quente hoje. É sempre uma escolha que me faz feliz.",
+        "Misto Quente. É clássico e sempre uma delícia.",
+        "Meu pedido? Um Misto Quente bem caprichado. O que acha?",
+        "Um Misto Quente é o que preciso para aquecer. Pode preparar um?",
+        "Hoje estou no clima de um Misto Quente.",
+        "Ola, um misto quente por favor",
+        "Gostaria de um misto quente",
+        "Um misto quente por favor",
+        "Me ve um misto quente",
+        "Quero um misto quente",
+        "Um misto quente.",
+        "Vou querer um misto quente.",
+        "me vê um misto quente.",
+        "Gostaria de um misto quente.",
+        "Me vê um misto quente.",
+        "gostaria de um misto quente.",
+        "um misto quente.",
+        "Gostaria de um misto quente.",
+        "Um misto quente.",
+        "Me vê um misto quente.",
+        "Quero um misto quente.",
+        "Misto quente.",
+        "Um misto quente com bastante molho.",
+        "Um misto quente no capricho.",
+        "Acho que vou querer um misto quente."
+
+    ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Calabresa",
+      "patterns": [
+        "Estou com desejo de algo apimentado. Que tal um X Calabresa?",
+        "Um X Calabresa. Adoro o sabor intenso da calabresa.",
+        "Vou querer um X Calabresa hoje. É um dos meus favoritos.",
+        "Pode me preparar um X Calabresa? Estou com vontade de algo marcante.",
+        "X Calabresa é a minha escolha. Espero que seja tão bom quanto parece!",
+        "Um X Calabresa. Quero saborear cada mordida.",
+        "Hoje é dia de X Calabresa para mim. Ansioso para provar!",
+        "Estou pensando em pedir um X Calabresa. Você recomenda?",
+        "Vou de X Calabresa hoje. Parece ser exatamente o que eu preciso.",
+        "Um X Calabresa é o que estou desejando. Pode caprichar no meu?",
+        "Um X Calabresa.",
+        "Vou querer um X Calabresa.",
+        "Me vê um X Calabresa.",
+        "Gostaria de um X Calabresa.",
+        "me vê um X Calabresa.",
+        "gostaria de um X Calabresa.",
+        "um X Calabresa.",
+        "gostaria de um X Calabresa.",
+        "Um X Calabresa.",
+        "Me vê um X Calabresa.",
+        "Quero um X Calabresa.",
+        "X Calabresa.",
+        "Um X Calabresa com bastante molho.",
+        "Um X Calabresa no capricho.",
+        "Acho que vou querer um X Calabresa."
+    ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "Hot Dog",
+      "patterns": [
+        "Um Hot Dog clássico. ",
+        "Vamos de Hot Dog hoje. ",
+        "Me faz um Hot Dog? .",
+        "Estou com desejo de um Hot Dog bem feito. ",
+        "Um Hot Dog. !",
+        "Nada supera um bom Hot Dog. Pode caprichar no meu?",
+        "Hoje me deu vontade de um Hot Dog tradicional. Tem como fazer?",
+        "Vou querer um Hot Dog. É sempre uma boa escolha.",
+        "Pode preparar um Hot Dog? .",
+        "Um Hot Dog parece perfeito agora. ",
+        "Um Hot Dog.",
+        "Vou querer um Hot Dog.",
+        "me vê um Hot Dog.",
+        "Gostaria de um Hot Dog.",
+        "me vê um Hot Dog.",
+        "gostaria de um Hot Dog.",
+        "um Hot Dog.",
+        "gostaria de um Hot Dog.",
+        "Um Hot Dog.",
+        "Me vê um Hot Dog.",
+        "Quero um Hot Dog.",
+        "Hot Dog.",
+        "Um Hot Dog com bastante molho.",
+        "Um Hot Dog no capricho.",
+        "Acho que vou querer um Hot Dog."
+
+    ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "Hot Dog Especial",
+      "patterns": [
+        "Quero algo único hoje. Que tal um Hot Dog Especial?",
+        "Vamos de Hot Dog Especial.",
+        "Me sentindo aventureiro, então um Hot Dog Especial.",
+        "Um Hot Dog Especial soa exatamente como o que preciso hoje!",
+        "Pode me fazer um Hot Dog Especial? ",
+        "O Hot Dog Especial é com o que?",
+        "Hoje é dia de Hot Dog Especial.",
+        "Um Hot Dog Especial.",
+        "Estou de olho nesse Hot Dog Especial. ",
+        "Vou querer o Hot Dog Especial. ",
+        "Um Hot Dog Especial.",
+        "Vou querer um Hot Dog Especial.",
+        "me vê um Hot Dog Especial.",
+        "Gostaria de um Hot Dog Especial.",
+        ", me vê um Hot Dog Especial.",
+        "gostaria de um Hot Dog Especial.",
+        "um Hot Dog Especial.",
+        ", gostaria de um Hot Dog Especial.",
+        "Um Hot Dog Especial.",
+        "Me vê um Hot Dog Especial.",
+        "Quero um Hot Dog Especial.",
+        "Hot Dog Especial.",
+        "Um Hot Dog Especial com bastante molho.",
+        "Um Hot Dog Especial no capricho.",
+        "Acho que vou querer um Hot Dog Especial."
+
+
+    ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Egg",
+      "patterns": [
+        "Um X Egg. Adoro o toque do ovo no sanduíche.",
+        "Estou com vontade de um X Egg. Como vocês preparam o ovo?",
+        "Um X Egg seria ótimo agora.",
+        "Vou querer um X Egg. ",
+        "Nada bate um bom X Egg. ",
+        "Pode me fazer um X Egg? ",
+        "Um X Egg. ",
+        "Hoje é dia de X Egg. ",
+        "Um X Egg é o que eu preciso para começar bem o dia.",
+        "Vou de X Egg. ",
+        "Um X Egg.",
+        "Vou querer um X Egg.",
+        "me vê um X Egg.",
+        "Gostaria de um X Egg.",
+        ", me vê um X Egg.",
+        "gostaria de um X Egg.",
+        "Bum X Egg.",
+        ", gostaria de um X Egg.",
+        "Me vê um X Egg.",
+        "Quero um X Egg.",
+        "X Egg.",
+        "Um X Egg com bastante molho.",
+        "Um X Egg no capricho.",
+        "Acho que vou querer um X Egg."
+
+    ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Frango com Hamburger e Catupiry",
+      "patterns": [
+        "Que combinação interessante! Vou de X Frango com Hamburger e Catupiry.",
+        "Estou curioso sobre o X Frango com Hamburger e Catupiry. ",
+        "Um X Frango com Hamburger e Catupiry soa como uma refeição completa. ",
+        "Pode caprichar em um X Frango com Hamburger e Catupiry para mim?",
+        "Acho que vou experimentar algo novo hoje. Que tal um X Frango com Hamburger e Catupiry?",
+        "Meu paladar está pedindo um X Frango com Hamburger e Catupiry.",
+        "Acho que um X Frango com Hamburger e Catupiry vai resolver.",
+        "Nunca provei um X Frango com Hamburger e Catupiry antes. ",
+        "O X Frango com Hamburger e Catupiry é tão bom quanto parece? ",
+        "Vou de X Frango com Hamburger e Catupiry. ",
+        "Um X Frango com Hamburger e Catupiry.",
+        "Vou querer um X Frango com Hamburger e Catupiry.",
+        "me vê um X Frango com Hamburger e Catupiry.",
+        "Gostaria de um X Frango com Hamburger e Catupiry.",
+        ", me vê um X Frango com Hamburger e Catupiry.",
+        "gostaria de um X Frango com Hamburger e Catupiry.",
+        "um X Frango com Hamburger e Catupiry.",
+        ", gostaria de um X Frango com Hamburger e Catupiry.",
+        "Um X Frango com Hamburger e Catupiry.",
+        "Me vê um X Frango com Hamburger e Catupiry.",
+        "Quero um X Frango com Hamburger e Catupiry.",
+        "X Frango com Hamburger e Catupiry.",
+        "Um X Frango com Hamburger e Catupiry com bastante molho.",
+        "Um X Frango com Hamburger e Catupiry no capricho.",
+        "Acho que vou querer um X Frango com Hamburger e Catupiry."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Frango Especial",
+      "patterns": [
+        "Hoje me sinto especial, então nada melhor que um X Frango Especial.",
+        "Estou de olho no X Frango Especial. ",
+        "Um X Frango Especial. ",
+        "Quero provar o X Frango Especial hoje.",
+        "Estou pensando em escolher o X Frango Especial. ",
+        "Para mim, vai ser o X Frango Especial. ",
+        "Vou de X Frango Especial hoje. Espero que me faça sentir especial!",
+        "Um X Frango Especial. ",
+        "O X Frango Especial é recomendado? ",
+        "Decidi que hoje é dia de X Frango Especial.",
+        "Um X Frango Especial.",
+        "Vou querer um X Frango Especial.",
+        "me vê um X Frango Especial.",
+        "Gostaria de um X Frango Especial.",
+        ", me vê um X Frango Especial.",
+        "gostaria de um X Frango Especial.",
+        "um X Frango Especial.",
+        ", gostaria de um X Frango Especial.",
+        "Um X Frango Especial.",
+        "Me vê um X Frango Especial.",
+        "Quero um X Frango Especial.",
+        "X Frango Especial.",
+        "Um X Frango Especial com bastante molho, por favo.",
+        "Um X Frango Especial no capricho.",
+        "Acho que vou querer um X Frango Especial."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Obac",
+      "patterns": [
+        "Nunca ouvi falar do X Obac antes. Estou curioso, pode me fazer um?",
+        "Vou querer experimentar o X Obac. ",
+        "O X Obac é uma novidade para mim. Vamos ver como é!",
+        "Me interessei pelo X Obac. O que exatamente ele tem?",
+        "Estou no clima para algo novo. Acho que o X Obac vai ser minha escolha.",
+        "Hoje é dia de experimentar o X Obac. Espero que seja delicioso!",
+        "Um X Obac. Quero descobrir os sabores que ele oferece.",
+        "Estou decidido a provar o X Obac hoje.",
+        "Curioso sobre o X Obac. Parece ser algo que eu gostaria.",
+        "Vou de X Obac. Parece ser uma escolha interessante e saborosa.",
+        "Um X Obac.",
+        "Vou querer um X Obac.",
+        "me vê um X Obac.",
+        "Gostaria de um X Obac.",
+        ", me vê um X Obac.",
+        "gostaria de um X Obac.",
+        "um X Obac.",
+        ", gostaria de um X Obac.",
+        "Um X Obac.",
+        "Me vê um X Obac.",
+        "Quero um X Obac.",
+        "X Obac.",
+        "Um X Obac com bastante molho.",
+        "Um X Obac no capricho.",
+        "Acho que vou querer um X Obac."
+
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Quaresma",
+      "patterns": [
+        "O X Quaresma seria perfeito.",
+        "Um X Quaresma. ",
+        "Pode me preparar um X Quaresma? ",
+        "Gostaria de um X Quaresma hoje. ",
+        "Vou de X Quaresma. ",
+        "Um X Quaresma soa bem. ",
+        "Estou curioso sobre o X Quaresma. ",
+        "Quero experimentar o X Quaresma.",
+        "O X Quaresma é a minha escolha de hoje. Ansioso para provar.",
+        "Decidi por um X Quaresma. Vamos ver como é!",
+        "Um X Quaresma.",
+        "Vou querer um X Quaresma.",
+        "me vê um X Quaresma.",
+        "Gostaria de um X Quaresma.",
+        ", me vê um X Quaresma.",
+        "gostaria de um X Quaresma.",
+        "um X Quaresma.",
+        ", gostaria de um X Quaresma.",
+        "Um X Quaresma.",
+        "Me vê um X Quaresma.",
+        "Quero um X Quaresma.",
+        "X Quaresma.",
+        "Um X Quaresma com bastante molho.",
+        "Um X Quaresma no capricho.",
+        "Acho que vou querer um X Quaresma."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Salada",
+      "patterns": [
+        "Estou buscando algo fresco hoje, então me vê um X Salada.",
+        "Acho que um X Salada vai cair bem agora. ",
+        "Um X Salada. Quero algo leve e saboroso.",
+        "Gosto de manter as coisas simples e deliciosas. Então, um X Salada.",
+        "Hoje eu quero um X Salada. Adoro a combinação de sabores.",
+        "Vou de X Salada hoje. Parece ser a escolha perfeita.",
+        "Estou com desejo de um X Salada. Amo a frescura da salada no sanduíche.",
+        "Pode me fazer um X Salada? Estou tentando comer mais verduras.",
+        "Um X Salada soa como uma ótima escolha. Estou dentro!",
+        "Quero um X Salada. Nada como um bom sanduíche com salada.",
+        "Um X Salada.",
+        "Vou querer um X Salada.",
+        ", me vê um X Salada.",
+        "Gostaria de um X Salada.",
+        ", me vê um X Salada.",
+        "gostaria de um X Salada.",
+        "um X Salada.",
+        ", gostaria de um X Salada.",
+        "Um X Salada.",
+        "Me vê um X Salada.",
+        "Quero um X Salada.",
+        "X Salada.",
+        "Um X Salada com bastante molho.",
+        "Um X Salada no capricho.",
+        "Acho que vou querer um X Salada."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Salada Especial",
+      "patterns": [
+        "Me sinto especial hoje, então acho que o X Salada Especial é a pedida.",
+        "Que tal um X Salada Especial? ",
+        "Um X Salada Especial,Quero ver o que tem de tão especial.",
+        "Vou querer o X Salada Especial.",
+        "Estou curioso sobre o X Salada Especial.",
+        "Hoje eu mereço um X Salada Especial. ",
+        "Pode me preparar um X Salada Especial? ",
+        "Gostaria de experimentar o X Salada Especial.",
+        "Um X Salada Especial ",
+        "Estou decidido: vou de X Salada Especial. ",
+        "Um X Salada Especial.",
+        "Vou querer um X Salada Especial",
+        "me vê um X Salada Especial",
+        "Gostaria de um X Salada Especial.",
+        ", me vê um X Salada Especial.",
+        "gostaria de um X Salada Especial.",
+        "um X Salada Especial",
+        ", gostaria de um X Salada Especial.",
+        "Um X Salada Especial",
+        "Me vê um X Salada Especial.",
+        "Quero um X Salada Especial.",
+        "X Salada Especial.",
+        "Um X Salada Especial com bastante molho, ",
+        "Um X Salada Especial no capricho.",
+        "Acho que vou querer um X Salada Especial."
+
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "Dog Frango Cremoso com Queijo",
+      "patterns": [
+        "Um Dog Frango Cremoso com Queijo, .",
+        "Um Dog Frango Cremoso com Queijo soa perfeito. ",
+        "Vou querer um Dog Frango Cremoso com Queijo. ",
+        "O Dog Frango Cremoso com Queijo é tão bom quanto parece? Vou provar.",
+        "Me faz um Dog Frango Cremoso com Queijo? ",
+        "Preciso de um Dog Frango Cremoso com Queijo na minha vida.",
+        "Um Dog Frango Cremoso com Queijo, . ",
+        "Estou decidido a experimentar o Dog Frango Cremoso com Queijo hoje.",
+        "Que tal um Dog Frango Cremoso com Queijo? ",
+        "Gostaria de um Dog Frango Cremoso com Queijo. ",
+        "Um Dog Frango Cremoso com Queijo, .",
+        "Vou querer um Dog Frango Cremoso com Queijo.",
+        ", me vê um Dog Frango Cremoso com Queijo",
+        "Gostaria de um Dog Frango Cremoso com Queijo.",
+        ", me vê um Dog Frango Cremoso com Queijo.",
+        "gostaria de um Dog Frango Cremoso com Queijo.",
+        "um Dog Frango Cremoso com Queijo, .",
+        ", gostaria de um Dog Frango Cremoso com Queijo.",
+        "Um Dog Frango Cremoso com Queijo, .",
+        "Me vê um Dog Frango Cremoso com Queijo.",
+        "Quero um Dog Frango Cremoso com Queijo.",
+        "Dog Frango Cremoso com Queijo.",
+        "Um Dog Frango Cremoso com Queijo com bastante molho.",
+        "Um Dog Frango Cremoso com Queijo no capricho.",
+        "Acho que vou querer um Dog Frango Cremoso com Queijo."
+
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "Mistodog",
+      "patterns": [
+        "O que acha de um Mistodog para mudar um pouco? Me parece uma escolha interessante.",
+        "Vou querer um Mistodog, ",
+        "Estou curioso sobre o Mistodog. ",
+        "Me faz um Mistodog? ",
+        "Um Mistodog, . ",
+        "Pode preparar um Mistodog pra mim? ",
+        "Vou de Mistodog hoje. ",
+        "Um Mistodog soa exatamente como o que eu preciso agora. ",
+        "Gostaria de um Mistodog. ",
+        "Estou decidido a experimentar o Mistodog. ",
+        "Um Mistodog, .",
+        "Vou querer um Mistodog, .",
+        "me vê um Mistodog, .",
+        "Gostaria de um Mistodog.",
+        ", me vê um Mistodog.",
+        "gostaria de um Mistodog.",
+        "m Mistodog, .",
+        ", gostaria de um Mistodog.",
+        "Um Mistodog, .",
+        "Me vê um Mistodog.",
+        "Quero um Mistodog.",
+        "Mistodog.",
+        "Um Mistodog com bastante molho,.",
+        "Um Mistodog no capricho.",
+        "Acho que vou querer um Mistodog."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "Promoção do Dia Dog",
+      "patterns": [
+        "Qual é a Promoção do Dia Dog? ",
+        "Vou querer a Promoção do Dia Dog, . ",
+        "Me conta mais sobre a Promoção do Dia Dog.",
+        "Acho que vou na Promoção do Dia Dog. ",
+        "Um da Promoção do Dia Dog, .",
+        "Pode me fazer a Promoção do Dia Dog? ",
+        "Vou de Promoção do Dia Dog hoje. ",
+        "Promoção do Dia Dog soa bem. ",
+        "Qual é a delícia de hoje na Promoção do Dia Dog? Vou querer, independentemente.",
+        "A Promoção do Dia Dog é a minha escolha. ",
+        "Um Promoção do Dia Dog, .",
+        "Vou querer um Promoção do Dia Dog, .",
+        "me vê um Promoção do Dia Dog, .",
+        "Gostaria de um Promoção do Dia Dog.",
+        ", me vê um Promoção do Dia Dog.",
+        "gostaria de um Promoção do Dia Dog.",
+        "um Promoção do Dia Dog, .",
+        ", gostaria de um Promoção do Dia Dog.",
+        "Um Promoção do Dia Dog, .",
+        "Me vê um Promoção do Dia Dog.",
+        "Quero um Promoção do Dia Dog.",
+        "Promoção do Dia Dog.",
+        "Um Promoção do Dia Dog com bastante molho, .",
+        "Um Promoção do Dia Dog no capricho.",
+        "Acho que vou querer um Promoção do Dia Dog."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Egg Bacon",
+      "patterns": [
+        "Um X Egg Bacon. ",
+        "Vou de X Egg Bacon hoje. ",
+        "Pode me preparar um X Egg Bacon? ",
+        "Estou com muita vontade de um X Egg Bacon. Você pode caprichar no meu?",
+        "X Egg Bacon soa como uma escolha incrível. Vou querer um,",
+        "Um X Egg Bacon. ",
+        "Gostaria de um X Egg Bacon. ",
+        "Um X Egg Bacon é o que preciso para me satisfazer. ",
+        "Estou decidido pelo X Egg Bacon. Não tem como errar com bacon e ovo.",
+        "Vou querer o X Egg Bacon. É a escolha ideal para qualquer hora.",
+        "Um X Egg Bacon.",
+        "Vou querer um X Egg Bacon.",
+        "me vê um X Egg Bacon.",
+        "Gostaria de um X Egg Bacon.",
+        ", me vê um X Egg Bacon.",
+        "gostaria de um X Egg Bacon.",
+        "um X Egg Bacon.",
+        ", gostaria de um X Egg Bacon.",
+        "Um X Egg Bacon.",
+        "Me vê um X Egg Bacon.",
+        "Quero um X Egg Bacon.",
+        "X Egg Bacon.",
+        "Um X Egg Bacon com bastante molho.",
+        "Um X Egg Bacon no capricho.",
+        "Acho que vou querer um X Egg Bacon."
+
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Bacon",
+      "patterns": [
+        "Um X Bacon. Bacon nunca é demais, né?",
+        "Hoje parece um bom dia para um X Bacon. Você pode caprichar no bacon?",
+        "Vou querer um X Bacon. É impossível errar com bacon.",
+        "Estou com desejo de um X Bacon. ",
+        "Nada bate um bom X Bacon. ",
+        "Um X Bacon",
+        "Pode preparar um X Bacon? ",
+        "Gostaria de um X Bacon hoje. ",
+        "Me vê um X Bacon",
+        "Estou ansioso por um X Bacon. ",
+        "Um X Bacon.",
+        "Vou querer um X Bacon, ",
+        ", me vê um X Bacon, ",
+        "Gostaria de um X Bacon.",
+        ", me vê um X Bacon.",
+        "gostaria de um X Bacon.",
+        "um X Bacon",
+        ", gostaria de um X Bacon.",
+        "Um X Bacon.",
+        "Me vê um X Bacon.",
+        "Quero um X Bacon.",
+        "X Bacon.",
+        "Um X Bacon com bastante molho.",
+        "Um X Bacon no capricho.",
+        "Acho que vou querer um X Bacon."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "Duplo Burger com Bacon",
+      "patterns": [
+        "Estou com uma fome gigante hoje, então nada menos que um Duplo Burger com Bacon",
+        "Quero um Duplo Burger com Bacon. ",
+        "Pode preparar um Duplo Burger com Bacon? ",
+        "Um Duplo Burger com Bacon.",
+        "Então vou de Duplo Burger com Bacon.",
+        "Estou decidido: um Duplo Burger com Bacon. ",
+        "Um Duplo Burger com Bacon . ",
+        "Me faz um Duplo Burger com Bacon? ",
+        "Vou querer o Duplo Burger com Bacon.",
+        "Estou ansioso por um Duplo Burger com Bacon. ",
+        "Um Duplo Burger com Bacon.",
+        "Vou querer um Duplo Burger com Bacon.",
+        "me vê um Duplo Burger com Bacon.",
+        "Gostaria de um Duplo Burger com Bacon.",
+        ", me vê um Duplo Burger com Bacon.",
+        "gostaria de um Duplo Burger com Bacon.",
+        "m Duplo Burger com Bacon.",
+        ", gostaria de um Duplo Burger com Bacon.",
+        "Um Duplo Burger com Bacon.",
+        "Me vê um Duplo Burger com Bacon.",
+        "Quero um Duplo Burger com Bacon.",
+        "Duplo Burger com Bacon.",
+        "Um Duplo Burger com Bacon com bastante molho.",
+        "Um Duplo Burger com Bacon no capricho.",
+        "Acho que vou querer um Duplo Burger com Bacon."
+
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Alcatra com Bacon",
+      "patterns": [
+        "Um X Alcatra com Bacon soa divino.",
+        "Quero provar o X Alcatra com Bacon.",
+        "Um X Alcatra com Bacon.",
+        "Vou de X Alcatra com Bacon hoje. ",
+        "Estou curioso sobre o X Alcatra com Bacon. ",
+        "Me faz um X Alcatra com Bacon? ",
+        "Gostaria de um X Alcatra com Bacon. ",
+        "Um X Alcatra com Bacon. ",
+        "Pode caprichar no meu X Alcatra com Bacon? ",
+        "Estou decidido a experimentar o X Alcatra com Bacon.",
+        "Um X Alcatra com Bacon.",
+        "Vou querer um X Alcatra com Bacon.",
+        "me vê um X Alcatra com Bacon.",
+        "Gostaria de um X Alcatra com Bacon.",
+        ", me vê um X Alcatra com Bacon.",
+        "gostaria de um X Alcatra com Bacon.",
+        "um X Alcatra com Bacon.",
+        ", gostaria de um X Alcatra com Bacon.",
+        "Um X Alcatra com Bacon",
+        "Me vê um X Alcatra com Bacon.",
+        "Quero um X Alcatra com Bacon.",
+        "X Alcatra com Bacon.",
+        "Um X Alcatra com Bacon com bastante molho.",
+        "Um X Alcatra com Bacon no capricho.",
+        "Acho que vou querer um X Alcatra com Bacon."
+
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Carvalho",
+      "patterns": [
+        "Nunca experimentei um X Carvalho antes.",
+        "Ouvi falar muito bem do X Carvalho. ",
+        "Um X Carvalho. ",
+        "Estou curioso sobre o X Carvalho. ",
+        "Hoje eu vou de X Carvalho. ",
+        "Vou querer um X Carvalho. ",
+        "Me faz um X Carvalho? ",
+        "Quero um X Carvalho hoje. ",
+        "Um X Carvalho. ",
+        "Estou decidido pelo X Carvalho. ",
+        "Um X Carvalho.",
+        "Vou querer um X Carvalho",
+        "me vê um X Carvalho.",
+        "Gostaria de um X Carvalho.",
+        "me vê um X Carvalho.",
+        "gostaria de um X Carvalho.",
+        "um X Carvalho.",
+        "gostaria de um X Carvalho.",
+        "Um X Carvalho.",
+        "Me vê um X Carvalho.",
+        "Quero um X Carvalho.",
+        "X Carvalho.",
+        "Um X Carvalho com bastante molho.",
+        "Um X Carvalho no capricho.",
+        "Acho que vou querer um X Carvalho."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Chegado",
+      "patterns": [
+        "Ouvi falar muito sobre o X Chegado. ",
+        "Me parece que hoje é um dia perfeito para um X Chegado. ",
+        "Um X Chegado. ",
+        "Vou querer um X Chegado. ",
+        "Estou curioso para saber por que chamam de X Chegado.",
+        "Quero me aventurar pelo menu e escolher um X Chegado hoje.",
+        "Um X Chegado ",
+        "Hoje é dia de X Chegado. ",
+        "Me faz um X Chegado? ",
+        "Pode caprichar no meu X Chegado? ",
+        "Um X Carvalho.",
+        "Vou querer um X Carvalho.",
+        "me vê um X Carvalho.",
+        "Gostaria de um X Carvalho.",
+        ", me vê um X Carvalho.",
+        "gostaria de um X Carvalho.",
+        "um X Carvalho.",
+        ", gostaria de um X Carvalho.",
+        "Um X Carvalho.",
+        "Me vê um X Carvalho.",
+        "Quero um X Carvalho.",
+        "X Carvalho.",
+        "Um X Carvalho com bastante molho.",
+        "Um X Carvalho no capricho.",
+        "Acho que vou querer um X Carvalho."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "Dog Queijo com Salada",
+      "patterns": [
+        "Um Dog Queijo com Salada soa perfeito para algo leve.",
+        "Estou tentando comer mais saudável, então me vê um Dog Queijo com Salada.",
+        "Gostaria de um Dog Queijo com Salada",
+        "Que tal um Dog Queijo com Salada hoje?",
+        "Pode fazer um Dog Queijo com Salada? ",
+        "Um Dog Queijo com Salada seria ótimo agora. ",
+        "Estou no clima para um Dog Queijo com Salada. ",
+        "Vou querer um Dog Queijo com Salada.",
+        "Um Dog Queijo com Salada. ",
+        "Me faz um Dog Queijo com Salada? ",
+        "Um Dog Queijo com Salada.",
+        "Vou querer um Dog Queijo com Salada.",
+        "me vê um Dog Queijo com Salada.",
+        "Gostaria de um Dog Queijo com Salada.",
+        "me vê um Dog Queijo com Salada.",
+        "gostaria de um Dog Queijo com Salada.",
+        "um Dog Queijo com Salada.",
+        ", gostaria de um Dog Queijo com Salada.",
+        "Um Dog Queijo com Salada.",
+        "Me vê um Dog Queijo com Salada.",
+        "Quero um Dog Queijo com Salada.",
+        "Dog Queijo com Salada.",
+        "Um Dog Queijo com Salada com bastante molho.",
+        "Um Dog Queijo com Salada no capricho.",
+        "Acho que vou querer um Dog Queijo com Salada."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Davi Burger",
+      "patterns": [
+        "Estou com uma vontade louca de um X Davi Burger hoje.",
+        "Que tal um X Davi Burger para mudar um pouco? ",
+        "Me vê um X Davi Burger. ",
+        "Um X Davi Burger soa como a escolha perfeita agora. ",
+        "Vou de X Davi Burger hoje. ",
+        "Pode preparar um X Davi Burger pra mim? ",
+        "Gostaria de um X Davi Burger. ",
+        "Um X Davi Burger.",
+        "Estou decidido a experimentar o X Davi Burger. ",
+        "Me faz um X Davi Burger? ",
+        "Um X Davi Burger.",
+        "Vou querer um X Davi Burger.",
+        "me vê um X Davi Burger.",
+        "Gostaria de um X Davi Burger.",
+        ", me vê um X Davi Burger.",
+        "gostaria de um X Davi Burger.",
+        "um X Davi Burger.",
+        ", gostaria de um X Davi Burger.",
+        "Um X Davi Burger.",
+        "Me vê um X Davi Burger.",
+        "Quero um X Davi Burger.",
+        "X Davi Burger.",
+        "Um X Davi Burger com bastante molho.",
+        "Um X Davi Burger no capricho.",
+        "Acho que vou querer um X Davi Burger."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Bacon com Salada Gourmet",
+      "patterns": [
+        "Adoraria começar com um X Bacon com Salada Gourmet. ",
+        "Pode me preparar um X Bacon com Salada Gourmet? ",
+        "Estou no clima para um X Bacon com Salada Gourmet hoje. ",
+        "Que tal um X Bacon com Salada Gourmet? ",
+        "Gostaria de um X Bacon com Salada Gourmet. ",
+        "Um X Bacon com Salada Gourmet soa como a escolha perfeita agora.",
+        "Vou querer um X Bacon com Salada Gourmet.",
+        "Estou decidido pelo X Bacon com Salada Gourmet. ",
+        "Um X Bacon com Salada Gourmet.",
+        "Me vê um X Bacon com Salada Gourmet? ",
+        "Um X Bacon com Salada Gourmet.",
+        "Vou querer um X Bacon com Salada Gourmet.",
+        "me vê um X Bacon com Salada Gourmet.",
+        "Gostaria de um X Bacon com Salada Gourmet.",
+        ", me vê um X Bacon com Salada Gourmet.",
+        "Gostaria de um X Bacon com Salada Gourmet.",
+        "um X Bacon com Salada Gourmet.",
+        ", gostaria de um X Bacon com Salada Gourmet.",
+        "Um X Bacon com Salada Gourmet.",
+        "Me vê um X Bacon com Salada Gourmet.",
+        "Quero um X Bacon com Salada Gourmet.",
+        "X Bacon com Salada Gourmet.",
+        "Um X Bacon com Salada Gourmet com bastante molho.",
+        "Um X Bacon com Salada Gourmet no capricho.",
+        "Acho que vou querer um X Bacon com Salada Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Davi Burger Gourmet",
+      "patterns": [
+        "Hoje estou me sentindo especial, então me faz um X Davi Burger Gourmet?",
+        "Um X Davi Burger Gourmet. Quero provar o que tem de tão gourmet.",
+        "Estou curioso sobre o X Davi Burger Gourmet. ",
+        "Gostaria de experimentar o X Davi Burger Gourmet.",
+        "Um X Davi Burger Gourmet parece ser a escolha perfeita para hoje.",
+        "Pode preparar um X Davi Burger Gourmet? ",
+        "Vou de X Davi Burger Gourmet.",
+        "Quero um X Davi Burger Gourmet. ",
+        "Estou no clima de algo especial, como um X Davi Burger Gourmet.",
+        "Me faz um X Davi Burger Gourmet? ",
+        "Um X Davi Burger Gourmet com bastante molho.",
+        "Vou querer um X Davi Burger Gourmet.",
+        "me vê um X Davi Burger Gourmet",
+        "Gostaria de um X Davi Burger Gourmet.",
+        ", me vê um X Davi Burger Gourmet.",
+        "Gostaria de um X Davi Burger Gourmet.",
+        "Um X Davi Burger Gourmet.",
+        ", gostaria de um X Davi Burger Gourmet.",
+        "Um X Davi Burger Gourmet.",
+        "Me vê um X Davi Burger Gourmet.",
+        "Quero um X Davi Burger Gourmet.",
+        "X Davi Burger Gourmet.",
+        "Um X Davi Burger Gourmet com bastante molho.",
+        "Um X Davi Burger Gourmet no capricho.",
+        "Acho que vou querer um X Davi Burger Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Bacon Gourmet",
+      "patterns": [
+        "Um X Bacon Gourmet. Bacon é sempre uma boa ideia, ainda mais na versão gourmet.",
+        "Estou desejando um X Bacon Gourmet. Pode fazer um bem caprichado para mim?",
+        "Vou querer um X Bacon Gourmet. Estou ansioso para provar essa versão gourmet.",
+        "Gostaria de pedir um X Bacon Gourmet. Quero ver como o bacon pode ficar ainda melhor.",
+        "Me vê um X Bacon Gourmet ",
+        "Um X Bacon Gourmet soa como tudo que eu preciso agora.",
+        "Pode me preparar um X Bacon Gourmet?",
+        "Vou de X Bacon Gourmet hoje. Bacon gourmet é irresistível.",
+        "Um X Bacon Gourmet ",
+        "Estou decidido a experimentar o X Bacon Gourmet. ",
+        "Um X Bacon Gourmet com bastante molho.",
+        "Vou querer um X Bacon Gourmet.",
+        "me vê um X Bacon Gourmet.",
+        "Gostaria de um X Bacon Gourmet.",
+        ", me vê um X Bacon Gourmet.",
+        "gostaria de um X Bacon Gourmet.",
+        "um X Bacon Gourmet.",
+        ", gostaria de um X Bacon Gourmet.",
+        "Um X Bacon Gourmet.",
+        "Me vê um X Bacon Gourmet.",
+        "Quero um X Bacon Gourmet.",
+        "X Bacon Gourmet.",
+        "Um X Bacon Gourmet com bastante molho.",
+        "Um X Bacon Gourmet no capricho.",
+        "Acho que vou querer um X Bacon Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Burger Gourmet",
+      "patterns": [
+        "Me encantaria um X Burger Gourmet para hoje. ",
+        "Estou com uma vontade incrível de um X Burger Gourmet. ",
+        "Gostaria de provar o X Burger Gourmet. ",
+        "Um X Burger Gourmet soa exatamente como o que eu preciso.",
+        "Pode me fazer um X Burger Gourmet? ",
+        "Estou pensando em escolher o X Burger Gourmet hoje. ",
+        "Vou querer um X Burger Gourmet. ",
+        "Me vê um X Burger Gourmet? ",
+        "Um X Burger Gourmet. ",
+        "Estou decidido pelo X Burger Gourmet. ",
+        "Um X Burger Gourmet com bastante molho.",
+        "Vou querer um X Burger Gourmet.",
+        "me vê um X Burger Gourmet.",
+        "Gostaria de um X Burger Gourmet.",
+        ", me vê um X Burger Gourmet.",
+        "gostaria de um X Burger Gourmet.",
+        " um X Burger Gourmet.",
+        ", gostaria de um X Burger Gourmet.",
+        "Um X Burger Gourmet.",
+        "Me vê um X Burger Gourmet.",
+        "Quero um X Burger Gourmet.",
+        "X Burger Gourmet.",
+        "Um X Burger Gourmet com bastante molho.",
+        "Um X Burger Gourmet no capricho.",
+        "Acho que vou querer um X Burger Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Chegado Gourmet",
+      "patterns": [
+        "O X Chegado Gourmet me chamou a atenção. ",
+        "Vou querer experimentar o X Chegado Gourmet. ",
+        "Um X Chegado Gourmet. ",
+        "Gostaria de um X Chegado Gourmet. ",
+        "Estou no clima para algo especial. Que tal um X Chegado Gourmet?",
+        "Me faz um X Chegado Gourmet? ",
+        "Um X Chegado Gourmet soa perfeito.",
+        "Vou de X Chegado Gourmet hoje. ",
+        "Pode preparar um X Chegado Gourmet para mim? ",
+        "Estou ansioso por um X Chegado Gourmet. ",
+        "Um X Chegado Gourmet com bastante molho.",
+        "Vou querer um X Chegado Gourmet.",
+        "me vê um X Chegado Gourmet.",
+        "Gostaria de um X Chegado Gourmet.",
+        ", me vê um X Chegado Gourmet.",
+        "gostaria de um X Chegado Gourmet.",
+        " um X Chegado Gourmet.",
+        ", gostaria de um X Chegado Gourmet.",
+        "Um X Chegado Gourmet.",
+        "Me vê um X Chegado Gourmet.",
+        "Quero um X Chegado Gourmet.",
+        "X Chegado Gourmet.",
+        "Um X Chegado Gourmet com bastante molho.",
+        "Um X Chegado Gourmet no capricho.",
+        "Acho que vou querer um X Chegado Gourmet."
+
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Frango Especial Gourmet",
+      "patterns": [
+        "Então nada melhor que um X Frango Especial Gourmet.",
+        "Quero um X Frango Especial Gourmet. ",
+        "Um X Frango Especial Gourmet parece ser a pedida certa para mim agora.",
+        "Gostaria de experimentar o X Frango Especial Gourmet. ",
+        "Pode me fazer um X Frango Especial Gourmet? ",
+        "Vou de X Frango Especial Gourmet. ",
+        "Um X Frango Especial Gourmet.",
+        "Estou ansioso para provar o X Frango Especial Gourmet. ",
+        "Me vê um X Frango Especial Gourmet? ",
+        "Estou decidido a pedir o X Frango Especial Gourmet.",
+        "Um X Frango Especial Gourmet com bastante molho.",
+        "Vou querer um X Frango Especial Gourmet.",
+        "me vê um X Frango Especial Gourmet.",
+        "Gostaria de um X Frango Especial Gourmet.",
+        ", me vê um X Frango Especial Gourmet.",
+        "gostaria de um X Frango Especial Gourmet.",
+        " um X Frango Especial Gourmet.",
+        ", gostaria de um X Frango Especial Gourmet.",
+        "Um X Frango Especial Gourmet.",
+        "Me vê um X Frango Especial Gourmet.",
+        "Quero um X Frango Especial Gourmet.",
+        "X Frango Especial Gourmet.",
+        "Um X Frango Especial Gourmet com bastante molho.",
+        "Um X Frango Especial Gourmet no capricho.",
+        "Acho que vou querer um X Frango Especial Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Salada Gourmet",
+      "patterns": [
+        "Me interesso por algo fresco hoje. Que tal um X Salada Gourmet?",
+        "Pode me fazer um X Salada Gourmet? ",
+        "Estou no clima para um X Salada Gourmet. ",
+        "Um X Salada Gourmet.",
+        "Gostaria de um X Salada Gourmet.",
+        "Vou de X Salada Gourmet hoje. Quero experimentar a versão gourmet da clássica salada.",
+        "Estou curioso sobre o X Salada Gourmet.",
+        "Um X Salada Gourmet parece ser a pedida certa. ",
+        "Me faz um X Salada Gourmet? ",
+        "Quero um X Salada Gourmet.",
+        "Um X Salada Gourmet com bastante molho.",
+        "Vou querer um X Salada Gourmet.",
+        "me vê um X Salada Gourmet.",
+        "Gostaria de um X Salada Gourmet.",
+        ", me vê um X Salada Gourmet.",
+        "gostaria de um X Salada Gourmet.",
+        " um X Salada Gourmet.",
+        ", gostaria de um X Salada Gourmet.",
+        "Um X Salada Gourmet.",
+        "Me vê um X Salada Gourmet.",
+        "Quero um X Salada Gourmet.",
+        "X Salada Gourmet.",
+        "Um X Salada Gourmet com bastante molho.",
+        "Um X Salada Gourmet no capricho.",
+        "Acho que vou querer um X Salada Gourmet."
+
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Salada Especial Gourmet",
+      "patterns": [
+        "Um X Salada Especial Gourmet soa incrível. ",
+        "Estou buscando algo único. Pode preparar um X Salada Especial Gourmet?",
+        "Gostaria de provar o X Salada Especial Gourmet. ",
+        "Vou querer um X Salada Especial Gourmet.",
+        "Um X Salada Especial Gourmet. ",
+        "Pode me fazer um X Salada Especial Gourmet? ",
+        "Estou decidido pelo X Salada Especial Gourmet. ",
+        "Me vê um X Salada Especial Gourmet? ",
+        "Quero experimentar o X Salada Especial Gourmet. ",
+        "Estou ansioso por um X Salada Especial Gourmet. ",
+        "Um X Salada Especial Gourmet com bastante molho.",
+        "Vou querer um X Salada Especial Gourmet.",
+        ",me vê um X Salada Especial Gourmet.",
+        "Gostaria de um X Salada Especial Gourmet.",
+        ", me vê um X Salada Especial Gourmet.",
+        "gostaria de um X Salada Especial Gourmet.",
+        " um X Salada Especial Gourmet.",
+        ", gostaria de um X Salada Especial Gourmet.",
+        "Um X Salada Especial Gourmet.",
+        "Me vê um X Salada Especial Gourmet.",
+        "Quero um X Salada Especial Gourmet.",
+        "X Salada Especial Gourmet.",
+        "Um X Salada Especial Gourmet com bastante molho.",
+        "Um X Salada Especial Gourmet no capricho.",
+        "Acho que vou querer um X Salada Especial Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "Davi Burger Triplo Gourmet",
+      "patterns": [
+        "Hoje estou com uma fome de leão. Que tal um Davi Burger Triplo Gourmet?",
+        "Um Davi Burger Triplo Gourmet. ",
+        "Gostaria de um Davi Burger Triplo Gourmet. ",
+        "Vou de Davi Burger Triplo Gourmet. ",
+        "Estou curioso sobre o Davi Burger Triplo Gourmet.",
+        "Um Davi Burger Triplo Gourmet soa como uma aventura culinária.",
+        "Pode me fazer um Davi Burger Triplo Gourmet? ",
+        "Vou querer o Davi Burger Triplo Gourmet. ",
+        "Estou decidido a experimentar o Davi Burger Triplo Gourmet. ",
+        "Me faz um Davi Burger Triplo Gourmet? ",
+        "Um Davi Burger Triplo Gourmet com bastante molho.",
+        "Vou querer um Davi Burger Triplo Gourmet.",
+        ", me vê um Davi Burger Triplo Gourmet.",
+        "Gostaria de um Davi Burger Triplo Gourmet.",
+        ", me vê um Davi Burger Triplo Gourmet.",
+        ", gostaria de um Davi Burger Triplo Gourmet.",
+        "um Davi Burger Triplo Gourmet.",
+        ", gostaria de um Davi Burger Triplo Gourmet.",
+        "Um Davi Burger Triplo Gourmet.",
+        "Me vê um Davi Burger Triplo Gourmet.",
+        "Quero um Davi Burger Triplo Gourmet.",
+        "Davi Burger Triplo Gourmet.",
+        "Um Davi Burger Triplo Gourmet com bastante molho.",
+        "Um Davi Burger Triplo Gourmet no capricho.",
+        "Acho que vou querer um Davi Burger Triplo Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "X Oback Gourmet",
+      "patterns": [
+        "Estou intrigado com o X Oback Gourmet. ",
+        "Gostaria de experimentar o X Oback Gourmet hoje. ",
+        "Um X Oback Gourmet. ",
+        "Vou de X Oback Gourmet. ",
+        "Estou no clima de provar algo novo. Que tal um X Oback Gourmet?",
+        "Pode me preparar um X Oback Gourmet? ",
+        "Me faz um X Oback Gourmet? ",
+        "Um X Oback Gourmet soa perfeito agora.",
+        "Estou decidido pelo X Oback Gourmet.",
+        "Quero um X Oback Gourmet.",
+        "Um X Oback Gourmet com bastante molho.",
+        "Vou querer um X Oback Gourmet.",
+        ", me vê um X Oback Gourmet.",
+        "Gostaria de um X Oback Gourmet.",
+        ", me vê um X Oback Gourmet.",
+        ", gostaria de um X Oback Gourmet.",
+        " um X Oback Gourmet.",
+        ", gostaria de um X Oback Gourmet.",
+        "Um X Oback Gourmet.",
+        "Me vê um X Oback Gourmet.",
+        "Quero um X Oback Gourmet.",
+        "X Oback Gourmet.",
+        "Um X Oback Gourmet com bastante molho.",
+        "Um X Oback Gourmet no capricho.",
+        "Acho que vou querer um X Oback Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Frango Especial Gourmet",
+      "patterns": [
+        "Vou querer um X Frango Especial Gourmet. ",
+        "Me interessa muito o X Frango Especial Gourmet. ",
+        "Gostaria de um X Frango Especial Gourmet. ",
+        "Um X Frango Especial Gourmet. ",
+        "Estou curioso sobre o X Frango Especial Gourmet. ",
+        "Vou de X Frango Especial Gourmet hoje. ",
+        "Pode preparar um X Frango Especial Gourmet? ",
+        "Quero provar o X Frango Especial Gourmet. ",
+        "Um X Frango Especial Gourmet parece ser a escolha certa para hoje.",
+        "Me faz um X Frango Especial Gourmet? ",
+        "Um X Frango Especial Gourmet com bastante molho.",
+        "Vou querer um X Frango Especial Gourmet.",
+        ", me vê um X Frango Especial Gourmet.",
+        "Gostaria de um X Frango Especial Gourmet.",
+        ", me vê um X Frango Especial Gourmet.",
+        ", gostaria de um X Frango Especial Gourmet.",
+        " um X Frango Especial Gourmet.",
+        ", gostaria de um X Frango Especial Gourmet.",
+        "Um X Frango Especial Gourmet.",
+        "Me vê um X Frango Especial Gourmet.",
+        "Quero um X Frango Especial Gourmet.",
+        "X Frango Especial Gourmet.",
+        "Um X Frango Especial Gourmet com bastante molho.",
+        "Um X Frango Especial Gourmet no capricho.",
+        "Acho que vou querer um X Frango Especial Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Egg Bacon Gourmet",
+      "patterns": [
+        "Estou com desejo de um X Egg Bacon Gourmet. ",
+        "Gostaria de pedir um X Egg Bacon Gourmet. Bacon e ovo é sempre uma boa ideia.",
+        "Um X Egg Bacon Gourmet. ",
+        "Vou querer um X Egg Bacon Gourmet. ",
+        "Me faz um X Egg Bacon Gourmet? ",
+        "Estou decidido a experimentar o X Egg Bacon Gourmet. ",
+        "Um X Egg Bacon Gourmet soa incrível agora. ",
+        "Pode preparar um X Egg Bacon Gourmet para mim? ",
+        "Quero um X Egg Bacon Gourmet. Parece ser o lanche gourmet que estou buscando.",
+        "Estou no clima para um X Egg Bacon Gourmet.",
+        "Um X Egg Bacon Gourmet com bastante molho.",
+        "Vou querer um X Egg Bacon Gourmet.",
+        ", me vê um X Egg Bacon Gourmet.",
+        "Gostaria de um X Egg Bacon Gourmet.",
+        ", me vê um X Egg Bacon Gourmet.",
+        ", gostaria de um X Egg Bacon Gourmet.",
+        " um X Egg Bacon Gourmet.",
+        ", gostaria de um X Egg Bacon Gourmet.",
+        "Um X Egg Bacon Gourmet.",
+        "Me vê um X Egg Bacon Gourmet.",
+        "Quero um X Egg Bacon Gourmet.",
+        "X Egg Bacon Gourmet.",
+        "Um X Egg Bacon Gourmet com bastante molho.",
+        "Um X Egg Bacon Gourmet no capricho.",
+        "Acho que vou querer um X Egg Bacon Gourmet."
+        
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Egg Gourmet",
+      "patterns": [
+        "Estou no clima de algo clássico com um toque especial. Um X Egg Gourmet.",
+        "Que tal um X Egg Gourmet para o almoço? ",
+        "Gostaria de um X Egg Gourmet. Adoro quando o ovo é feito com perfeição.",
+        "Me faz um X Egg Gourmet? ",
+        "Vou querer o X Egg Gourmet. É sempre uma boa escolha para quem ama ovos.",
+        "Um X Egg Gourmet. Estou curioso para ver a versão gourmet do clássico.",
+        "Pode preparar um X Egg Gourmet pra mim",
+        "Estou decidido a experimentar o X Egg Gourmet. P",
+        "Um X Egg Gourmet parece ser a pedida certa. ",
+        "Quero provar o X Egg Gourmet.",
+        "Um X Egg Gourmet com bastante molho.",
+        "Vou querer um X Egg Gourmet.",
+        ", me vê um X Egg Gourmet.",
+        "Gostaria de um X Egg Gourmet.",
+        ", me vê um X Egg Gourmet.",
+        ", gostaria de um X Egg Gourmet.",
+        " um X Egg Gourmet.",
+        ", gostaria de um X Egg Gourmet.",
+        "Um X Egg Gourmet.",
+        "Me vê um X Egg Gourmet.",
+        "Quero um X Egg Gourmet.",
+        "X Egg Gourmet.",
+        "Um X Egg Gourmet com bastante molho.",
+        "Um X Egg Gourmet no capricho.",
+        "Acho que vou querer um X Egg Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "Duplo Burger com Bacon Gourmet",
+      "patterns": [
+        "Um Duplo Burger com Bacon Gourmet soa como a refeição dos sonhos. ",
+        "Estou com uma fome grande hoje. Vou de Duplo Burger com Bacon Gourmet.",
+        "Gostaria de um Duplo Burger com Bacon Gourmet. Dupla de carne e bacon, perfeição!",
+        "Para mim, vai ser o Duplo Burger com Bacon Gourmet. ",
+        "Pode me preparar um Duplo Burger com Bacon Gourmet? ",
+        "Vou querer o Duplo Burger com Bacon Gourmet. ",
+        "Me faz um Duplo Burger com Bacon Gourmet? ",
+        "Um Duplo Burger com Bacon Gourmet. ",
+        "Estou decidido pelo Duplo Burger com Bacon Gourmet. ",
+        "Estou no clima de algo grande. Um Duplo Burger com Bacon Gourmet.",
+        "Um Duplo Burger com Bacon Gourmet com bastante molho.",
+        "Vou querer um Duplo Burger com Bacon Gourmet.",
+        ", me vê um Duplo Burger com Bacon Gourmet.",
+        "Gostaria de um Duplo Burger com Bacon Gourmet.",
+        ", me vê um Duplo Burger com Bacon Gourmet.",
+        ", gostaria de um Duplo Burger com Bacon Gourmet.",
+        " um Duplo Burger com Bacon Gourmet.",
+        ", gostaria de um Duplo Burger com Bacon Gourmet.",
+        "Um Duplo Burger com Bacon Gourmet.",
+        "Me vê um Duplo Burger com Bacon Gourmet.",
+        "Quero um Duplo Burger com Bacon Gourmet.",
+        "Duplo Burger com Bacon Gourmet.",
+        "Um Duplo Burger com Bacon Gourmet com bastante molho.",
+        "Um Duplo Burger com Bacon Gourmet no capricho.",
+        "Acho que vou querer um Duplo Burger com Bacon Gourmet."
+
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Alcatra com Bacon Gourmet",
+      "patterns": [
+        "Um X Alcatra com Bacon Gourmet. A combinação de alcatra e bacon deve ser divina.",
+        "Vou querer experimentar o X Alcatra com Bacon Gourmet. ",
+        "Gostaria de um X Alcatra com Bacon Gourmet. ",
+        "Pode preparar um X Alcatra com Bacon Gourmet pra mim?",
+        "Estou ansioso para provar o X Alcatra com Bacon Gourmet. ",
+        "Quero um X Alcatra com Bacon Gourmet. ",
+        "Um X Alcatra com Bacon Gourmet. ",
+        "Estou decidido a saborear um X Alcatra com Bacon Gourmet hoje. ",
+        "Me faz um X Alcatra com Bacon Gourmet?",
+        "O X Alcatra com Bacon Gourmet é a minha escolha.",
+        "Um X Alcatra com Bacon Gourmet com bastante molho.",
+        "Vou querer um X Alcatra com Bacon Gourmet.",
+        ", me vê um X Alcatra com Bacon Gourmet.",
+        "Gostaria de um X Alcatra com Bacon Gourmet.",
+        ", me vê um X Alcatra com Bacon Gourmet.",
+        ", gostaria de um X Alcatra com Bacon Gourmet.",
+        " um X Alcatra com Bacon Gourmet.",
+        ", gostaria de um X Alcatra com Bacon Gourmet.",
+        "Um X Alcatra com Bacon Gourmet.",
+        "Me vê um X Alcatra com Bacon Gourmet.",
+        "Quero um X Alcatra com Bacon Gourmet.",
+        "X Alcatra com Bacon Gourmet.",
+        "Um X Alcatra com Bacon Gourmet com bastante molho.",
+        "Um X Alcatra com Bacon Gourmet no capricho.",
+        "Acho que vou querer um X Alcatra com Bacon Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "X Alcatra Gourmet",
+      "patterns": [
+        "Estou procurando algo especial para hoje. Que tal um X Alcatra Gourmet?",
+        "Poderia me preparar um X Alcatra Gourmet?",
+        "Um X Alcatra Gourmet soa como a escolha perfeita. Adoro a qualidade da alcatra.",
+        "Gostaria de um X Alcatra Gourmet.",
+        "Estou com desejo de um X Alcatra Gourmet. ",
+        "Vou querer o X Alcatra Gourmet. ",
+        "Pode me fazer um X Alcatra Gourmet? ",
+        "Estou decidido pelo X Alcatra Gourmet hoje. ",
+        "Um X Alcatra Gourmet. ",
+        "Me vê um X Alcatra Gourmet? ",
+        "Um X Alcatra Gourmet com bastante molho.",
+        "Vou querer um X Alcatra Gourmet.",
+        ", me vê um X Alcatra Gourmet.",
+        "Gostaria de um X Alcatra Gourmet.",
+        ", me vê um X Alcatra Gourmet.",
+        ", gostaria de um X Alcatra Gourmet.",
+        " um X Alcatra Gourmet.",
+        ", gostaria de um X Alcatra Gourmet.",
+        "Um X Alcatra Gourmet.",
+        "Me vê um X Alcatra Gourmet.",
+        "Quero um X Alcatra Gourmet.",
+        "X Alcatra Gourmet.",
+        "Um X Alcatra Gourmet com bastante molho.",
+        "Um X Alcatra Gourmet no capricho.",
+        "Acho que vou querer um X Alcatra Gourmet."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "coca cola 200 ml",
+      "patterns": [
+        "Uma Coca Cola de 200ml. ",
+        "Me vê uma Coca Cola 200ml? ",
+        "Gostaria de uma Coca Cola de 200ml. ",
+        "Pode me trazer uma Coca Cola 200ml? ",
+        "Uma Coca Cola 200ml seria ótimo. ",
+        "Vou querer a Coca Cola de 200ml. ",
+        "Uma Coca Cola 200ml. ",
+        "Estou com vontade de uma Coca Cola 200ml. ",
+        "Me faz uma Coca Cola de 200ml? ",
+        "Gostaria de uma Coca Cola de 200ml.",
+        "Uma Coca-Cola de 200 ml.",
+        "Vou querer uma Coca-Cola de 200 ml.",
+        ", me vê uma Coca-Cola de 200 ml.",
+        "Gostaria de uma Coca-Cola de 200 ml.",
+        ", me vê uma Coca-Cola de 200 ml.",
+        ", gostaria de uma Coca-Cola de 200 ml.",
+        " uma Coca-Cola de 200 ml.",
+        ", gostaria de uma Coca-Cola de 200 ml.",
+        "Uma Coca-Cola de 200 ml.",
+        "Me vê uma Coca-Cola de 200 ml.",
+        "Quero uma Coca-Cola de 200 ml.",
+        "Coca-Cola de 200 ml.",
+        "Uma Coca-Cola de 200 ml.",
+        "Uma Coca-Cola de 200 ml no capricho.",
+        "Acho que vou querer uma Coca-Cola de 200 ml."
+                ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "Coca Cola 1 Litro",
+      "patterns": [
+        "Vou querer uma Coca Cola de 1 litro. ",
+        "Uma Coca Cola 1 litro seria perfeita agora. ",
+        "Gostaria de uma Coca Cola de 1 litro. ",
+        "Pode trazer uma Coca Cola de 1 litro? ",
+        "Me vê uma Coca Cola 1 litro? ",
+        "Uma Coca Cola de 1 litro.",
+        "Vamos precisar de uma Coca Cola 1 litro. ",
+        "Estou pedindo uma Coca Cola de 1 litro. ",
+        "Uma Coca Cola 1 litro. ",
+        "Gostaria de uma Coca Cola de 1 litro.",
+        "Uma Coca-Cola de 1 litro.",
+        "Vou querer uma Coca-Cola de 1 litro.",
+        ", me vê uma Coca-Cola de 1 litro.",
+        "Gostaria de uma Coca-Cola de 1 litro.",
+        ", me vê uma Coca-Cola de 1 litro.",
+        ", gostaria de uma Coca-Cola de 1 litro.",
+        " uma Coca-Cola de 1 litro.",
+        ", gostaria de uma Coca-Cola de 1 litro.",
+        "Uma Coca-Cola de 1 litro.",
+        "Me vê uma Coca-Cola de 1 litro.",
+        "Quero uma Coca-Cola de 1 litro.",
+        "Coca-Cola de 1 litro.",
+        "Uma Coca-Cola de 1 litro.",
+        "Uma Coca-Cola de 1 litro no capricho.",
+        "Acho que vou querer uma Coca-Cola de 1 litro."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "Coca Cola Original 2 Litros",
+      "patterns": [
+        "Pode me trazer uma Coca Cola Original de 2 litros? ",
+        "Uma Coca Cola Original de 2 litros. ",
+        "Gostaria de uma Coca Cola Original 2 litros. ",
+        "Vou querer a Coca Cola Original de 2 litros. ",
+        "Me faz uma Coca Cola Original de 2 litros? ",
+        "Uma Coca Cola Original 2 litros. ",
+        "Estou pedindo uma Coca Cola Original de 2 litros. ",
+        "Uma Coca Cola Original 2 litros seria ótimo. ",
+        "Pode trazer uma Coca Cola Original de 2 litros? ",
+        "Gostaria de uma Coca Cola Original de 2 litros. ",
+        "Uma Coca-Cola Original de 2 litros.",
+        "Vou querer uma Coca-Cola Original de 2 litros.",
+        ", me vê uma Coca-Cola Original de 2 litros.",
+        "Gostaria de uma Coca-Cola Original de 2 litros.",
+        ", me vê uma Coca-Cola Original de 2 litros.",
+        ", gostaria de uma Coca-Cola Original de 2 litros.",
+        " uma Coca-Cola Original de 2 litros.",
+        ", gostaria de uma Coca-Cola Original de 2 litros.",
+        "Uma Coca-Cola Original de 2 litros.",
+        "Me vê uma Coca-Cola Original de 2 litros.",
+        "Quero uma Coca-Cola Original de 2 litros.",
+        "Coca-Cola Original de 2 litros.",
+        "Uma Coca-Cola Original de 2 litros.",
+        "Uma Coca-Cola Original de 2 litros no capricho.",
+        "Acho que vou querer uma Coca-Cola Original de 2 litros."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "Coca Cola Original 350ml lata",
+      "patterns": [
+        "Me vê uma Coca Cola lata Original de 350ml. ",
+        "Uma Coca Cola Original  lata 350ml seria ótimo agora. ",
+        "Pode me trazer uma Coca Cola Original lata de 350ml? ",
+        "Gostaria de uma Coca Cola Original lata 350ml. ",
+        "Uma Coca Cola lata de 350ml.",
+        "Estou com sede. Uma Coca Cola Original lata de 350ml resolveria isso bem.",
+        "Quero uma Coca Cola Original 350ml. ",
+        "Pode preparar uma Coca Cola Original lata 350ml pra mim? ",
+        "Uma Coca Cola Original lata 350ml. ",
+        "Vou querer a Coca Cola Original lata de 350ml. ",
+        "Uma lata de Coca-Cola Original de 350 ml.",
+        "Vou querer uma lata de Coca-Cola Original de 350 ml.",
+        ", me vê uma lata de Coca-Cola Original de 350 ml.",
+        "Gostaria de uma lata de Coca-Cola Original de 350 ml.",
+        ", me vê uma lata de Coca-Cola Original de 350 ml.",
+        ", gostaria de uma lata de Coca-Cola Original de 350 ml.",
+        " uma lata de Coca-Cola Original de 350 ml.",
+        ", gostaria de uma lata de Coca-Cola Original de 350 ml.",
+        "Uma lata de Coca-Cola Original de 350 ml.",
+        "Me vê uma lata de Coca-Cola Original de 350 ml.",
+        "Quero uma lata de Coca-Cola Original de 350 ml.",
+        "Coca-Cola Original de 350 ml.",
+        "Uma lata de Coca-Cola Original de 350 ml.",
+        "Uma lata de Coca-Cola Original de 350 ml no capricho.",
+        "Acho que vou querer uma lata de Coca-Cola Original de 350 ml."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },
+    {
+      "tag": "Coca Cola Original 600ml",
+      "patterns": [
+        "Me vê uma Coca Cola lata Original de 350ml. ",
+        "Uma Coca Cola Original  lata 350ml seria ótimo agora. ",
+        "Pode me trazer uma Coca Cola Original lata de 350ml? ",
+        "Gostaria de uma Coca Cola Original lata 350ml. ",
+        "Uma Coca Cola lata de 350ml. ",
+        "Estou com sede. Uma Coca Cola Original lata de 350ml resolveria isso bem.",
+        "Quero uma Coca Cola Original 350ml. ",
+        "Pode preparar uma Coca Cola Original lata 350ml pra mim? ",
+        "Uma Coca Cola Original lata 350ml. ",
+        "Vou querer a Coca Cola Original lata de 350ml.",
+        "Uma garrafa de Coca-Cola Original de 600 ml.",
+        "Vou querer uma garrafa de Coca-Cola Original de 600 ml.",
+        ", me vê uma garrafa de Coca-Cola Original de 600 ml.",
+        "Gostaria de uma garrafa de Coca-Cola Original de 600 ml.",
+        ", me vê uma garrafa de Coca-Cola Original de 600 ml.",
+        ", gostaria de uma garrafa de Coca-Cola Original de 600 ml.",
+        " uma garrafa de Coca-Cola Original de 600 ml.",
+        ", gostaria de uma garrafa de Coca-Cola Original de 600 ml.",
+        "Uma garrafa de Coca-Cola Original de 600 ml.",
+        "Me vê uma garrafa de Coca-Cola Original de 600 ml.",
+        "Quero uma garrafa de Coca-Cola Original de 600 ml.",
+        "Coca-Cola Original de 600 ml.",
+        "Uma garrafa de Coca-Cola Original de 600 ml.",
+        "Uma garrafa de Coca-Cola Original de 600 ml no capricho.",
+        "Acho que vou querer uma garrafa de Coca-Cola Original de 600 ml."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    }, {
+      "tag": "Coca Cola lata Zero 350ml",
+      "patterns": [
+        "Me faz uma Coca Cola lata Zero de 350ml. ",
+        "Uma Coca Cola lata Zero 350ml seria ótima. ",
+        "Pode me trazer uma Coca Cola lata Zero de 350ml?",
+        "Gostaria de uma Coca Cola lata Zero 350ml. ",
+        "Vou querer uma Coca Cola lata Zero 350ml. ",
+        "Uma Coca Cola lata Zero de 350ml. ",
+        "Estou com vontade de uma Coca Cola lata Zero 350ml. ",
+        "Quero uma Coca Cola lata Zero de 350ml.",
+        "Pode preparar uma Coca Cola lata Zero 350ml pra mim? ",
+        "Uma Coca Cola lata Zero 350ml. ",
+        "Uma lata de Coca-Cola Zero de 350 ml.",
+        "Vou querer uma lata de Coca-Cola Zero de 350 ml.",
+        ", me vê uma lata de Coca-Cola Zero de 350 ml.",
+        "Gostaria de uma lata de Coca-Cola Zero de 350 ml.",
+        ", me vê uma lata de Coca-Cola Zero de 350 ml.",
+        ", gostaria de uma lata de Coca-Cola Zero de 350 ml.",
+        " uma lata de Coca-Cola Zero de 350 ml.",
+        ", gostaria de uma lata de Coca-Cola Zero de 350 ml.",
+        "Uma lata de Coca-Cola Zero de 350 ml.",
+        "Me vê uma lata de Coca-Cola Zero de 350 ml.",
+        "Quero uma lata de Coca-Cola Zero de 350 ml.",
+        "Coca-Cola Zero de 350 ml.",
+        "Uma lata de Coca-Cola Zero de 350 ml.",
+        "Uma lata de Coca-Cola Zero de 350 ml no capricho.",
+        "Acho que vou querer uma lata de Coca-Cola Zero de 350 ml."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "Coca Cola Zero 600ml",
+      "patterns": [
+        "Me faz uma Coca Cola Zero de 600ml. ",
+        "Gostaria de uma Coca Cola Zero 600ml. ",
+        "Uma Coca Cola Zero de 600ml. ",
+        "Pode me trazer uma Coca Cola Zero 600ml?",
+        "Vou querer uma Coca Cola Zero 600ml.",
+        "Quero uma Coca Cola Zero de 600ml. ",
+        "Estou com uma sede! Uma Coca Cola Zero de 600ml deve resolver.",
+        "Uma Coca Cola Zero 600ml seria ótima. ",
+        "Pode preparar uma Coca Cola Zero 600ml pra mim? ",
+        "Me vê uma Coca Cola Zero de 600ml. ",
+        "Uma garrafa de Coca-Cola Zero de 600 ml.",
+        "Vou querer uma garrafa de Coca-Cola Zero de 600 ml.",
+        ", me vê uma garrafa de Coca-Cola Zero de 600 ml.",
+        "Gostaria de uma garrafa de Coca-Cola Zero de 600 ml.",
+        ", me vê uma garrafa de Coca-Cola Zero de 600 ml.",
+        ", gostaria de uma garrafa de Coca-Cola Zero de 600 ml.",
+        " uma garrafa de Coca-Cola Zero de 600 ml.",
+        ", gostaria de uma garrafa de Coca-Cola Zero de 600 ml.",
+        "Uma garrafa de Coca-Cola Zero de 600 ml.",
+        "Me vê uma garrafa de Coca-Cola Zero de 600 ml.",
+        "Quero uma garrafa de Coca-Cola Zero de 600 ml.",
+        "Coca-Cola Zero de 600 ml.",
+        "Uma garrafa de Coca-Cola Zero de 600 ml.",
+        "Uma garrafa de Coca-Cola Zero de 600 ml no capricho.",
+        "Acho que vou querer uma garrafa de Coca-Cola Zero de 600 ml."
+        ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    },{
+      "tag": "Refrigerante Guaraná Conquista Garrafa 2 Litros",
+      "patterns": [
+        "Gostaria de um Refrigerante Guaraná Conquista de 2 litros. ",
+        "Um Guaraná Conquista de 2 litros.",
+        "Vou querer um Guaraná Conquista Garrafa de 2 Litros.",
+        "Pode me trazer um Guaraná Conquista de 2 Litros? ",
+        "Me faz um Guaraná Conquista de 2 Litros. ",
+        "Gostaria de um Guaraná Conquista de 2 Litros. ",
+        "Um Guaraná Conquista Garrafa de 2 Litros.",
+        "Quero um Guaraná Conquista de 2 Litros.",
+        "Pode preparar um Guaraná Conquista de 2 Litros pra mim? ",
+        "Estou organizando um pequeno encontro. Um Guaraná Conquista de 2 Litros seria ótimo.",
+        "Uma garrafa de Guaraná Conquista de 2 litros.",
+        "Vou querer uma garrafa de Guaraná Conquista de 2 litros.",
+        ", me vê uma garrafa de Guaraná Conquista de 2 litros.",
+        "Gostaria de uma garrafa de Guaraná Conquista de 2 litros.",
+        ", me vê uma garrafa de Guaraná Conquista de 2 litros.",
+        ", gostaria de uma garrafa de Guaraná Conquista de 2 litros.",
+        " uma garrafa de Guaraná Conquista de 2 litros.",
+        ", gostaria de uma garrafa de Guaraná Conquista de 2 litros.",
+        "Uma garrafa de Guaraná Conquista de 2 litros.",
+        "Me vê uma garrafa de Guaraná Conquista de 2 litros.",
+        "Quero uma garrafa de Guaraná Conquista de 2 litros.",
+        "Guaraná Conquista de 2 litros.",
+        "Uma garrafa de Guaraná Conquista de 2 litros.",
+        "Uma garrafa de Guaraná Conquista de 2 litros no capricho.",
+        "Acho que vou querer uma garrafa de Guaraná Conquista de 2 litros."
+      ],
+
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    } ,{
+      "tag": "Sprite lata Original 350ml",
+      "patterns": [
+        "Uma Sprite lata  Original de 350ml. Nada como uma Sprite para refrescar.",
+        "Gostaria de uma Sprite Original 350ml. ",
+        "Me vê uma Sprite lata Original de 350ml",
+        "Me vê uma Sprite lata Original de 350ml. ",
+        "Uma Sprite lata Original 350ml seria perfeita agora para matar a sede.",
+        "Pode me trazer uma Sprite Original lata de 350ml? ",
+        "Gostaria de uma Sprite lata Original 350ml. ",
+        "Vou querer uma Sprite lata Original de 350ml. ",
+        "Quero uma Sprite lata Original 350ml. ",
+        "Uma Sprite lata Original de 350ml. ",
+        "Pode preparar uma Sprite lata Original 350ml pra mim? ",
+        "Uma lata de Sprite Original de 350 ml.",
+        "Vou querer uma lata de Sprite Original de 350 ml.",
+        "me vê uma lata de Sprite Original de 350 ml.",
+        "Gostaria de uma lata de Sprite Original de 350 ml.",
+        "me vê uma lata de Sprite Original de 350 ml.",
+        "gostaria de uma lata de Sprite Original de 350 ml.",
+        "uma lata de Sprite Original de 350 ml.",
+        "gostaria de uma lata de Sprite Original de 350 ml.",
+        "Uma lata de Sprite Original de 350 ml.",
+        "Me vê uma lata de Sprite Original de 350 ml.",
+        "Quero uma lata de Sprite Original de 350 ml.",
+        "Sprite Original de 350 ml.",
+        "Uma lata de Sprite Original de 350 ml.",
+        "Uma lata de Sprite Original de 350 ml no capricho.",
+        "Acho que vou querer uma lata de Sprite Original de 350 ml."
+      ],
+      "responses": [
+        "Perfeito!!!",
+        "Otimo pedido",
+        "Otimo!! Seu pedido foi anotado!"
+      ]
+    }
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+
+
+
+    
+
+
+
+
+
+    
+        
+          ]
+        }
+        
+    
+
