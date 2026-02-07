@@ -193,6 +193,7 @@ def robot_konus(metin):
             print(f"❌ SES HATASI: {e}")
     threading.Thread(target=_konus_thread, daemon=True).start()
 
+
 class Veritabani:
     def __init__(self):
         self.tablo_olustur()
@@ -621,14 +622,44 @@ class RestoranUI(QMainWindow):
         else: robot_konus(s.get("mesaj", "OK."))
 
     def siparisi_tamamla(self):
-        if not self.sepet: robot_konus(tr("cart_empty")); return
-        for k, v in self.sepet.items(): self.db.stogu_dus(v['id'], v['adet'])
-        tutar = self.lbl_toplam.text().replace(f" {tr('currency')}", "").replace(" ₺", "")
-        # Socket...
-        robot_konus(tr("order_received").format(tutar=tutar, currency=tr('currency')))
-        self.sepet={}; self.sepeti_guncelle_ui(); self.menuyu_yukle()
-        # Return to home after 10s
-        QTimer.singleShot(10000, lambda: self.central_stack.setCurrentWidget(self.home_screen))
+
+        if not self.sepet:
+            robot_konus(tr("cart_empty"))
+            return
+
+        try:
+            # ⭐ Toplamı önce hesapla
+            toplam = sum(v["fiyat"] * v["adet"] for v in self.sepet.values())
+
+            # ⭐ KDS formatına uygun JSON oluştur
+            siparis_json = {
+                "masa": "05",
+                "sepet": {}
+            }
+
+            for ad, veri in self.sepet.items():
+                siparis_json["sepet"][ad] = {
+                    "adet": veri["adet"]
+                }
+
+            print("MUTFAĞA GİDEN:", siparis_json)
+
+            # ⭐ Socket ile mutfağa gönder
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((MUTFAK_IP, MUTFAK_PORT))
+                s.sendall(json.dumps(siparis_json).encode("utf-8"))
+
+            # ⭐ Sepeti temizle
+            self.sepet.clear()
+            self.sepeti_guncelle_ui()
+
+            robot_konus(tr("order_received").format(
+                tutar=f"{toplam:.2f}",
+                currency=tr("currency")
+            ))
+
+        except Exception as e:
+            print("Mutfak gönderim hatası:", e) 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
