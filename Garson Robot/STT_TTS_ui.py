@@ -35,18 +35,24 @@ from PyQt6.QtGui import QIcon, QFont, QColor, QPixmap, QImage, QPainter, QPainte
 
 # --- AYARLAR ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(BASE_DIR, "restoran.db")
-MODEL_NAME = "llama3.2:3b" 
-IMG_KLASORU = os.path.join(BASE_DIR, "img")
+
+# Dinamik Ayarları Yükle
+CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
+try:
+    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+        CONFIG = json.load(f)
+except Exception as e:
+    print(f"Config yüklenemedi: {e}")
+    CONFIG = {}
+
+DB_FILE = os.path.join(BASE_DIR, CONFIG.get("db_name", "restoran.db"))
+MODEL_NAME = CONFIG.get("llm_model", "llama3.2:3b")
+IMG_KLASORU = os.path.join(BASE_DIR, CONFIG.get("image_folder", "img"))
+API_URL = CONFIG.get("api_url", "http://127.0.0.1:8081/api/orders")
 SES_DOSYASI = "gecici_ses.mp3" 
 
-MUTFAK_IP = '127.0.0.1' 
-MUTFAK_PORT = 65432
-
-NEGATIF_KELIMELER = ["istemiyorum", "sil", "çıkar", "iptal", "vazgeçtim", "kalsın", "geri al"]
-BITIRME_KELIMELERI = ["onay", "onaylı", "onayladı", "tamam", "hesap", "bitti", "gönder", "siparişi geç", "sipariş"]
-NEGATIVE_WORDS_EN = ["no", "delete", "remove", "cancel", "change my mind", "stop"]
-FINISH_WORDS_EN = ["ok", "okay", "confirm", "confirmed", "check", "bill", "finish", "send", "order"]
+MUTFAK_IP = CONFIG.get("mutfak_ip", "127.0.0.1")
+MUTFAK_PORT = CONFIG.get("mutfak_port", 65432)
 
 try: pygame.mixer.init(frequency=24000)
 except: pass
@@ -54,54 +60,13 @@ except: pass
 # --------------------------------------------------
 # DİL YÖNETİCİSİ (LANGUAGE MANAGER)
 # --------------------------------------------------
-LANG = {
-    "TR": {
-        "welcome_title": "Hoş Geldiniz",
-        "welcome_sub": "Lütfen dil seçiniz / Please select language",
-        "home": "Ana Sayfa",
-        "menu": "Menü",
-        "settings": "Ayarlar",
-        "header_title": "Lezzet Dünyası",
-        "header_sub": "Bugün ne yemek istersiniz?",
-        "status_ready": "Hazır",
-        "cart_title": "Sipariş Özeti",
-        "table_no": "Masa No: 05",
-        "voice_btn": "  Sesle Analiz Et",
-        "pay_btn": "  Ödemeye Geç",
-        "listening": "Dinliyorum...",
-        "processing": "İşleniyor...",
-        "added": "eklendi.",
-        "no_stock": "tükendi.",
-        "not_found": "bulunamadı.",
-        "cart_empty": "Sepetiniz boş efendim.",
-        "order_received": "Siparişiniz alındı. Toplam {tutar} {currency}. Afiyet olsun!",
-        "bot_welcome": "Garson Robot hizmetinizde. Ne arzu edersiniz?",
-        "currency": "TL"
-    },
-    "EN": {
-        "welcome_title": "Welcome",
-        "welcome_sub": "Please select language",
-        "home": "Home",
-        "menu": "Menu",
-        "settings": "Settings",
-        "header_title": "World of Flavor",
-        "header_sub": "What would you like to eat today?",
-        "status_ready": "Ready",
-        "cart_title": "Order Summary",
-        "table_no": "Table No: 05",
-        "voice_btn": "  Voice Order",
-        "pay_btn": "  Checkout",
-        "listening": "Listening...",
-        "processing": "Processing...",
-        "added": "added.",
-        "no_stock": "out of stock.",
-        "not_found": "not found.",
-        "cart_empty": "Your cart is empty, sir.",
-        "order_received": "Order received. Total {tutar} {currency}. Enjoy your meal!",
-        "bot_welcome": "Waiter Robot at your service. What would you like?",
-        "currency": "TRY"
-    }
-}
+LOCALES_FILE = os.path.join(BASE_DIR, "locales.json")
+try:
+    with open(LOCALES_FILE, "r", encoding="utf-8") as f:
+        LANG = json.load(f)
+except Exception as e:
+    print(f"Dil dosyası yüklenemedi: {e}")
+    LANG = {"TR": {}, "EN": {}}
 
 CURRENT_LANG = "TR"
 
@@ -116,82 +81,74 @@ def llm_ile_analiz_et(metin, menu_listesi):
     print(f"\n📝 ALGILANAN SES ({CURRENT_LANG}): {metin}")
     metin_lower = metin.lower()
     
-    # Dil bazlı kelime kontrolleri
-    negative = NEGATIF_KELIMELER if CURRENT_LANG == "TR" else NEGATIVE_WORDS_EN
-    finish = BITIRME_KELIMELERI if CURRENT_LANG == "TR" else FINISH_WORDS_EN
-    
-    if any(k in metin_lower for k in finish):
-        msg = "Siparişinizi onayladım." if CURRENT_LANG == "TR" else "Order confirmed."
-        return {"urunler": [], "bitir": True, "mesaj": msg}
-
-    islem_tipi = "ekle"
-    if any(k in metin_lower for k in negative):
-        islem_tipi = "cikar"
-
     import datetime
     su_an = datetime.datetime.now()
     saat_bilgisi = su_an.strftime("%H:%M")
-    zaman_mesaji_tr = "Sabah (kahvaltı)" if 6 <= su_an.hour < 11 else "Öğle/Akşam (ana yemek)" if 11 <= su_an.hour < 22 else "Gece (hafif atıştırmalık)"
-    zaman_mesaji_en = "Morning (breakfast)" if 6 <= su_an.hour < 11 else "Noon/Evening (main course)" if 11 <= su_an.hour < 22 else "Night (light snack)"
+    zaman_anahtari = "morning" if 6 <= su_an.hour < 11 else "noon" if 11 <= su_an.hour < 22 else "night"
+    zaman_mesaji = tr(zaman_anahtari)
 
-    # Dil bazlı Prompt
-    if CURRENT_LANG == "TR":
-        sys_prompt = f"""
-        Sen zeki bir restoran sipariş asistanısın.
-        ŞU ANKİ SAAT: {saat_bilgisi} ({zaman_mesaji_tr})
-        MENÜ: [{menu_isimleri}]
-        
-        GÖREVLER:
-        1. Cümleden ürün adını ve miktarını çıkar.
-        2. Çapraz Satış (Cross-Selling) yap: Eğer müşteri sadece ana yemek (Hamburger, Pizza, Lahmacun vb.) istiyorsa yanına menüden uygun bir içecek öner (örn: "Hamburgerinizin yanına soğuk bir kola ister misiniz?"). Sadece içecek istiyorsa atıştırmalık/tatlı önermeye çalış. Eğer müşteri doğrudan içecek de istiyorsa fazladan teklif yapma.
-        3. Siparişi onaylat: Eğer çapraz satış yapmıyorsan veya müşteri onay aşamasına geldiyse, sepeti özetle ve "Siparişinizi onaylıyor musunuz?" diye sor.
-        
-        JSON FORMATI: 
-        {{ 
-          "urunler": [ {{ "ad": "Ürün Adı", "adet": 1 }} ], 
-          "mesaj": "Müşteriye söylenecek çapraz satış veya onay cümlesi. (Eğer özel bir şey yoksa 'tamam' yaz)"
-        }}
-
-        SESLİ CÜMLE: "{metin}"
-        """
+    # Prompt dosyasını oku
+    prompt_file = os.path.join(BASE_DIR, "prompts", f"prompt_{CURRENT_LANG.lower()}.txt")
+    if os.path.exists(prompt_file):
+        with open(prompt_file, "r", encoding="utf-8") as f:
+            sys_prompt_template = f.read()
     else:
-        sys_prompt = f"""
-        You are a smart restaurant waiter robot.
-        CURRENT TIME: {saat_bilgisi} ({zaman_mesaji_en})
-        MENU: [{menu_isimleri}]
+        sys_prompt_template = "Müşteri: {metin}" # Fallback
         
-        TASKS:
-        1. Extract product name and quantity from the sentence.
-        2. Cross-Selling: If the user only orders a main course (e.g., Hamburger, Pizza), suggest a drink from the menu (e.g., "Would you like a cold Coke with your Hamburger?"). If they only order a drink, suggest a snack. If they already ordered both, skip this.
-        3. Confirmation: Summarize the order and ask "Do you confirm your order?" before concluding.
-        
-        JSON FORMAT: 
-        {{ 
-          "urunler": [ {{ "ad": "Product Name (Match Menu Exact)", "adet": 1 }} ], 
-          "mesaj": "The cross-sell or confirmation message to speak to the customer. (If nothing special, write 'ok')"
-        }}
-
-        SENTENCE: "{metin}"
-        """
+    sys_prompt = sys_prompt_template.format(
+        saat_bilgisi=saat_bilgisi,
+        zaman_mesaji=zaman_mesaji,
+        menu_isimleri=menu_isimleri,
+        metin=metin
+    )
 
     try:
         response = ollama.chat(
             model=MODEL_NAME, 
             messages=[{'role': 'user', 'content': sys_prompt}],
             format='json',
-            options={'temperature': 0.1}
+            options={'temperature': CONFIG.get("llm_temperature", 0.0)}
         )
-        data = json.loads(response['message']['content'])
-        if "urunler" in data:
-            for urun in data["urunler"]:
-                urun["islem"] = islem_tipi
-        data["bitir"] = False
-        return data
+        
+        # Parse output from the Strict Parser model
+        raw_content = response['message']['content'].strip()
+        # In case the model wraps the response in markdown blocks
+        if raw_content.startswith("```json"):
+            raw_content = raw_content[7:]
+        if raw_content.startswith("```"):
+            raw_content = raw_content[3:]
+        if raw_content.endswith("```"):
+            raw_content = raw_content[:-3]
+            
+        data = json.loads(raw_content.strip())
+        intent = data.get("intent", "none")
+        items = data.get("items", [])
+        
+        # Map back to old expected format
+        mapped_data = {
+            "urunler": [],
+            "bitir": (intent == "checkout"),
+            "mesaj": "" # Dynamically generated downstream
+        }
+        
+        for item in items:
+            mapped_data["urunler"].append({
+                "ad": item.get("name", ""),
+                "adet": item.get("quantity", 1),
+                "islem": "cikar" if intent == "remove" else "ekle"
+            })
+            
+        # Fallback to keyword matching if LLM failed to catch checkout
+        finish = LANG[CURRENT_LANG].get("finish_words", [])
+        if not mapped_data["bitir"] and any(k in metin_lower for k in finish):
+            mapped_data["bitir"] = True
+            mapped_data["urunler"] = []
+            
+        return mapped_data
 
     except Exception as e:
         print(f"❌ LLM HATASI: {e}")
-        msg = "Anlaşılmadı." if CURRENT_LANG == "TR" else "Not understood."
-        return {"urunler": [], "bitir": False, "mesaj": msg}
+        return {"urunler": [], "bitir": False, "mesaj": ""}
 
 class QRScannerThread(QThread):
     qr_bulundu = pyqtSignal(str)
@@ -202,7 +159,7 @@ class QRScannerThread(QThread):
 
     def run(self):
         try:
-            cap = cv2.VideoCapture(0)
+            cap = cv2.VideoCapture(CONFIG.get("camera_id", 0))
             if not cap.isOpened():
                 print("⚠️ Kamera açılamadı, QR okuyucu devre dışı.")
                 return
@@ -252,9 +209,9 @@ def robot_konus(metin):
             dosya_ismi = os.path.join(BASE_DIR, f"konusma_{int(time.time())}_{random.randint(100,999)}.mp3")
             
             # Dil bazlı ses seçimi
-            voice = "tr-TR-AhmetNeural" if CURRENT_LANG == "TR" else "en-US-GuyNeural"
+            voice = tr("voice")
             
-            komut = f'edge-tts --voice {voice} --text "{metin}" --write-media "{dosya_ismi}" --rate=+10%'
+            komut = f'edge-tts --voice {voice} --text "{metin}" --write-media "{dosya_ismi}" --rate=+25%'
             subprocess.run(komut, shell=True, check=True)
             
             time.sleep(0.2)
@@ -268,66 +225,66 @@ def robot_konus(metin):
 
 class Veritabani:
     def __init__(self):
-        self.tablo_olustur()
+        # Artık lokal SQLite yerine REST API kullanılacak. Tablo oluşturmaya gerek yok.
+        pass
 
-    def baglan(self): self.conn = sqlite3.connect(DB_FILE); return self.conn.cursor()
-    def kapat(self): self.conn.close()
+    def baglan(self): pass
+    def kapat(self): pass
     
     def tablo_olustur(self):
-        try:
-            cur = self.baglan()
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS menu (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    ad TEXT,
-                    fiyat REAL,
-                    stok INTEGER
-                )
-            """)
-            cur.execute("SELECT count(*) FROM menu")
-            if cur.fetchone()[0] == 0:
-                ornekler = [("Hamburger", 250, 50), ("Pizza", 320, 20), ("Lahmacun", 75, 100), ("Kola", 50, 200), ("Ayran", 30, 150), ("Su", 15, 500), ("Çay", 25, 300), ("Kahve", 80, 100)]
-                cur.executemany("INSERT INTO menu (ad, fiyat, stok) VALUES (?, ?, ?)", ornekler)
-                self.conn.commit()
-            self.kapat()
-        except Exception as e:
-            print(f"Tablo oluşturma hatası: {e}")
+        pass
 
     def menu_getir(self):
-        cur = self.baglan(); cur.execute("SELECT id, ad, fiyat, COALESCE(stok, 0) as stok FROM menu")
-        d = cur.fetchall(); self.kapat(); return d
+        # Backend'den menüyü çek
+        import requests
+        try:
+            res = requests.get("http://127.0.0.1:8081/api/products", timeout=3)
+            if res.status_code == 200:
+                data = res.json()
+                # Arayüzün beklediği format: [(id, ad, fiyat, stok), ...]
+                return [(item['id'], item['name'], item['price'], item['stock']) for item in data]
+        except Exception as e:
+            print(f"Menü backendden alınamadı: {e}")
+        return []
 
     def stok_ve_fiyat_bilgisi_akilli(self, urun_adi):
-        cur = self.baglan()
-        cur.execute("SELECT id, ad, stok, fiyat FROM menu WHERE LOWER(ad) = LOWER(?)", (urun_adi,))
-        r = cur.fetchone()
-        if not r:
-            kelimeler = urun_adi.split()
+        menu = self.menu_getir()
+        for u in menu:
+            if u[1].lower() == urun_adi.lower(): return u
+        
+        # Kelime bazlı arama
+        kelimeler = urun_adi.split()
+        for u in menu:
             for kelime in kelimeler:
-                if len(kelime) > 2:
-                    cur.execute("SELECT id, ad, stok, fiyat FROM menu WHERE LOWER(ad) LIKE LOWER(?)", (f"%{kelime}%",))
-                    r = cur.fetchone()
-                    if r: break
-        self.kapat(); return r
+                if len(kelime) > 2 and kelime.lower() in u[1].lower():
+                    return u
+        return None
 
     def stogu_dus(self, urun_id, adet):
-        cur = self.baglan(); cur.execute("UPDATE menu SET stok = stok - ? WHERE id=?", (adet, urun_id)); self.conn.commit(); self.kapat()
+        import requests
+        # Arayüzdeki ürün bilgisini alarak güncel stoğu hesaplayıp PUT isteği at
+        # STT_TTS_ui sınıfındaki 'sepet' üzerinden alınan bilgiyle stok düşme işi Backend üzerinden yönetilmeli
+        # Bu fonksiyon geçici olarak kullanımsız bırakılabilir çünkü sipariş tamamlandığında Backend (Java) siparişleri alıyor.
+        # Java'da sipariş eklendiğinde OrderService'in stokları kendisinin düşmesi daha mantıklı. (Sonraki adım)
+        pass
 
 class SesWorker(QThread):
     sonuc_sinyali = pyqtSignal(str); durum_sinyali = pyqtSignal(str)
     def run(self):
         r = sr.Recognizer(); r.pause_threshold = 2.0
-        lang_code = "tr-TR" if CURRENT_LANG == "TR" else "en-US"
+        lang_code = tr("speech_lang")
         try:
             with sr.Microphone() as source:
                 r.adjust_for_ambient_noise(source, duration=0.5)
                 self.durum_sinyali.emit(tr("listening"))
-                audio = r.listen(source, timeout=5, phrase_time_limit=5)
+                # phrase_time_limit'i 5 saniyeden 15 saniyeye çıkarıyoruz, timeout'u 8 saniye yapıyoruz.
+                # Böylece müşteri düşünürken veya uzun sipariş verirken kesilmemiş olur.
+                audio = r.listen(source, timeout=8, phrase_time_limit=15)
                 self.durum_sinyali.emit(tr("processing"))
                 text = r.recognize_google(audio, language=lang_code)
                 self.sonuc_sinyali.emit(text)
         except:
-            self.durum_sinyali.emit("Ses yok."); self.sonuc_sinyali.emit("") 
+            self.durum_sinyali.emit(tr("no_voice")); self.sonuc_sinyali.emit("") 
 
 class LLMWorker(QThread):
     islem_bitti_sinyali = pyqtSignal(dict)
@@ -550,7 +507,7 @@ class RestoranUI(QMainWindow):
             self.table_lbl.setText(f"{tr('table_no').split(':')[0]}: {masa_no}")
             
             # Sesli bildirim
-            msg = f"Masa {masa_no} tespit edildi." if CURRENT_LANG == "TR" else f"Table {masa_no} detected."
+            msg = tr("table_detected").format(masa_no=masa_no)
             robot_konus(msg)
 
     def app_ui_setup(self, parent):
@@ -680,42 +637,66 @@ class RestoranUI(QMainWindow):
     def sesi_isle(self, metin):
         self.btn_mic.setEnabled(True); self.btn_mic.setText(tr("voice_btn")); self.btn_mic.setStyleSheet("background-color: #5f27cd; color: white; border-radius: 12px; font-weight: bold;")
         if not metin: return
-        self.lbl_durum.setText(f"Algılandı: {metin}")
+        self.lbl_durum.setText(tr("detected") + f" {metin}")
         self.llm_w = LLMWorker(metin, self.db.menu_getir())
         self.llm_w.islem_bitti_sinyali.connect(self.llm_sonucunu_uygula); self.llm_w.start()
 
     def llm_sonucunu_uygula(self, s):
-        if s.get("bitir"): self.siparisi_tamamla(); return
+        if s.get("bitir"): 
+            self.siparisi_tamamla(s.get("mesaj", ""))
+            return
         konusma = []
-        for u in s.get("urunler", []):
+        
+        urunler = s.get("urunler", [])
+
+        # Sadece LLM'in ürettiği insan dostu mesajı oku, eğer o yoksa varsayılan metinleri oku
+        for u in urunler:
             try:
-                # Remove quotes if name came with them (rare in json mode but possible)
                 ad = u['ad'].replace("'", "").strip()
                 adet = int(u.get('adet', 1))
+                # Fallback dictionary key
                 islem = u.get('islem', 'ekle')
-                
-                # Check DB for close match to handle English pronunciations (e.g. "Tea" -> "Çay" mapping needs advanced logic, 
-                # but for now we assume they say "Hamburger" or "Pizza" which are universal, or learn Turkish names)
-                # *Ideally, we should map EN names to TR DB names, but keeping it simple as requested.*
                 
                 bilgi = self.db.stok_ve_fiyat_bilgisi_akilli(ad)
                 if bilgi:
                     if islem == 'cikar': 
-                        # Logic reuse for remove
                         if ad in self.sepet:
                              y = self.sepet[ad]['adet'] - adet
                              if y<=0: self.sepetten_urun_sil(ad)
                              else: self.sepete_urun_guncelle(ad, y)
                     else: 
-                        self.sepete_urun_ekle(bilgi[1], bilgi[3], bilgi[0], adet)
-                        konusma.append(f"{bilgi[1]} {tr('added')}")
+                        # bilgi tuple yapısı: (id, ad, fiyat, stok)
+                        self.sepete_urun_ekle(bilgi[1], bilgi[2], bilgi[0], adet)
+                        konusma.append(f"{adet} {bilgi[1]} {tr('added')}")
                 else: 
-                     konusma.append(f"{ad} {tr('not_found')}")
-            except: pass
-        if konusma: robot_konus(" ".join(konusma))
-        else: robot_konus(s.get("mesaj", "OK."))
+                     print(f"{ad} bulunamadı")
+            except Exception as e: 
+                 print(f"Ürün işleme hatası: {e}")
 
-    def siparisi_tamamla(self):
+        # Yeni Strict Parser yapısında mesaj LLM'den gelmiyor, Python'da dinamik oluşturuyoruz
+        hic_urun_eklenmedi = (len(urunler) == 0)
+        final_mesaj = ""
+        
+        if konusma:
+             final_mesaj = ". ".join(konusma) + ". "
+             
+        if not s.get("bitir") and not hic_urun_eklenmedi:
+             final_mesaj += tr("anything_else") if tr("anything_else") != "anything_else" else "Başka bir şey ister misiniz?"
+        elif hic_urun_eklenmedi and not s.get("bitir"):
+             final_mesaj = tr("not_understood") if tr("not_understood") != "not_understood" else "Tam anlayamadım, siparişinizi tekrar eder misiniz?"
+
+        if final_mesaj:
+            robot_konus(final_mesaj)
+             
+        hic_urun_eklenmedi = (len(urunler) == 0)
+            
+        # Kararsızlık durumu: Ürün yoksa ve bitir demediyse hızlıca tekrar dinle
+        if hic_urun_eklenmedi and not s.get("bitir"):
+            # Kelime sayısına göre dinamik bekleme süresi oluştur (yaklaşık saniyede 15 harf + Edge TTS gecikmesi)
+            bekleme = max(3000, len(final_mesaj) * 75)
+            QTimer.singleShot(int(bekleme), self.sesli_baslat)
+
+    def siparisi_tamamla(self, final_msg=""):
 
         if not self.sepet:
             robot_konus(tr("cart_empty"))
@@ -744,8 +725,7 @@ class RestoranUI(QMainWindow):
             # ⭐ REST API (Spring Boot) POST İsteği
             try:
                 import requests
-                # Spring Boot varsayılan portu 8080 olarak kabul ediliyor
-                response = requests.post("http://127.0.0.1:8081/api/orders", json=siparis_json, timeout=3)
+                response = requests.post(API_URL, json=siparis_json, timeout=3)
                 if response.status_code in [200, 201]:
                     print("✅ Sipariş Spring Boot'a başarıyla iletildi.")
                 else:
@@ -757,10 +737,16 @@ class RestoranUI(QMainWindow):
             self.sepet.clear()
             self.sepeti_guncelle_ui()
 
-            robot_konus(tr("order_received").format(
-                tutar=f"{toplam:.2f}",
-                currency=tr("currency")
-            ))
+            if final_msg:
+                robot_konus(final_msg)
+            else:
+                robot_konus(tr("order_received").format(
+                    tutar=f"{toplam:.2f}",
+                    currency=tr("currency")
+                ))
+            
+            # Sipariş bittikten sonra ana ekrana (Dil seçimi / Home Screen) geri dön
+            self.central_stack.setCurrentWidget(self.home_screen)
 
         except Exception as e:
             print("Sipariş tamamlama hatası:", e) 

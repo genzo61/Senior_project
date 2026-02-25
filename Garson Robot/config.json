@@ -1,0 +1,9 @@
+{
+  "api_url": "http://127.0.0.1:8081/api/orders",
+  "llm_model": "llama3.2:3b",
+  "llm_temperature": 0.0,
+  "db_name": "restoran.db",
+  "image_folder": "img",
+  "camera_id": 0,
+  "qr_delay": 5
+}

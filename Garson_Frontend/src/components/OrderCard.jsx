@@ -8,7 +8,7 @@ const OrderCard = ({ order, onFinish }) => {
   });
 
   return (
-    <div className="relative p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl overflow-hidden group transition-all hover:scale-[1.02] hover:bg-white/15">
+    <div className="relative p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl overflow-hidden group transition-all hover:scale-[1.02] hover:bg-white/15 z-20">
       {/* Decorative dot */}
       <div className="absolute top-4 right-4 w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
       
@@ -35,8 +35,9 @@ const OrderCard = ({ order, onFinish }) => {
       </div>
 
       <button
+        type="button"
         onClick={() => onFinish(order.id)}
-        className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+        className="relative z-30 w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
       >
         <span>✅</span> Siparişi Hazırla
       </button>

@@ -13,6 +13,8 @@ import random
 import speech_recognition as sr
 import pygame
 import ollama
+import cv2
+from pyzbar.pyzbar import decode
 
 # Fix for qtawesome picking up wrong Qt binding (e.g. PyQt5 instead of PyQt6)
 os.environ["QT_API"] = "pyqt6"
@@ -126,22 +128,50 @@ def llm_ile_analiz_et(metin, menu_listesi):
     if any(k in metin_lower for k in negative):
         islem_tipi = "cikar"
 
+    import datetime
+    su_an = datetime.datetime.now()
+    saat_bilgisi = su_an.strftime("%H:%M")
+    zaman_mesaji_tr = "Sabah (kahvaltı)" if 6 <= su_an.hour < 11 else "Öğle/Akşam (ana yemek)" if 11 <= su_an.hour < 22 else "Gece (hafif atıştırmalık)"
+    zaman_mesaji_en = "Morning (breakfast)" if 6 <= su_an.hour < 11 else "Noon/Evening (main course)" if 11 <= su_an.hour < 22 else "Night (light snack)"
+
     # Dil bazlı Prompt
     if CURRENT_LANG == "TR":
         sys_prompt = f"""
-        Sen bir sipariş asistanısın.
+        Sen zeki bir restoran sipariş asistanısın.
+        ŞU ANKİ SAAT: {saat_bilgisi} ({zaman_mesaji_tr})
         MENÜ: [{menu_isimleri}]
-        GÖREV: Aşağıdaki cümleden ürün adını ve miktarını JSON ver.
-        CÜMLE: "{metin}"
-        JSON FORMATI: {{ "urunler": [ {{ "ad": "Ürün Adı", "adet": 1 }} ], "mesaj": "tamam"}}
+        
+        GÖREVLER:
+        1. Cümleden ürün adını ve miktarını çıkar.
+        2. Çapraz Satış (Cross-Selling) yap: Eğer müşteri sadece ana yemek (Hamburger, Pizza, Lahmacun vb.) istiyorsa yanına menüden uygun bir içecek öner (örn: "Hamburgerinizin yanına soğuk bir kola ister misiniz?"). Sadece içecek istiyorsa atıştırmalık/tatlı önermeye çalış. Eğer müşteri doğrudan içecek de istiyorsa fazladan teklif yapma.
+        3. Siparişi onaylat: Eğer çapraz satış yapmıyorsan veya müşteri onay aşamasına geldiyse, sepeti özetle ve "Siparişinizi onaylıyor musunuz?" diye sor.
+        
+        JSON FORMATI: 
+        {{ 
+          "urunler": [ {{ "ad": "Ürün Adı", "adet": 1 }} ], 
+          "mesaj": "Müşteriye söylenecek çapraz satış veya onay cümlesi. (Eğer özel bir şey yoksa 'tamam' yaz)"
+        }}
+
+        SESLİ CÜMLE: "{metin}"
         """
     else:
         sys_prompt = f"""
-        You are a waiter robot.
+        You are a smart restaurant waiter robot.
+        CURRENT TIME: {saat_bilgisi} ({zaman_mesaji_en})
         MENU: [{menu_isimleri}]
-        TASK: Extract product name and quantity from the sentence into JSON.
+        
+        TASKS:
+        1. Extract product name and quantity from the sentence.
+        2. Cross-Selling: If the user only orders a main course (e.g., Hamburger, Pizza), suggest a drink from the menu (e.g., "Would you like a cold Coke with your Hamburger?"). If they only order a drink, suggest a snack. If they already ordered both, skip this.
+        3. Confirmation: Summarize the order and ask "Do you confirm your order?" before concluding.
+        
+        JSON FORMAT: 
+        {{ 
+          "urunler": [ {{ "ad": "Product Name (Match Menu Exact)", "adet": 1 }} ], 
+          "mesaj": "The cross-sell or confirmation message to speak to the customer. (If nothing special, write 'ok')"
+        }}
+
         SENTENCE: "{metin}"
-        JSON FORMAT: {{ "urunler": [ {{ "ad": "Product Name (Match Menu Exact)", "adet": 1 }} ], "mesaj": "ok"}}
         """
 
     try:
@@ -162,6 +192,48 @@ def llm_ile_analiz_et(metin, menu_listesi):
         print(f"❌ LLM HATASI: {e}")
         msg = "Anlaşılmadı." if CURRENT_LANG == "TR" else "Not understood."
         return {"urunler": [], "bitir": False, "mesaj": msg}
+
+class QRScannerThread(QThread):
+    qr_bulundu = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        self.calisiyor = True
+
+    def run(self):
+        try:
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                print("⚠️ Kamera açılamadı, QR okuyucu devre dışı.")
+                return
+            
+            while self.calisiyor:
+                ret, frame = cap.read()
+                if not ret:
+                    time.sleep(0.5)
+                    continue
+                
+                decoded_objects = decode(frame)
+                for obj in decoded_objects:
+                    data = obj.data.decode('utf-8')
+                    if "TABLE:" in data.upper():
+                        masa_no = data.upper().split("TABLE:")[1].strip()
+                        self.qr_bulundu.emit(masa_no)
+                        time.sleep(5)
+                    elif data.isdigit() and len(data) <= 2:
+                        self.qr_bulundu.emit(data.zfill(2))
+                        time.sleep(5)
+                        
+                time.sleep(0.2)
+                
+            cap.release()
+        except Exception as e:
+            print(f"❌ QR Tarayıcı Hatası: {e}")
+
+    def stop(self):
+        self.calisiyor = False
+        self.quit()
+        self.wait()
 
 def robot_konus(metin):
     def _konus_thread():
@@ -439,8 +511,21 @@ class RestoranUI(QMainWindow):
         self.app_ui_setup(self.app_widget)
         self.central_stack.addWidget(self.app_widget)
         
+        # Masa Yönetimi
+        self.aktif_masa_no = "05" # Varsayilan
+        
+        # QR Okuyucuyu Başlat
+        self.qr_thread = QRScannerThread()
+        self.qr_thread.qr_bulundu.connect(self.masa_numarasini_guncelle)
+        self.qr_thread.start()
+        
         # Init
         threading.Thread(target=lambda: ollama.chat(model=MODEL_NAME, messages=[{'role':'user','content':'init'}]), daemon=True).start()
+
+    def closeEvent(self, event):
+        if hasattr(self, 'qr_thread'):
+            self.qr_thread.stop()
+        super().closeEvent(event)
 
     def set_language(self, lang_code):
         global CURRENT_LANG
@@ -458,6 +543,15 @@ class RestoranUI(QMainWindow):
         
         # Auto start mic
         QTimer.singleShot(2500, self.sesli_baslat)
+
+    def masa_numarasini_guncelle(self, masa_no):
+        if self.aktif_masa_no != masa_no:
+            self.aktif_masa_no = masa_no
+            self.table_lbl.setText(f"{tr('table_no').split(':')[0]}: {masa_no}")
+            
+            # Sesli bildirim
+            msg = f"Masa {masa_no} tespit edildi." if CURRENT_LANG == "TR" else f"Table {masa_no} detected."
+            robot_konus(msg)
 
     def app_ui_setup(self, parent):
         main_layout = QHBoxLayout(parent)
@@ -527,7 +621,7 @@ class RestoranUI(QMainWindow):
         self.sub_lbl.setText(tr("header_sub"))
         self.lbl_durum.setText(tr("status_ready"))
         self.cart_title.setText(tr("cart_title"))
-        self.table_lbl.setText(tr("table_no"))
+        self.table_lbl.setText(f"{tr('table_no').split(':')[0]}: {self.aktif_masa_no}")
         self.btn_mic.setText(tr("voice_btn"))
         self.btn_ok.setText(tr("pay_btn"))
         self.lbl_toplam.setText(self.lbl_toplam.text().replace("TL", tr('currency')).replace("TRY", tr('currency')))
@@ -628,27 +722,37 @@ class RestoranUI(QMainWindow):
             return
 
         try:
-            # ⭐ Toplamı önce hesapla
-            toplam = sum(v["fiyat"] * v["adet"] for v in self.sepet.values())
+            # ⭐ KDS/Backend formatına uygun JSON oluştur
+            # Mevcut "05" masa formatını şimdilik koruyoruz. Spring Boot'ta bu veriyi parse edeceğiz.
+            siparis_dizisi = []
+            toplam = 0
+            
+            for ad, veri in self.sepet.items():
+                toplam += veri["fiyat"] * veri["adet"]
+                siparis_dizisi.append({
+                    "productName": ad,
+                    "quantity": veri["adet"]
+                })
 
-            # ⭐ KDS formatına uygun JSON oluştur
             siparis_json = {
-                "masa": "05",
-                "sepet": {}
+                "tableNo": self.aktif_masa_no,
+                "items": siparis_dizisi
             }
 
-            for ad, veri in self.sepet.items():
-                siparis_json["sepet"][ad] = {
-                    "adet": veri["adet"]
-                }
+            print("BACKEND'E GİDEN (POST /api/orders):", siparis_json)
 
-            print("MUTFAĞA GİDEN:", siparis_json)
-
-            # ⭐ Socket ile mutfağa gönder
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect((MUTFAK_IP, MUTFAK_PORT))
-                s.sendall(json.dumps(siparis_json).encode("utf-8"))
-
+            # ⭐ REST API (Spring Boot) POST İsteği
+            try:
+                import requests
+                # Spring Boot varsayılan portu 8080 olarak kabul ediliyor
+                response = requests.post("http://127.0.0.1:8081/api/orders", json=siparis_json, timeout=3)
+                if response.status_code in [200, 201]:
+                    print("✅ Sipariş Spring Boot'a başarıyla iletildi.")
+                else:
+                    print(f"⚠️ Spring Boot Hatası: {response.status_code} - {response.text}")
+            except Exception as e:
+                print(f"❌ Spring Boot Bağlantı Hatası: {e}")
+                
             # ⭐ Sepeti temizle
             self.sepet.clear()
             self.sepeti_guncelle_ui()
@@ -659,7 +763,7 @@ class RestoranUI(QMainWindow):
             ))
 
         except Exception as e:
-            print("Mutfak gönderim hatası:", e) 
+            print("Sipariş tamamlama hatası:", e) 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
