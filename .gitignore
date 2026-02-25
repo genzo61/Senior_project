@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+.vscode
 # C extensions
 *.so
 
@@ -25,6 +25,16 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+#------------
+Garson Robot/models/
+Garson Robot/fine-funings/
+Garson Robot/csv/
+Garson Robot/restoran.db
+LLM
+LLM_Hazırlık_garson_robot
+restoran.db
+Garson_Frontend/node_modules
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
