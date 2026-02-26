@@ -12,7 +12,7 @@ function StockDashboard() {
 
     // Canlı Stock güncellemeleri için WebSocket
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://127.0.0.1:8081/ws'),
+      webSocketFactory: () => new SockJS('http://127.0.0.1:8085/ws'),
       onConnect: () => {
         console.log('StockDashboard WebSocket Connected!');
         client.subscribe('/topic/products', (message) => {
@@ -34,7 +34,7 @@ function StockDashboard() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://127.0.0.1:8081/api/products");
+      const res = await fetch("http://127.0.0.1:8085/api/products");
       const data = await res.json();
       setProducts(data);
     } catch (err) {
@@ -61,7 +61,7 @@ function StockDashboard() {
     const newStock = pendingChanges[id];
     
     try {
-      const res = await fetch(`http://127.0.0.1:8081/api/products/${id}/stock?quantity=${newStock}`, {
+      const res = await fetch(`http://127.0.0.1:8085/api/products/${id}/stock?quantity=${newStock}`, {
         method: 'PUT'
       });
       if (res.ok) {

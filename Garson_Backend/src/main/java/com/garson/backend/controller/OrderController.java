@@ -32,15 +32,6 @@ public class OrderController {
         if (orderInput.getItems() != null) {
             orderInput.getItems().forEach(item -> {
                 item.setOrder(orderInput);
-
-                // Deduct stock
-                Optional<Product> optProduct = productRepository.findByNameIgnoreCase(item.getProductName());
-                if (optProduct.isPresent()) {
-                    Product p = optProduct.get();
-                    int newStock = p.getStock() - item.getQuantity();
-                    p.setStock(Math.max(newStock, 0));
-                    productRepository.saveAndFlush(p);
-                }
             });
         }
 
@@ -49,9 +40,6 @@ public class OrderController {
 
         // 2. Broadcast to "/topic/orders" for React Kitchen Display System (KDS)
         messagingTemplate.convertAndSend("/topic/orders", savedOrder);
-        // Let frontend know to update stocks too
-        List<Product> allProducts = productRepository.findAll();
-        messagingTemplate.convertAndSend("/topic/products", allProducts);
 
         return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
     }
@@ -63,9 +51,40 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        if (orderRepository.existsById(id)) {
-            orderRepository.deleteById(id);
+    public ResponseEntity<Void> deleteOrder(@PathVariable("id") Long id) {
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+
+            // Deduct stock before deleting
+            if (order.getItems() != null) {
+                order.getItems().forEach(item -> {
+                    if (item.getProductName() != null) {
+                        Optional<Product> optProduct = productRepository
+                                .findByNameIgnoreCase(item.getProductName());
+                        if (optProduct.isPresent()) {
+                            Product p = optProduct.get();
+                            int currentStock = p.getStock() != null ? p.getStock() : 0;
+                            int quantity = item.getQuantity() != null ? item.getQuantity() : 0;
+                            int newStock = currentStock - quantity;
+                            p.setStock(Math.max(newStock, 0));
+                            productRepository.save(p);
+                        }
+                    }
+                });
+                // Explicitly un-bind items to avoid constraint violations during cascade delete
+                order.getItems().clear();
+                orderRepository.save(order);
+            }
+
+            orderRepository.delete(order);
+            orderRepository.flush();
+            productRepository.flush();
+
+            // Let frontend know to update stocks
+            List<Product> allProducts = productRepository.findAll();
+            messagingTemplate.convertAndSend("/topic/products", allProducts);
+
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();

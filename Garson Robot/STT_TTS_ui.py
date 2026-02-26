@@ -48,7 +48,7 @@ except Exception as e:
 DB_FILE = os.path.join(BASE_DIR, CONFIG.get("db_name", "restoran.db"))
 MODEL_NAME = CONFIG.get("llm_model", "llama3.2:3b")
 IMG_KLASORU = os.path.join(BASE_DIR, CONFIG.get("image_folder", "img"))
-API_URL = CONFIG.get("api_url", "http://127.0.0.1:8081/api/orders")
+API_URL = CONFIG.get("api_url", "http://127.0.0.1:8085/api/orders")
 SES_DOSYASI = "gecici_ses.mp3" 
 
 MUTFAK_IP = CONFIG.get("mutfak_ip", "127.0.0.1")
@@ -238,7 +238,7 @@ class Veritabani:
         # Backend'den menüyü çek
         import requests
         try:
-            res = requests.get("http://127.0.0.1:8081/api/products", timeout=3)
+            res = requests.get("http://127.0.0.1:8085/api/products", timeout=3)
             if res.status_code == 200:
                 data = res.json()
                 # Arayüzün beklediği format: [(id, ad, fiyat, stok), ...]
