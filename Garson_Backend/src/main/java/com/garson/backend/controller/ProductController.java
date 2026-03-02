@@ -28,7 +28,8 @@ public class ProductController {
     }
 
     @PutMapping("/{id}/stock")
-    public ResponseEntity<Product> updateStock(@PathVariable Long id, @RequestParam Integer quantity) {
+    public ResponseEntity<Product> updateStock(@PathVariable(name = "id") Long id,
+            @RequestParam(name = "quantity") Integer quantity) {
         Optional<Product> opt = productRepository.findById(id);
         if (opt.isPresent()) {
             Product p = opt.get();

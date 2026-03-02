@@ -1,0 +1,86 @@
+[
+    {
+        "id": 10,
+        "name": "Çoban Salata",
+        "price": 55.0,
+        "stock": 78,
+        "version": 0
+    },
+    {
+        "id": 5,
+        "name": "Ayran",
+        "price": 30.0,
+        "stock": 139,
+        "version": 0
+    },
+    {
+        "id": 4,
+        "name": "Kola",
+        "price": 50.0,
+        "stock": 188,
+        "version": 0
+    },
+    {
+        "id": 11,
+        "name": "Tiramisu",
+        "price": 110.0,
+        "stock": 39,
+        "version": 0
+    },
+    {
+        "id": 7,
+        "name": "Çay",
+        "price": 25.0,
+        "stock": 288,
+        "version": 0
+    },
+    {
+        "id": 6,
+        "name": "Su",
+        "price": 15.0,
+        "stock": 494,
+        "version": 0
+    },
+    {
+        "id": 8,
+        "name": "Kahve",
+        "price": 80.0,
+        "stock": 100,
+        "version": 0
+    },
+    {
+        "id": 3,
+        "name": "Lahmacun",
+        "price": 75.0,
+        "stock": 90,
+        "version": 0
+    },
+    {
+        "id": 1,
+        "name": "Hamburger",
+        "price": 250.0,
+        "stock": 46,
+        "version": 0
+    },
+    {
+        "id": 9,
+        "name": "Patates Kızartması",
+        "price": 60.0,
+        "stock": 149,
+        "version": 0
+    },
+    {
+        "id": 12,
+        "name": "Sütlaç",
+        "price": 70.0,
+        "stock": 47,
+        "version": 0
+    },
+    {
+        "id": 2,
+        "name": "Pizza",
+        "price": 320.0,
+        "stock": 30,
+        "version": 0
+    }
+]

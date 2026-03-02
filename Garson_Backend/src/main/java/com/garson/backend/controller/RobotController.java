@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*") // Herkese acik (Musternin telefonundan gelen web istegi)
 public class RobotController {
 
-    //private final SimpMessagingTemplate messagingTemplate;
+    // private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/call")
-    public ResponseEntity<String> callRobot(@RequestParam String table) {
+    public ResponseEntity<String> callRobot(@RequestParam("table") String table) {
 
         System.out.println("🤖 Robot Masaya Cagirildi: Masa " + table);
 

@@ -8,6 +8,10 @@ import time
 import subprocess
 import socket
 import random
+import queue
+import threading
+import uuid
+import json
 
 # Gerekli Kütüphaneler
 import speech_recognition as sr
@@ -29,7 +33,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QGridLayout, QPushButton, QLabel, 
                              QListWidget, QListWidgetItem, QFrame, QScrollArea,
                              QSizePolicy, QGraphicsDropShadowEffect, QSpacerItem, 
-                             QGraphicsOpacityEffect, QStackedWidget)
+                             QGraphicsOpacityEffect, QStackedWidget, QDialog, QLineEdit, QComboBox)
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QSize, QPropertyAnimation, QEasingCurve, QRect, QPoint
 from PyQt6.QtGui import QIcon, QFont, QColor, QPixmap, QImage, QPainter, QPainterPath, QLinearGradient, QBrush, QPen
 
@@ -48,7 +52,8 @@ except Exception as e:
 DB_FILE = os.path.join(BASE_DIR, CONFIG.get("db_name", "restoran.db"))
 MODEL_NAME = CONFIG.get("llm_model", "llama3.2:3b")
 IMG_KLASORU = os.path.join(BASE_DIR, CONFIG.get("image_folder", "img"))
-API_URL = CONFIG.get("api_url", "http://127.0.0.1:8085/api/orders")
+API_URL = CONFIG.get("api_url", "http://localhost:8085/api/orders")
+API_BASE_URL = CONFIG.get("api_base_url", "http://localhost:8085")
 SES_DOSYASI = "gecici_ses.mp3" 
 
 MUTFAK_IP = CONFIG.get("mutfak_ip", "127.0.0.1")
@@ -192,23 +197,46 @@ class QRScannerThread(QThread):
         self.quit()
         self.wait()
 
-def robot_konus(metin):
-    def _konus_thread():
+class SpeechManager(QThread):
+    def __init__(self):
+        super().__init__()
+        self.queue = queue.Queue()
+        self.calisiyor = True
+        self._lock = threading.Lock()
+
+    def run(self):
+        while self.calisiyor:
+            try:
+                metin = self.queue.get(timeout=1)
+                self._konus_fiziksel(metin)
+                self.queue.task_done()
+            except queue.Empty:
+                continue
+
+    def stop(self):
+        self.calisiyor = False
+        self.wait()
+
+    def add_to_queue(self, metin):
+        self.queue.put(metin)
+
+    def _konus_fiziksel(self, metin):
         try:
             print(f"🔊 Robot ({CURRENT_LANG}): {metin}")
+            
+            # Stop current music if busy
             if pygame.mixer.get_init() and pygame.mixer.music.get_busy():
                 pygame.mixer.music.stop()
                 try: pygame.mixer.music.unload() 
                 except: pass
 
+            # Clean old speech files
             for dosya in os.listdir(BASE_DIR):
-                 if dosya.startswith("konusma_") and dosya.endswith(".mp3"):
+                if dosya.startswith("konusma_") and dosya.endswith(".mp3"):
                     try: os.remove(os.path.join(BASE_DIR, dosya))
                     except: pass
 
             dosya_ismi = os.path.join(BASE_DIR, f"konusma_{int(time.time())}_{random.randint(100,999)}.mp3")
-            
-            # Dil bazlı ses seçimi
             voice = tr("voice")
             
             komut = f'edge-tts --voice {voice} --text "{metin}" --write-media "{dosya_ismi}" --rate=+25%'
@@ -218,9 +246,20 @@ def robot_konus(metin):
             if os.path.exists(dosya_ismi):
                 pygame.mixer.music.load(dosya_ismi)
                 pygame.mixer.music.play()
+                # Wait until audio finishes or timeout
+                while pygame.mixer.music.get_busy():
+                    time.sleep(0.1)
         except Exception as e:
             print(f"❌ SES HATASI: {e}")
-    threading.Thread(target=_konus_thread, daemon=True).start()
+
+_speech_manager = None
+
+def robot_konus(metin):
+    global _speech_manager
+    if _speech_manager is None:
+        _speech_manager = SpeechManager()
+        _speech_manager.start()
+    _speech_manager.add_to_queue(metin)
 
 
 class Veritabani:
@@ -237,14 +276,32 @@ class Veritabani:
     def menu_getir(self):
         # Backend'den menüyü çek
         import requests
+        cache_file = os.path.join(BASE_DIR, "menu_cache.json")
+        
         try:
-            res = requests.get("http://127.0.0.1:8085/api/products", timeout=3)
+            res = requests.get(f"{API_BASE_URL}/api/products", timeout=3)
             if res.status_code == 200:
                 data = res.json()
+                # Save to cache
+                try:
+                    with open(cache_file, "w", encoding="utf-8") as f:
+                        json.dump(data, f, ensure_ascii=False, indent=4)
+                except: pass
+                
                 # Arayüzün beklediği format: [(id, ad, fiyat, stok), ...]
                 return [(item['id'], item['name'], item['price'], item['stock']) for item in data]
         except Exception as e:
             print(f"Menü backendden alınamadı: {e}")
+            
+        # Fallback to cache if exists
+        if os.path.exists(cache_file):
+            print("📦 Menü yerel cache'den yükleniyor...")
+            try:
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                return [(item['id'], item['name'], item['price'], item['stock']) for item in data]
+            except: pass
+            
         return []
 
     def stok_ve_fiyat_bilgisi_akilli(self, urun_adi):
@@ -375,7 +432,129 @@ class ReceiptCartItem(QWidget):
         else: self.sil_sinyali.emit(self.ad)
     def arttir(self): self.adet_degisti_sinyali.emit(self.ad, self.adet + 1)
 
+class OrderReviewModal(QDialog):
+    def __init__(self, items, table_id, parent=None):
+        super().__init__(parent)
+        self.items = items # list of dict: {"name": ad, "qty": adet, "id": id}
+        self.table_id = table_id
+        self.setWindowTitle(tr("review_title") if tr("review_title") != "review_title" else "Sipariş Onayı")
+        self.setFixedSize(500, 600)
+        self.setStyleSheet("background-color: #f8f9fa; border-radius: 15px;")
+        
+        layout = QVBoxLayout(self)
+        
+        title = QLabel(tr("review_header") if tr("review_header") != "review_header" else "Siparişinizi Kontrol Edin")
+        title.setStyleSheet("font-size: 24px; font-weight: bold; color: #2d3436; margin-bottom: 10px;")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title)
+        
+        # Table ID Section
+        table_lay = QHBoxLayout()
+        table_lay.addWidget(QLabel(tr("table_no")))
+        self.table_input = QLineEdit(str(table_id))
+        self.table_input.setStyleSheet("padding: 8px; border: 1px solid #dcdde1; border-radius: 8px; font-size: 18px; font-weight: bold;")
+        self.table_input.textChanged.connect(self.validate_input)
+        table_lay.addWidget(self.table_input)
+        layout.addLayout(table_lay)
+        
+        # Items List
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("border: none; background: white; border-radius: 10px;")
+        self.scroll_content = QWidget()
+        self.items_layout = QVBoxLayout(self.scroll_content)
+        self.items_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        scroll.setWidget(self.scroll_content)
+        layout.addWidget(scroll)
+        
+        self.update_items_ui()
+        
+        # Buttons
+        btn_lay = QHBoxLayout()
+        btn_cancel = QPushButton(tr("cancel") if tr("cancel") != "cancel" else "İptal")
+        btn_cancel.setStyleSheet("background-color: #dfe6e9; color: #2d3436; padding: 15px; border-radius: 10px; font-weight: bold;")
+        btn_cancel.clicked.connect(self.reject)
+        
+        btn_lay.addWidget(btn_cancel)
+        self.btn_send = QPushButton(tr("send_order") if tr("send_order") != "send_order" else "Gönder")
+        self.btn_send.setStyleSheet("QPushButton { background-color: #5f27cd; color: white; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 18px; } QPushButton:disabled { background-color: #dfe6e9; color: #b2bec3; }")
+        self.btn_send.clicked.connect(self.accept)
+        btn_lay.addWidget(self.btn_send)
+        layout.addLayout(btn_lay)
+
+    def validate_input(self):
+        text = self.table_input.text()
+        is_valid = text.isdigit() and int(text) > 0
+        self.btn_send.setEnabled(is_valid)
+        if is_valid:
+            self.table_input.setStyleSheet("padding: 8px; border: 2px solid #5f27cd; border-radius: 8px; font-size: 18px; font-weight: bold;")
+        else:
+            self.table_input.setStyleSheet("padding: 8px; border: 2px solid #ff6b6b; border-radius: 8px; font-size: 18px; font-weight: bold;")
+
+    def update_items_ui(self):
+        # Clear existing
+        while self.items_layout.count():
+            child = self.items_layout.takeAt(0)
+            if child.widget(): child.widget().deleteLater()
+            
+        for idx, item in enumerate(self.items):
+            item_frame = QFrame()
+            item_frame.setStyleSheet("background-color: #ffffff; border: 1px solid #eee; border-radius: 10px; margin-bottom: 5px;")
+            item_lay = QHBoxLayout(item_frame)
+            
+            name_lbl = QLabel(item['name'])
+            name_lbl.setStyleSheet("font-weight: bold; font-size: 16px; color: #2d3436;")
+            item_lay.addWidget(name_lbl, stretch=1)
+            
+            # Qty Controls
+            btn_min = QPushButton("-")
+            btn_min.setFixedSize(40, 40)
+            btn_min.setStyleSheet("background-color: #f1f2f6; border-radius: 20px; font-weight: bold;")
+            btn_min.clicked.connect(lambda ch, i=idx: self.change_qty(i, -1))
+            
+            qty_lbl = QLabel(str(item['qty']))
+            qty_lbl.setFixedWidth(30)
+            qty_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            qty_lbl.setStyleSheet("font-weight: bold; font-size: 16px;")
+            
+            btn_plus = QPushButton("+")
+            btn_plus.setFixedSize(40, 40)
+            btn_plus.setStyleSheet("background-color: #f1f2f6; border-radius: 20px; font-weight: bold;")
+            btn_plus.clicked.connect(lambda ch, i=idx: self.change_qty(i, 1))
+            
+            btn_del = QPushButton("X")
+            btn_del.setFixedSize(40, 40)
+            btn_del.setStyleSheet("background-color: #fab1a0; color: #d63031; border-radius: 20px; font-weight: bold;")
+            btn_del.clicked.connect(lambda ch, i=idx: self.remove_item(i))
+            
+            item_lay.addWidget(btn_min)
+            item_lay.addWidget(qty_lbl)
+            item_lay.addWidget(btn_plus)
+            item_lay.addWidget(btn_del)
+            
+            self.items_layout.addWidget(item_frame)
+
+    def change_qty(self, idx, delta):
+        new_qty = self.items[idx]['qty'] + delta
+        if new_qty >= 1:
+            self.items[idx]['qty'] = new_qty
+            self.update_items_ui()
+
+    def remove_item(self, idx):
+        self.items.pop(idx)
+        self.update_items_ui()
+        if not self.items:
+            self.reject()
+
+    def get_order_data(self):
+        return {
+            "tableId": int(self.table_input.text()) if self.table_input.text().isdigit() else self.table_id,
+            "items": [{"name": i['name'], "qty": i['qty']} for i in self.items],
+            "language": CURRENT_LANG.lower()
+        }
+
 class HomeWidget(QWidget):
+# ... (HomeWidget code remains same, showing for context)
     lang_selected = pyqtSignal(str) # "TR" or "EN"
 
     def __init__(self):
@@ -474,14 +653,27 @@ class RestoranUI(QMainWindow):
         # QR Okuyucuyu Başlat
         self.qr_thread = QRScannerThread()
         self.qr_thread.qr_bulundu.connect(self.masa_numarasini_guncelle)
-        self.qr_thread.start()
-        
+        # Polling
+        self.status_timer = QTimer()
+        self.status_timer.timeout.connect(self.poll_order_status)
+        self.polling_order_id = None
+        self.polling_error_count = 0
+
+        # Offline Queue Timer
+        self._flush_running = False
+        self._flush_lock = threading.Lock()
+        self.offline_timer = QTimer()
+        self.offline_timer.timeout.connect(self.flush_offline_queue)
+        self.offline_timer.start(5000)
+
         # Init
         threading.Thread(target=lambda: ollama.chat(model=MODEL_NAME, messages=[{'role':'user','content':'init'}]), daemon=True).start()
 
     def closeEvent(self, event):
         if hasattr(self, 'qr_thread'):
             self.qr_thread.stop()
+        if hasattr(self, 'status_timer'):
+            self.status_timer.stop()
         super().closeEvent(event)
 
     def set_language(self, lang_code):
@@ -587,10 +779,17 @@ class RestoranUI(QMainWindow):
         self.menuyu_yukle()
 
     def menuyu_yukle(self):
+        urunler = self.db.menu_getir()
+        
+        if not urunler:
+            print("⚠️ Menü boş, 10 saniye sonra tekrar denenecek...")
+            QTimer.singleShot(10000, self.menuyu_yukle)
+            return
+
         while self.grid.layout().count():
             item = self.grid.layout().takeAt(0)
             if item.widget(): item.widget().deleteLater()
-        urunler = self.db.menu_getir()
+            
         r, c = 0, 0; COL_COUNT = 3 
         for u in urunler:
             kart = ImpressiveUrunKarti(u[1], u[2], u[3], u[0])
@@ -697,59 +896,190 @@ class RestoranUI(QMainWindow):
             QTimer.singleShot(int(bekleme), self.sesli_baslat)
 
     def siparisi_tamamla(self, final_msg=""):
-
         if not self.sepet:
             robot_konus(tr("cart_empty"))
             return
 
-        try:
-            # ⭐ KDS/Backend formatına uygun JSON oluştur
-            # Mevcut "05" masa formatını şimdilik koruyoruz. Spring Boot'ta bu veriyi parse edeceğiz.
-            siparis_dizisi = []
-            toplam = 0
+        # Review Modal logic
+        review_items = []
+        for ad, veri in self.sepet.items():
+            review_items.append({"name": ad, "qty": veri['adet'], "id": veri['id']})
             
-            for ad, veri in self.sepet.items():
-                toplam += veri["fiyat"] * veri["adet"]
-                siparis_dizisi.append({
-                    "productName": ad,
-                    "quantity": veri["adet"]
-                })
+        modal = OrderReviewModal(review_items, int(self.aktif_masa_no) if self.aktif_masa_no.isdigit() else 1, self)
+        if modal.exec() == QDialog.DialogCode.Accepted:
+            order_data = modal.get_order_data()
+            self.send_to_backend(order_data)
+        else:
+            print("Sipariş iptal edildi veya modal kapatıldı.")
 
-            siparis_json = {
-                "tableNo": self.aktif_masa_no,
-                "items": siparis_dizisi
-            }
-
-            print("BACKEND'E GİDEN (POST /api/orders):", siparis_json)
-
-            # ⭐ REST API (Spring Boot) POST İsteği
-            try:
-                import requests
-                response = requests.post(API_URL, json=siparis_json, timeout=3)
-                if response.status_code in [200, 201]:
-                    print("✅ Sipariş Spring Boot'a başarıyla iletildi.")
-                else:
-                    print(f"⚠️ Spring Boot Hatası: {response.status_code} - {response.text}")
-            except Exception as e:
-                print(f"❌ Spring Boot Bağlantı Hatası: {e}")
+    def send_to_backend(self, order_data):
+        import requests
+        try:
+            print("BACKEND'E GİDEN (POST /api/orders):", order_data)
+            response = requests.post(API_URL, json=order_data, timeout=5)
+            if response.status_code in [200, 201]:
+                data = response.json()
+                self.polling_order_id = data.get("id")
+                print(f"✅ Sipariş başarıyla iletildi. ID: {self.polling_order_id}")
                 
-            # ⭐ Sepeti temizle
+                # Feedback
+                robot_konus(tr("order_received_short"))
+                self.lbl_durum.setText(tr("status_waiting"))
+                
+                # Start Polling
+                self.poll_order_status() # Immediate check
+                self.status_timer.start(2000)
+                
+                # Clear UI
+                self.sepet.clear()
+                self.sepeti_guncelle_ui()
+                self.central_stack.setCurrentWidget(self.home_screen)
+            else:
+                print(f"⚠️ Backend Hatası: {response.status_code} - {response.text}")
+                robot_konus("Sipariş gönderilirken bir hata oluştu.")
+        except Exception as e:
+            print(f"❌ Bağlantı Hatası, kuyruğa alınıyor: {e}")
+            order_data["localId"] = str(uuid.uuid4())
+            self.save_to_offline_queue(order_data)
+            robot_konus(tr("offline_queued"))
+            
+            # Clear UI anyway
             self.sepet.clear()
             self.sepeti_guncelle_ui()
-
-            if final_msg:
-                robot_konus(final_msg)
-            else:
-                robot_konus(tr("order_received").format(
-                    tutar=f"{toplam:.2f}",
-                    currency=tr("currency")
-                ))
-            
-            # Sipariş bittikten sonra ana ekrana (Dil seçimi / Home Screen) geri dön
             self.central_stack.setCurrentWidget(self.home_screen)
 
+    def save_to_offline_queue(self, order_data):
+        file_path = os.path.join(BASE_DIR, "pending_orders.json")
+        try:
+            queue = []
+            if os.path.exists(file_path):
+                with open(file_path, "r", encoding="utf-8") as f:
+                    queue = json.load(f)
+            queue.append(order_data)
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(queue, f, ensure_ascii=False, indent=4)
         except Exception as e:
-            print("Sipariş tamamlama hatası:", e) 
+            print(f"Kuyruğa yazma hatası: {e}")
+
+    def flush_offline_queue(self):
+        # UI'ı dondurmamak için ayrı thread'de çalıştır
+        with self._flush_lock:
+            if self._flush_running: return
+            self._flush_running = True
+        
+        threading.Thread(target=self._flush_task, daemon=True).start()
+
+    def _flush_task(self):
+        file_path = os.path.join(BASE_DIR, "pending_orders.json")
+        if not os.path.exists(file_path): 
+            with self._flush_lock: self._flush_running = False
+            return
+        
+        import requests
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+                if not content: 
+                    with self._flush_lock: self._flush_running = False
+                    return
+                try:
+                    queue = json.loads(content)
+                except json.JSONDecodeError:
+                    print("⚠️ Bozuk JSON dosyası tespit edildi.")
+                    os.replace(file_path, file_path + ".bad")
+                    with self._flush_lock: self._flush_running = False
+                    return
+            
+            if not isinstance(queue, list) or not queue:
+                with self._flush_lock: self._flush_running = False
+                return
+            
+            print(f"🔄 Kuyruk temizleniyor... ({len(queue)} sipariş)")
+            any_success = False
+            remaining = []
+            
+            for order in queue:
+                # Ensure localId is mapped to clientOrderId for backend idempotency
+                if "localId" in order:
+                    order["clientOrderId"] = order["localId"]
+                
+                try:
+                    res = requests.post(API_URL, json=order, timeout=5)
+                    if res.status_code in [200, 201]:
+                        print(f"✅ Kuyruktaki sipariş gönderildi: {order.get('localId')}")
+                        any_success = True
+                        # Her başarılı gönderimden sonra dosyayı güncelle (Atomic)
+                        # Bu döngü bitmeden güncelliyoruz ki crash durumunda duplicate azalsın
+                        current_remaining = queue[queue.index(order)+1:] + remaining
+                        self._atomic_write_queue(current_remaining)
+                    else:
+                        remaining.append(order)
+                        self._atomic_write_queue(remaining)
+                except Exception as e:
+                    print(f"Kuyruk gönderim hatası: {e}")
+                    remaining.append(order)
+            
+            if any_success:
+                robot_konus(tr("offline_flush_success"))
+                
+        except Exception as e:
+            print(f"Kuyruk flush hatası: {e}")
+        finally:
+            with self._flush_lock:
+                self._flush_running = False
+
+    def _atomic_write_queue(self, queue_data):
+        file_path = os.path.join(BASE_DIR, "pending_orders.json")
+        temp_path = file_path + ".tmp"
+        try:
+            with open(temp_path, "w", encoding="utf-8") as f:
+                json.dump(queue_data, f, ensure_ascii=False, indent=4)
+            os.replace(temp_path, file_path)
+        except Exception as e:
+            print(f"Atomik yazma hatası: {e}")
+
+    def poll_order_status(self):
+        if not self.polling_order_id:
+            self.status_timer.stop()
+            return
+            
+        import requests
+        try:
+            url = f"{API_BASE_URL}/api/orders/{self.polling_order_id}"
+            res = requests.get(url, timeout=3)
+            if res.status_code == 200:
+                order = res.json()
+                status = order.get("status")
+                print(f"Sipariş #{self.polling_order_id} Durumu: {status}")
+                
+                if status == "READY":
+                    self.status_timer.stop()
+                    self.polling_error_count = 0
+                    table_id = order.get("tableId")
+                    # EXACT FORMAT AS REQUESTED
+                    print(f"DELIVER tableId={table_id} orderId={self.polling_order_id}")
+                    
+                    msg = tr("order_ready_msg") if tr("order_ready_msg") != "order_ready_msg" else "Siparişiniz hazır! Hemen getiriyorum."
+                    robot_konus(msg)
+                    self.lbl_durum.setText(tr("status_ready"))
+                    self.polling_order_id = None
+            elif res.status_code == 404:
+                print("Sipariş bulunamadı, polling durduruluyor.")
+                self.status_timer.stop()
+                self.lbl_durum.setText(tr("status_ready"))
+                self.polling_order_id = None
+                self.polling_error_count = 0
+            else:
+                self.polling_error_count += 1
+        except Exception as e:
+            self.polling_error_count += 1
+            print(f"Polling Hatası ({self.polling_error_count}/5): {e}")
+
+        if self.polling_error_count >= 5:
+             print("❌ Üst üste 5 polling hatası alındı. Timer durduruluyor.")
+             self.status_timer.stop()
+             self.polling_error_count = 0
+             robot_konus("Sunucu bağlantısı koptu, sipariş durumunuzu takip edemiyorum.")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

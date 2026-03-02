@@ -14,6 +14,8 @@
         "pay_btn": "  Ödemeye Geç",
         "listening": "Dinliyorum...",
         "processing": "İşleniyor...",
+        "offline_queued": "Sunucuya bağlanılamadı. Siparişiniz sıraya alındı, bağlantı gelince otomatik gönderilecek.",
+        "offline_flush_success": "Bekleyen siparişiniz başarıyla mutfağa iletildi.",
         "added": "eklendi.",
         "no_stock": "tükendi.",
         "not_found": "bulunamadı.",
@@ -32,7 +34,14 @@
         "not_understood": "Anlaşılmadı.",
         "no_voice": "Ses yok.",
         "detected": "Algılandı:",
-        "table_detected": "Masa {masa_no} tespit edildi."
+        "table_detected": "Masa {masa_no} tespit edildi.",
+        "review_title": "Sipariş Onayı",
+        "review_header": "Siparişinizi Kontrol Edin",
+        "cancel": "İptal",
+        "send_order": "Gönder",
+        "order_received_short": "Sipariş mutfağa iletildi, hazırlanmasını bekliyorum.",
+        "order_ready_msg": "Siparişiniz hazır! Hemen getiriyorum.",
+        "status_waiting": "Hazırlanıyor..."
     },
     "EN": {
         "welcome_title": "Welcome",
@@ -49,6 +58,8 @@
         "pay_btn": "  Checkout",
         "listening": "Listening...",
         "processing": "Processing...",
+        "offline_queued": "Could not connect to server. Your order is queued and will be sent automatically once online.",
+        "offline_flush_success": "Your pending order has been successfully sent to the kitchen.",
         "added": "added.",
         "no_stock": "out of stock.",
         "not_found": "not found.",
@@ -67,6 +78,13 @@
         "not_understood": "Not understood.",
         "no_voice": "No voice.",
         "detected": "Detected:",
-        "table_detected": "Table {masa_no} detected."
+        "table_detected": "Table {masa_no} detected.",
+        "review_title": "Order Confirmation",
+        "review_header": "Review Your Order",
+        "cancel": "Cancel",
+        "send_order": "Send",
+        "order_received_short": "Order sent to kitchen, I'm waiting for it to be prepared.",
+        "order_ready_msg": "Your order is ready! Bringing it now.",
+        "status_waiting": "Preparing..."
     }
 }
