@@ -16,6 +16,12 @@ function App() {
             🍳 Aktif Siparişler
           </Link>
           <Link 
+            to="/tables" 
+            className="text-lg font-bold text-slate-300 hover:text-white hover:bg-slate-700/50 px-6 py-2 rounded-xl transition-all"
+          >
+            🍽️ Masalar
+          </Link>
+          <Link 
             to="/stock" 
             className="text-lg font-bold text-slate-300 hover:text-white hover:bg-slate-700/50 px-6 py-2 rounded-xl transition-all"
           >
@@ -26,6 +32,7 @@ function App() {
         {/* Dynamic Content */}
         <Routes>
           <Route path="/" element={<OrdersDashboard />} />
+          <Route path="/tables" element={<ManagerTablesDashboard />} />
           <Route path="/stock" element={<StockDashboard />} />
         </Routes>
       </div>

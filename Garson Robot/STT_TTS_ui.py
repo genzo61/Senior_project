@@ -291,6 +291,45 @@ class LLMWorker(QThread):
     def __init__(self, metin, menu): super().__init__(); self.metin=metin; self.menu=menu
     def run(self): self.islem_bitti_sinyali.emit(llm_ile_analiz_et(self.metin, self.menu))
 
+class TableStatusCheckerThread(QThread):
+    table_calling = pyqtSignal(str)
+    
+    def __init__(self):
+        super().__init__()
+        self.calisiyor = True
+        self.announced_tables = set()
+
+    def run(self):
+        import requests
+        while self.calisiyor:
+            try:
+                res = requests.get("http://127.0.0.1:8080/api/tables", timeout=3)
+                if res.status_code == 200:
+                    tables = res.json()
+                    current_calling = set()
+                    
+                    for t in tables:
+                        t_id = str(t.get("id"))
+                        status = t.get("status")
+                        
+                        if status == "CALLING_ROBOT":
+                            current_calling.add(t_id)
+                            if t_id not in self.announced_tables:
+                                self.announced_tables.add(t_id)
+                                self.table_calling.emit(t_id)
+                                
+                    # Remove tables that are no longer calling
+                    self.announced_tables.intersection_update(current_calling)
+            except Exception as e:
+                pass
+                
+            time.sleep(2)
+
+    def stop(self):
+        self.calisiyor = False
+        self.quit()
+        self.wait()
+
 # --------------------------------------------------
 # WIDGETS
 # --------------------------------------------------
@@ -475,6 +514,11 @@ class RestoranUI(QMainWindow):
         self.qr_thread = QRScannerThread()
         self.qr_thread.qr_bulundu.connect(self.masa_numarasini_guncelle)
         self.qr_thread.start()
+
+        # Masa Çağrı Kontrolcüsü (Robotu Çağıran Masaları Dinle)
+        self.table_checker = TableStatusCheckerThread()
+        self.table_checker.table_calling.connect(self.masa_cagrisi_geldi)
+        self.table_checker.start()
         
         # Init
         threading.Thread(target=lambda: ollama.chat(model=MODEL_NAME, messages=[{'role':'user','content':'init'}]), daemon=True).start()
@@ -482,6 +526,8 @@ class RestoranUI(QMainWindow):
     def closeEvent(self, event):
         if hasattr(self, 'qr_thread'):
             self.qr_thread.stop()
+        if hasattr(self, 'table_checker'):
+            self.table_checker.stop()
         super().closeEvent(event)
 
     def set_language(self, lang_code):
@@ -507,8 +553,23 @@ class RestoranUI(QMainWindow):
             self.table_lbl.setText(f"{tr('table_no').split(':')[0]}: {masa_no}")
             
             # Sesli bildirim
-            msg = tr("table_detected").format(masa_no=masa_no)
+            msg = tr("table_detected").format(masa_no=masa_no) if "table_detected" in LANG[CURRENT_LANG] else f"Masa {masa_no} algılandı."
             robot_konus(msg)
+
+    def masa_cagrisi_geldi(self, masa_no):
+        msg = f"Masa {masa_no} sizi çağırıyor!"
+        if CURRENT_LANG == "EN":
+            msg = f"Table {masa_no} is calling you!"
+            
+        # Ekranda uyarı göster (durum çubuğunda)
+        self.lbl_durum.setText(f"🚨 {msg}")
+        self.lbl_durum.setStyleSheet("background-color: #ff9f43; padding: 10px 20px; border-radius: 20px; color: white; font-weight: bold;")
+        
+        # Sesi oynat
+        robot_konus(msg)
+        
+        # Uyarıyı 5 saniye sonra temizle
+        QTimer.singleShot(5000, lambda: self.lbl_durum.setStyleSheet("background-color: white; padding: 10px 20px; border-radius: 20px; color: #576574; font-weight: bold;"))
 
     def app_ui_setup(self, parent):
         main_layout = QHBoxLayout(parent)
