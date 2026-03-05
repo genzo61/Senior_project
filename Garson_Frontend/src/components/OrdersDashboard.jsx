@@ -32,24 +32,54 @@ function OrdersDashboard() {
   };
 
   useEffect(() => {
-    fetchOrders(); // İlk açılış
-    const timer = setInterval(fetchOrders, POLLING_INTERVAL);
-    return () => clearInterval(timer);
-  }, [activeTab]);
+    // 1. Ilk acilista mevcut siparisleri HTTP uzerinden cek
+    fetch(`http://${window.location.hostname}:8085/api/orders`)
+      .then(res => res.json())
+      .then(data => {
+        // En yeni siparisler uste gelsin
+        const sorted = data.sort((a,b) => b.id - a.id);
+        setOrders(sorted);
+      })
+      .catch(err => console.error("Siparisler cekilemedi:", err));
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    if (updatingOrderId) return;
-    setUpdatingOrderId(orderId);
-    
+    // 2. Canli siparisler icin WebSocket baglantisi
+    const client = new Client({
+      // brokerURL is used if direct ws is supported, but SockJS provides fallback
+      webSocketFactory: () => new SockJS(`http://${window.location.hostname}:8085/ws`),
+      onConnect: () => {
+        console.log('Connected to WebSocket!');
+        client.subscribe('/topic/orders', (message) => {
+          if (message.body) {
+            const newOrder = JSON.parse(message.body);
+            console.log('New order received: ', newOrder);
+            
+            // Play notification sound
+            const audio = new Audio('/bell.mp3');
+            audio.play().catch(e => console.log('Audio play ignored by browser until user interaction:', e));
+
+            setOrders((prev) => [newOrder, ...prev]);
+          }
+        });
+      },
+      onStompError: (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+      },
+    });
+
+    client.activate();
+
+    return () => {
+      client.deactivate();
+    };
+  }, []);
+
+  const handleFinishOrder = async (orderId) => {
     try {
-      const response = await fetch(`${API_BASE}/api/orders/${orderId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+      const response = await fetch(`http://${window.location.hostname}:8085/api/orders/${orderId}`, {
+        method: 'DELETE',
       });
-      
-      if (response.ok) {
-        // Optimistic Update: Immediately remove from current list
+      if (response.ok || response.status === 204) {
         setOrders((prev) => prev.filter((o) => o.id !== orderId));
       } else {
         const errorMsg = await response.text();
