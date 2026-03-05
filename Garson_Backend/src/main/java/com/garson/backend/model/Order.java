@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class Order {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +24,9 @@ public class Order {
 
     private LocalDateTime paidAt;
     private String paymentMethod; // CASH, CARD
+
+    private Instant createdAt = Instant.now();
+    private Instant updatedAt;
 
     @Version
     private Long version = 0L;
@@ -40,7 +43,4 @@ public class Order {
     public void preUpdate() {
         this.updatedAt = Instant.now();
     }
-
-    @Version
-    private Long version = 0L;
 }

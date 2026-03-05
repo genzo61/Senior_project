@@ -13,7 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
+import com.garson.backend.model.OrderStatus;
+import com.garson.backend.model.OrderItem;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class OrderController {
         orderInput.getItems().forEach(item -> item.setOrder(orderInput));
 
         // 4. Defaults
-        orderInput.setStatus(OrderStatus.NEW);
+        orderInput.setStatus(OrderStatus.NEW.name());
         orderInput.setCreatedAt(Instant.now());
         orderInput.setUpdatedAt(Instant.now());
 
@@ -137,22 +138,22 @@ public class OrderController {
         System.out.println("DEBUG: Transitioning order " + id + " from " + order.getStatus() + " to " + newStatus);
 
         // Status Transition Rules
-        OrderStatus currentStatus = order.getStatus();
+        String currentStatus = order.getStatus();
 
         // Allowed transitions: NEW -> READY, READY -> DELIVERED
-        if (currentStatus == OrderStatus.NEW && newStatus != OrderStatus.READY) {
+        if ("NEW".equals(currentStatus) && newStatus != OrderStatus.READY) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("NEW orders can only transition to READY");
         }
-        if (currentStatus == OrderStatus.READY && newStatus != OrderStatus.DELIVERED) {
+        if ("READY".equals(currentStatus) && newStatus != OrderStatus.DELIVERED) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("READY orders can only transition to DELIVERED");
         }
-        if (currentStatus == OrderStatus.DELIVERED) {
+        if ("DELIVERED".equals(currentStatus)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("DELIVERED orders cannot be changed");
         }
-        if (currentStatus == newStatus) {
+        if (currentStatus != null && currentStatus.equals(newStatus.name())) {
             return ResponseEntity.ok(order); // No change needed
         }
 
@@ -170,7 +171,7 @@ public class OrderController {
             }
         }
 
-        order.setStatus(newStatus);
+        order.setStatus(newStatus.name());
 
         try {
             System.out.println("DEBUG: Saving order " + id);
@@ -192,20 +193,20 @@ public class OrderController {
 
         // 1. Identify all products needed
         for (OrderItem item : order.getItems()) {
-            if (item.getName() == null)
+            if (item.getProductName() == null)
                 continue;
 
-            Product p = productRepository.findByNameIgnoreCase(item.getName())
-                    .orElseThrow(() -> new IllegalStateException("Product not found: " + item.getName()));
+            Product p = productRepository.findByNameIgnoreCase(item.getProductName())
+                    .orElseThrow(() -> new IllegalStateException("Product not found: " + item.getProductName()));
 
             int currentStock = (p.getStock() != null) ? p.getStock() : 0;
-            if (currentStock < item.getQty()) {
-                throw new IllegalStateException("Insufficient stock for: " + item.getName() +
+            if (currentStock < item.getQuantity()) {
+                throw new IllegalStateException("Insufficient stock for: " + item.getProductName() +
                         " (Available: " + currentStock + ")");
             }
 
             // 2. Perform deduction
-            p.setStock(currentStock - item.getQty());
+            p.setStock(currentStock - item.getQuantity());
             productRepository.save(p);
         }
 
