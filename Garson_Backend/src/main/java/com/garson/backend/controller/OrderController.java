@@ -13,14 +13,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT,
-        RequestMethod.OPTIONS })
+@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE,
+        RequestMethod.PATCH, RequestMethod.OPTIONS })
 public class OrderController {
 
     private final OrderRepository orderRepository;
@@ -44,7 +47,14 @@ public class OrderController {
             });
         }
 
-        // 1. Save to Database
+        // 3. Setup bi-directional relationship
+        orderInput.getItems().forEach(item -> item.setOrder(orderInput));
+
+        // 4. Defaults
+        orderInput.setStatus(OrderStatus.NEW);
+        orderInput.setCreatedAt(Instant.now());
+        orderInput.setUpdatedAt(Instant.now());
+
         Order savedOrder = orderRepository.saveAndFlush(orderInput);
 
         // 2. Set Table Status to OCCUPIED
@@ -94,42 +104,127 @@ public class OrderController {
         return ResponseEntity.ok(paidOrders);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable("id") Long id) {
+        return orderRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}/status")
+    @Transactional
+    public ResponseEntity<?> updateStatus(@PathVariable("id") Long id,
+            @RequestBody Map<String, String> statusMap) {
+        System.out.println("DEBUG: updateStatus called for ID: " + id + " with statusMap: " + statusMap);
+        String statusStr = statusMap.get("status");
+        if (statusStr == null) {
+            return ResponseEntity.badRequest().body("Status is required");
+        }
+
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Order order = orderOpt.get();
+        OrderStatus newStatus;
+        try {
+            newStatus = OrderStatus.valueOf(statusStr);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid status: " + statusStr);
+        }
+
+        System.out.println("DEBUG: Transitioning order " + id + " from " + order.getStatus() + " to " + newStatus);
+
+        // Status Transition Rules
+        OrderStatus currentStatus = order.getStatus();
+
+        // Allowed transitions: NEW -> READY, READY -> DELIVERED
+        if (currentStatus == OrderStatus.NEW && newStatus != OrderStatus.READY) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("NEW orders can only transition to READY");
+        }
+        if (currentStatus == OrderStatus.READY && newStatus != OrderStatus.DELIVERED) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("READY orders can only transition to DELIVERED");
+        }
+        if (currentStatus == OrderStatus.DELIVERED) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("DELIVERED orders cannot be changed");
+        }
+        if (currentStatus == newStatus) {
+            return ResponseEntity.ok(order); // No change needed
+        }
+
+        // Stock deduction logic if moving to READY
+        if (newStatus == OrderStatus.READY) {
+            try {
+                System.out.println("DEBUG: Deducting stock for order " + id);
+                deductStock(order);
+            } catch (IllegalStateException e) {
+                System.out.println("DEBUG: Stock deduction error: " + e.getMessage());
+                return ResponseEntity.badRequest().body(e.getMessage());
+            } catch (Exception e) {
+                System.out.println("DEBUG: Unexpected stock error: " + e.getMessage());
+                return ResponseEntity.internalServerError().body("Stock deduction failed: " + e.getMessage());
+            }
+        }
+
+        order.setStatus(newStatus);
+
+        try {
+            System.out.println("DEBUG: Saving order " + id);
+            Order updatedOrder = orderRepository.saveAndFlush(order);
+            if (messagingTemplate != null) {
+                messagingTemplate.convertAndSend("/topic/orders", updatedOrder);
+            }
+            System.out.println("DEBUG: Success updating order " + id);
+            return ResponseEntity.ok(updatedOrder);
+        } catch (Exception e) {
+            System.out.println("DEBUG: Save error: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Could not update order status: " + e.getMessage());
+        }
+    }
+
+    private void deductStock(Order order) {
+        if (order.getItems() == null || order.getItems().isEmpty())
+            return;
+
+        // 1. Identify all products needed
+        for (OrderItem item : order.getItems()) {
+            if (item.getName() == null)
+                continue;
+
+            Product p = productRepository.findByNameIgnoreCase(item.getName())
+                    .orElseThrow(() -> new IllegalStateException("Product not found: " + item.getName()));
+
+            int currentStock = (p.getStock() != null) ? p.getStock() : 0;
+            if (currentStock < item.getQty()) {
+                throw new IllegalStateException("Insufficient stock for: " + item.getName() +
+                        " (Available: " + currentStock + ")");
+            }
+
+            // 2. Perform deduction
+            p.setStock(currentStock - item.getQty());
+            productRepository.save(p);
+        }
+
+        productRepository.flush();
+
+        try {
+            if (messagingTemplate != null) {
+                messagingTemplate.convertAndSend("/topic/products", productRepository.findAll());
+            }
+        } catch (Exception e) {
+            System.err.println("Messaging error after stock deduction: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Void> deleteOrder(@PathVariable("id") Long id) {
-        Optional<Order> orderOpt = orderRepository.findById(id);
-        if (orderOpt.isPresent()) {
-            Order order = orderOpt.get();
-
-            // Deduct stock before deleting
-            if (order.getItems() != null) {
-                order.getItems().forEach(item -> {
-                    if (item.getProductName() != null) {
-                        Optional<Product> optProduct = productRepository
-                                .findByNameIgnoreCase(item.getProductName());
-                        if (optProduct.isPresent()) {
-                            Product p = optProduct.get();
-                            int currentStock = p.getStock() != null ? p.getStock() : 0;
-                            int quantity = item.getQuantity() != null ? item.getQuantity() : 0;
-                            int newStock = currentStock - quantity;
-                            p.setStock(Math.max(newStock, 0));
-                            productRepository.save(p);
-                        }
-                    }
-                });
-                // Explicitly un-bind items to avoid constraint violations during cascade delete
-                order.getItems().clear();
-                orderRepository.save(order);
-            }
-
-            orderRepository.delete(order);
-            orderRepository.flush();
-            productRepository.flush();
-
-            // Let frontend know to update stocks
-            List<Product> allProducts = productRepository.findAll();
-            messagingTemplate.convertAndSend("/topic/products", allProducts);
-
+        if (orderRepository.existsById(id)) {
+            orderRepository.deleteById(id);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
