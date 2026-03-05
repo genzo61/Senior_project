@@ -8,7 +8,7 @@ function OrdersDashboard() {
 
   useEffect(() => {
     // 1. Ilk acilista mevcut siparisleri HTTP uzerinden cek
-    fetch('http://127.0.0.1:8085/api/orders')
+    fetch(`http://${window.location.hostname}:8085/api/orders`)
       .then(res => res.json())
       .then(data => {
         // En yeni siparisler uste gelsin
@@ -20,7 +20,7 @@ function OrdersDashboard() {
     // 2. Canli siparisler icin WebSocket baglantisi
     const client = new Client({
       // brokerURL is used if direct ws is supported, but SockJS provides fallback
-      webSocketFactory: () => new SockJS('http://127.0.0.1:8085/ws'),
+      webSocketFactory: () => new SockJS(`http://${window.location.hostname}:8085/ws`),
       onConnect: () => {
         console.log('Connected to WebSocket!');
         client.subscribe('/topic/orders', (message) => {
@@ -51,7 +51,7 @@ function OrdersDashboard() {
 
   const handleFinishOrder = async (orderId) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8085/api/orders/${orderId}`, {
+      const response = await fetch(`http://${window.location.hostname}:8085/api/orders/${orderId}`, {
         method: 'DELETE',
       });
       if (response.ok || response.status === 204) {

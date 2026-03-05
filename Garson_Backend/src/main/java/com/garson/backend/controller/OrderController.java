@@ -1,9 +1,12 @@
 package com.garson.backend.controller;
 
 import com.garson.backend.model.Order;
+import com.garson.backend.model.Product;
+import com.garson.backend.model.RestaurantTable;
+import com.garson.backend.model.TableStatus;
 import com.garson.backend.repository.OrderRepository;
 import com.garson.backend.repository.ProductRepository;
-import com.garson.backend.model.Product;
+import com.garson.backend.repository.RestaurantTableRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,21 +25,44 @@ public class OrderController {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final RestaurantTableRepository tableRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping
     @Transactional
     public ResponseEntity<Order> createOrder(@RequestBody Order orderInput) {
 
-        // Setup bi-directional relationship manually because of JSON parsing
+        // Setup bi-directional relationship and populate prices
         if (orderInput.getItems() != null) {
             orderInput.getItems().forEach(item -> {
                 item.setOrder(orderInput);
+                // Try to find the product price if not provided
+                if (item.getPrice() == null && item.getProductName() != null) {
+                    productRepository.findByNameIgnoreCase(item.getProductName())
+                            .ifPresent(p -> item.setPrice(p.getPrice()));
+                }
             });
         }
 
         // 1. Save to Database
         Order savedOrder = orderRepository.saveAndFlush(orderInput);
+
+        // 2. Set Table Status to OCCUPIED
+        if (savedOrder.getTableNo() != null) {
+            try {
+                Long tableId = Long.parseLong(savedOrder.getTableNo());
+                tableRepository.findById(tableId).ifPresent((RestaurantTable table) -> {
+                    if (table.getStatus() == TableStatus.EMPTY || table.getStatus() == TableStatus.CALLING_ROBOT) {
+                        table.setStatus(TableStatus.OCCUPIED);
+                        tableRepository.save(table);
+                        // Notify table status change via WebSocket
+                        messagingTemplate.convertAndSend("/topic/tables", tableRepository.findAll());
+                    }
+                });
+            } catch (NumberFormatException e) {
+                // Ignore invalid table strings
+            }
+        }
 
         // 2. Broadcast to "/topic/orders" for React Kitchen Display System (KDS)
         messagingTemplate.convertAndSend("/topic/orders", savedOrder);
@@ -46,7 +72,26 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
-        return ResponseEntity.ok(orderRepository.findAll());
+        List<Order> activeOrders = orderRepository.findAll().stream()
+                .filter(o -> !"PAID".equals(o.getStatus()))
+                .toList();
+        return ResponseEntity.ok(activeOrders);
+    }
+
+    @GetMapping("/table/{tableNo}")
+    public ResponseEntity<List<Order>> getOrdersByTable(@PathVariable("tableNo") String tableNo) {
+        List<Order> activeOrders = orderRepository.findAll().stream()
+                .filter(o -> tableNo.equals(o.getTableNo()) && !"PAID".equals(o.getStatus()))
+                .toList();
+        return ResponseEntity.ok(activeOrders);
+    }
+
+    @GetMapping("/paid")
+    public ResponseEntity<List<Order>> getPaidOrders() {
+        List<Order> paidOrders = orderRepository.findAll().stream()
+                .filter(o -> "PAID".equals(o.getStatus()))
+                .toList();
+        return ResponseEntity.ok(paidOrders);
     }
 
     @DeleteMapping("/{id}")

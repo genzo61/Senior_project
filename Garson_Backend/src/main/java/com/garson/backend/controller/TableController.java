@@ -1,5 +1,6 @@
 package com.garson.backend.controller;
 
+import com.garson.backend.model.Order;
 import com.garson.backend.model.RestaurantTable;
 import com.garson.backend.model.TableStatus;
 import com.garson.backend.repository.OrderRepository;
@@ -43,19 +44,22 @@ public class TableController {
 
     @PostMapping("/{id}/kapat")
     @Transactional
-    public ResponseEntity<?> closeTable(@PathVariable("id") Long id) {
+    public ResponseEntity<?> closeTable(@PathVariable("id") Long id,
+            @RequestParam(required = false, defaultValue = "CASH") String paymentMethod) {
         return tableRepository.findById(id).map(table -> {
-            // Update orders for this table to PAID
-            orderRepository.findByTableNo(String.valueOf(id)).forEach(order -> {
-                if (!"DELIVERED".equals(order.getStatus()) && !"PAID".equals(order.getStatus())) {
-                    order.setStatus("PAID"); // Or DELIVERED, then PAID depending on business logic, going straight to
-                                             // PAID for now.
-                    orderRepository.save(order);
-                } else if ("DELIVERED".equals(order.getStatus())) {
-                    order.setStatus("PAID");
-                    orderRepository.save(order);
-                }
-            });
+            // Mark all active orders for this table as PAID instead of deleting
+            List<Order> orders = orderRepository.findByTableNo(String.valueOf(id));
+            if (!orders.isEmpty()) {
+                java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                orders.forEach(order -> {
+                    if (!"PAID".equals(order.getStatus())) {
+                        order.setStatus("PAID");
+                        order.setPaidAt(now);
+                        order.setPaymentMethod(paymentMethod);
+                    }
+                });
+                orderRepository.saveAll(orders);
+            }
 
             table.setStatus(TableStatus.EMPTY);
             RestaurantTable updatedTable = tableRepository.save(table);

@@ -12,14 +12,20 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class Order {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String tableNo;
     private LocalDateTime orderTime = LocalDateTime.now();
-    private String status = "NEW"; // NEW, PREPARING, READY, DELIVERED
+    private String status = "NEW"; // NEW, PREPARING, READY, DELIVERED, PAID
+
+    private LocalDateTime paidAt;
+    private String paymentMethod; // CASH, CARD
+
+    @Version
+    private Long version = 0L;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();

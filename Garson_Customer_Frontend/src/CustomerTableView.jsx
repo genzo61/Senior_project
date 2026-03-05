@@ -13,8 +13,8 @@ const CustomerTableView = () => {
     setErrorMessage('');
     
     try {
-      // Assuming backend is running on localhost:8080. In production, this should be configurable via env vars.
-      await axios.post(`http://localhost:8080/api/tables/${id}/cagir`);
+      const backendUrl = `http://${window.location.hostname}:8085`;
+      await axios.post(`${backendUrl}/api/tables/${id}/cagir`);
       setStatus('success');
     } catch (error) {
       console.error("Error calling robot:", error);
