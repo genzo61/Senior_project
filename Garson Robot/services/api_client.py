@@ -25,10 +25,10 @@ def get_menu(force=False):
         res = requests.get(API_PRODUCTS_URL, timeout=3)
         if res.status_code == 200:
             data = res.json()
-            _menu_cache = [(item["id"], item["name"], item["price"], item["stock"]) for item in data]
+            _menu_cache = [(item.get("id"), item.get("name", "Bilinmeyen"), item.get("price", 0.0), item.get("stock", 0)) for item in data]
             _menu_cache_ts = now
     except Exception as e:
-        print(f"Menü backendden alınamadı: {e}")
+        print(f"Menü backendden alınamadı: {e} | URL: {API_PRODUCTS_URL}")
     return _menu_cache
 
 

@@ -1,92 +1,86 @@
 import { useEffect, useState, useRef } from 'react';
 import OrderCard from './OrderCard';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8085';
-const POLLING_INTERVAL = 1500;
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 function OrdersDashboard() {
-  const [orders, setOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('NEW'); // NEW or READY
   const [error, setError] = useState(null);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const audioRef = useRef(new Audio('/bell.mp3'));
 
-  const fetchOrders = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/orders?status=${activeTab}`);
-      if (!response.ok) throw new Error('Sunucu hatası');
-      const data = await response.json();
-      
-      setOrders((prev) => {
-        // Yeni sipariş gelmiş mi kontrol et (Notification için)
-        if (activeTab === 'NEW' && data.length > prev.length) {
-          audioRef.current.play().catch(() => {});
-        }
-        return data;
-      });
-      setError(null);
-    } catch (err) {
-      console.error("Siparişler çekilemedi:", err);
-      setError("Bağlantı hatası: Mutfak verileri güncellenemiyor.");
-    }
-  };
+  const displayedOrders = allOrders.filter(o => o.status === activeTab);
 
   useEffect(() => {
-    // 1. Ilk acilista mevcut siparisleri HTTP uzerinden cek
+    // 1. Initial HTTP Fetch
     fetch(`http://${window.location.hostname}:8085/api/orders`)
       .then(res => res.json())
       .then(data => {
-        // En yeni siparisler uste gelsin
         const sorted = data.sort((a,b) => b.id - a.id);
-        setOrders(sorted);
+        setAllOrders(sorted);
       })
-      .catch(err => console.error("Siparisler cekilemedi:", err));
+      .catch(err => {
+        console.error("Siparisler cekilemedi:", err);
+        setError("Bağlantı hatası: Mutfak verileri güncellenemiyor.");
+      });
 
-    // 2. Canli siparisler icin WebSocket baglantisi
+    // 2. WebSocket Connection
     const client = new Client({
-      // brokerURL is used if direct ws is supported, but SockJS provides fallback
       webSocketFactory: () => new SockJS(`http://${window.location.hostname}:8085/ws`),
       onConnect: () => {
         console.log('Connected to WebSocket!');
         client.subscribe('/topic/orders', (message) => {
           if (message.body) {
-            const newOrder = JSON.parse(message.body);
-            console.log('New order received: ', newOrder);
+            const updatedOrder = JSON.parse(message.body);
             
-            // Play notification sound
-            const audio = new Audio('/bell.mp3');
-            audio.play().catch(e => console.log('Audio play ignored by browser until user interaction:', e));
-
-            setOrders((prev) => [newOrder, ...prev]);
+            setAllOrders((prev) => {
+              const exists = prev.find(o => o.id === updatedOrder.id);
+              
+              // Only ring for brand new orders
+              if (!exists && updatedOrder.status === 'NEW') {
+                  const audio = new Audio('/bell.mp3');
+                  audio.play().catch(e => console.log('Audio ignored:', e));
+              }
+              
+              if (exists) {
+                 return prev.map(o => o.id === updatedOrder.id ? updatedOrder : o).sort((a,b) => b.id - a.id);
+              }
+              return [updatedOrder, ...prev].sort((a,b) => b.id - a.id);
+            });
           }
         });
       },
       onStompError: (frame) => {
-        console.error('Broker reported error: ' + frame.headers['message']);
-        console.error('Additional details: ' + frame.body);
+        console.error('Broker error: ' + frame.headers['message']);
       },
     });
 
     client.activate();
-
-    return () => {
-      client.deactivate();
-    };
+    return () => client.deactivate();
   }, []);
 
-  const handleFinishOrder = async (orderId) => {
+  const handleFinishOrder = async (orderId, nextStatus) => {
+    if (!nextStatus) return; // Fallback
+    setUpdatingOrderId(orderId);
     try {
-      const response = await fetch(`http://${window.location.hostname}:8085/api/orders/${orderId}`, {
-        method: 'DELETE',
+      const response = await fetch(`http://${window.location.hostname}:8085/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus }),
       });
       if (response.ok || response.status === 204) {
-        setOrders((prev) => prev.filter((o) => o.id !== orderId));
+        setAllOrders((prev) => 
+            nextStatus === 'DELIVERED' 
+               ? prev.filter((o) => o.id !== orderId) // Teslim edilince mutfak panelinden tamamen düşer
+               : prev.map(o => o.id === orderId ? { ...o, status: nextStatus } : o)
+        );
       } else {
         const errorMsg = await response.text();
         if (response.status === 400 && (errorMsg.toLowerCase().includes('stok') || errorMsg.toLowerCase().includes('stock') || errorMsg.toLowerCase().includes('insufficient'))) {
           alert("⚠️ Stok yetersiz: Sipariş hazır olarak işaretlenemedi.");
         } else if (response.status === 409) {
-          alert("⚠️ Sipariş zaten READY veya geçiş geçersiz.");
+          alert(`⚠️ Sipariş zaten ${nextStatus} veya geçiş geçersiz.`);
         } else {
           alert(`Hata: ${errorMsg || "Status güncellenemedi."}`);
         }
@@ -120,7 +114,7 @@ function OrdersDashboard() {
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            Yeni Siparişler ({activeTab === 'NEW' ? orders.length : '...'})
+            Yeni Siparişler ({allOrders.filter(o => o.status === 'NEW').length})
           </button>
           <button 
             onClick={() => setActiveTab('READY')}
@@ -130,7 +124,7 @@ function OrdersDashboard() {
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            Hazır / Bekleyen ({activeTab === 'READY' ? orders.length : '...'})
+            Hazır / Bekleyen ({allOrders.filter(o => o.status === 'READY').length})
           </button>
         </div>
 
@@ -142,7 +136,7 @@ function OrdersDashboard() {
       </header>
 
       <main className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 relative z-10 max-w-7xl mx-auto">
-        {orders.length === 0 ? (
+        {displayedOrders.length === 0 ? (
           <div className="col-span-full mt-10 flex flex-col items-center justify-center text-slate-500 bg-slate-800/20 p-16 rounded-3xl border border-white/5 backdrop-blur-sm shadow-inner">
             <span className="text-7xl mb-6 opacity-30">
               {activeTab === 'NEW' ? '📭' : '🍽️'}
@@ -152,11 +146,11 @@ function OrdersDashboard() {
             </p>
           </div>
         ) : (
-          orders.map((order) => (
+          displayedOrders.map((order) => (
             <OrderCard 
               key={order.id} 
               order={order} 
-              onStatusChange={handleStatusChange}
+              onStatusChange={handleFinishOrder}
               nextStatus={activeTab === 'NEW' ? 'READY' : 'DELIVERED'}
               isLoading={updatingOrderId === order.id}
             />

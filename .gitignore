@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 .vscode
+Karekod_Ciktilari/
 # C extensions
 *.so
 
@@ -36,6 +37,8 @@ restoran.db
 Garson_Frontend/node_modules
 Garson_Customer_Frontend/node_modules
 Garson Robot/Ek_Eski_Dosyaalr
+Garson Robot/konusma_*.mp3
+
 
 
 # PyInstaller

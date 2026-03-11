@@ -1,12 +1,17 @@
 import React from "react";
 
 const OrderCard = ({ order, onStatusChange, nextStatus, isLoading }) => {
-  const timeStr = order.createdAt
-    ? new Date(order.createdAt).toLocaleTimeString([], {
+  const timeStr = order.orderTime
+    ? new Date(order.orderTime).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       })
-    : "??:??";
+    : order.createdAt
+      ? new Date(order.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "??:??";
 
   return (
     <div className={`relative p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl overflow-hidden group transition-all hover:scale-[1.01] hover:bg-white/15 z-20 ${isLoading ? 'opacity-70 grayscale-[0.3]' : ''}`}>
@@ -24,7 +29,7 @@ const OrderCard = ({ order, onStatusChange, nextStatus, isLoading }) => {
       <div className="flex justify-between items-start mb-4 border-b border-white/10 pb-4">
         <div>
           <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-indigo-400">
-            Masa {order.tableId || "?"}
+            Masa {order.tableNo || "?"}
           </h2>
           <div className="flex flex-col gap-1 mt-1">
             <span className="text-xs text-slate-300 bg-black/20 px-2 py-1 rounded-md inline-block">
@@ -46,10 +51,10 @@ const OrderCard = ({ order, onStatusChange, nextStatus, isLoading }) => {
             className="flex justify-between items-center bg-black/20 p-3 rounded-lg border border-white/5"
           >
             <span className="font-semibold text-lg text-slate-100">
-              {item.name}
+              {item.productName || item.name}
             </span>
             <span className="bg-indigo-500/80 text-white min-w-[32px] h-8 px-2 flex items-center justify-center rounded-full font-bold shadow-lg">
-              {item.qty}x
+              {item.quantity || item.qty}x
             </span>
           </div>
         ))}

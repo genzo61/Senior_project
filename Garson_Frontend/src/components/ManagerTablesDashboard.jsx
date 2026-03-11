@@ -81,7 +81,7 @@ const ManagerTablesDashboard = () => {
     };
 
     const getTableOrders = (tableId) => {
-        return allActiveOrders.filter(o => o.tableNo === String(tableId));
+        return allActiveOrders.filter(o => o.tableNo == String(tableId) || o.tableNo === tableId);
     };
 
     const calculateTableTotal = (tableOrders) => {
