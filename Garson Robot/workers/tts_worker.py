@@ -12,82 +12,100 @@ import pygame
 from config import BASE_DIR, tr
 
 
-# Pygame mixer init
-try:
-    pygame.mixer.init(frequency=24000)
-except Exception:
-    pass
-
-_tts_queue = queue.Queue()
-_tts_thread = None
-
-
-def _tts_loop():
-    """Arka planda TTS kuyruğunu dinle ve sırayla seslendir."""
-    while True:
-        text, lang = _tts_queue.get()
-        if text is None:
-            break
+class TTSManager:
+    def __init__(self, base_dir=BASE_DIR):
+        self.base_dir = base_dir
+        self._tts_queue = queue.Queue()
+        self._tts_thread = None
+        self._running = False
+        
+        # Pygame mixer init
         try:
-            print(f"🔊 Robot ({lang}): {text}")
+            pygame.mixer.init(frequency=24000)
+        except Exception:
+            pass
 
-            # Önceki sesi durdur
-            if pygame.mixer.get_init() and pygame.mixer.music.get_busy():
-                pygame.mixer.music.stop()
-                try:
-                    pygame.mixer.music.unload()
-                except Exception:
-                    pass
+    def start(self):
+        if not self._running:
+            self._running = True
+            self._tts_thread = threading.Thread(target=self._tts_loop, daemon=True)
+            self._tts_thread.start()
 
-            # Eski dosyaları temizle
-            for f in os.listdir(BASE_DIR):
-                if f.startswith("konusma_") and f.endswith(".mp3"):
+    def _tts_loop(self):
+        """Arka planda TTS kuyruğunu dinle ve sırayla seslendir."""
+        while self._running:
+            try:
+                # 1 saniyelik timeout, kapatılabilmesi için
+                item = self._tts_queue.get(timeout=1)
+            except queue.Empty:
+                continue
+
+            text, lang = item
+            if text is None:
+                self._tts_queue.task_done()
+                break
+                
+            try:
+                print(f"🔊 Robot ({lang}): {text}")
+
+                # Önceki sesi durdur
+                if pygame.mixer.get_init() and pygame.mixer.music.get_busy():
+                    pygame.mixer.music.stop()
                     try:
-                        os.remove(os.path.join(BASE_DIR, f))
+                        pygame.mixer.music.unload()
                     except Exception:
                         pass
 
-            filename = os.path.join(BASE_DIR, f"konusma_{int(time.time())}_{random.randint(100, 999)}.mp3")
+                # Eski dosyaları temizle
+                for f in os.listdir(self.base_dir):
+                    if f.startswith("konusma_") and f.endswith(".mp3"):
+                        try:
+                            os.remove(os.path.join(self.base_dir, f))
+                        except Exception:
+                            pass
 
-            # Dildeki sesi seç
-            from config import CURRENT_LANG, LANG
-            voice = LANG.get(CURRENT_LANG, {}).get("voice", "tr-TR-AhmetNeural")
+                filename = os.path.join(self.base_dir, f"konusma_{int(time.time())}_{random.randint(100, 999)}.mp3")
 
-            cmd = f'edge-tts --voice {voice} --text "{text}" --write-media "{filename}" --rate=+25%'
-            subprocess.run(cmd, shell=True, check=True, capture_output=True)
+                # Dildeki sesi seç
+                from config import CURRENT_LANG, LANG
+                voice = LANG.get(CURRENT_LANG, {}).get("voice", "tr-TR-AhmetNeural")
 
-            time.sleep(0.2)
-            if os.path.exists(filename):
-                pygame.mixer.music.load(filename)
-                pygame.mixer.music.play()
-                # Sesin bitmesini bekle (max 30 sn)
-                for _ in range(300):
-                    if not pygame.mixer.music.get_busy():
-                        break
-                    time.sleep(0.1)
-        except Exception as e:
-            print(f"❌ SES HATASI: {e}")
-        finally:
-            _tts_queue.task_done()
+                cmd = f'edge-tts --voice {voice} --text "{text}" --write-media "{filename}" --rate=+25%'
+                subprocess.run(cmd, shell=True, check=True, capture_output=True)
 
+                time.sleep(0.2)
+                if os.path.exists(filename):
+                    pygame.mixer.music.load(filename)
+                    pygame.mixer.music.play()
+                    # Sesin bitmesini bekle (max 30 sn)
+                    for _ in range(300):
+                        if not pygame.mixer.music.get_busy() or not self._running:
+                            break
+                        time.sleep(0.1)
+            except Exception as e:
+                print(f"❌ SES HATASI: {e}")
+            finally:
+                self._tts_queue.task_done()
 
-def speak(text):
-    """TTS kuyruğuna metin ekle. Thread-safe."""
-    global _tts_thread
-    from config import CURRENT_LANG
-    if _tts_thread is None or not _tts_thread.is_alive():
-        _tts_thread = threading.Thread(target=_tts_loop, daemon=True)
-        _tts_thread.start()
-    _tts_queue.put((text, CURRENT_LANG))
+    def speak(self, text):
+        """TTS kuyruğuna metin ekle. Thread-safe."""
+        from config import CURRENT_LANG
+        if not self._running:
+            self.start()
+        self._tts_queue.put((text, CURRENT_LANG))
 
-
-def stop():
-    """TTS kuyruğunu temizle ve durdur."""
-    while not _tts_queue.empty():
-        try:
-            _tts_queue.get_nowait()
-            _tts_queue.task_done()
-        except queue.Empty:
-            break
-    if pygame.mixer.get_init() and pygame.mixer.music.get_busy():
-        pygame.mixer.music.stop()
+    def stop(self):
+        """TTS kuyruğunu temizle ve durdur."""
+        self._running = False
+        while not self._tts_queue.empty():
+            try:
+                self._tts_queue.get_nowait()
+                self._tts_queue.task_done()
+            except queue.Empty:
+                break
+        if pygame.mixer.get_init() and pygame.mixer.music.get_busy():
+            pygame.mixer.music.stop()
+        if self._tts_thread and self._tts_thread.is_alive():
+            # Send a poison pill just in case
+            self._tts_queue.put((None, None))
+            self._tts_thread.join(timeout=2)

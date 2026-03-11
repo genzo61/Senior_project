@@ -13,7 +13,7 @@ const CustomerTableView = () => {
     setErrorMessage('');
     
     try {
-      const backendUrl = `http://${window.location.hostname}:8085`;
+      const backendUrl = `http://${window.location.hostname}:8081`;
       await axios.post(`${backendUrl}/api/tables/${id}/cagir`);
       setStatus('success');
     } catch (error) {

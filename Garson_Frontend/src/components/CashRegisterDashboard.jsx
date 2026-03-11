@@ -19,7 +19,7 @@ const CashRegisterDashboard = () => {
   const [cashTotal, setCashTotal] = useState(0);
   const [cardTotal, setCardTotal] = useState(0);
 
-  const backendUrl = `http://${window.location.hostname}:8085`;
+  const backendUrl = `http://${window.location.hostname}:8081`;
 
   const fetchData = async () => {
     try {

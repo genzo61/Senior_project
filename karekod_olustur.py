@@ -13,7 +13,7 @@ def get_local_ip():
     except Exception:
         return "127.0.0.1"
 
-def generate_table_qrs(num_tables=10, port=5174):
+def generate_table_qrs(num_tables=10, port=3001):
     """
     Karekod oluşturucu
     Çalıştırmak için: pip install qrcode[pil]

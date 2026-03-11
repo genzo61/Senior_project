@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  garson-backend:
+    build:
+      context: ./Garson_Backend
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8085" # Changed from 8080 host port to 8081 to avoid conflict, internal is 8085
+    environment:
+      # Connects to PostgreSQL directly on your local host maching (Windows/Mac)
+      # using the exact URL from the .env file. We replace 'localhost' with 'host.docker.internal' below if needed, 
+      # but if you provide DB_URL in .env, we'll try to use that first.
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASS}
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Required to resolve host.docker.internal on some Linux setups
+
+  garson-management-web:
+    build:
+      context: ./Garson_Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - garson-backend
+
+  garson-customer-web:
+    build:
+      context: ./Garson_Customer_Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:80"
+    depends_on:
+      - garson-backend

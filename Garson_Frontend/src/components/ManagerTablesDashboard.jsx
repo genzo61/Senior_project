@@ -12,7 +12,7 @@ const ManagerTablesDashboard = () => {
     const [selectedTable, setSelectedTable] = useState(null);
     const [closingTable, setClosingTable] = useState(false);
 
-    const backendUrl = `http://${window.location.hostname}:8085`;
+    const backendUrl = `http://${window.location.hostname}:8081`;
 
     const fetchData = async () => {
         try {

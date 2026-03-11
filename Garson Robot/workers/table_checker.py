@@ -4,15 +4,16 @@ Backend'den masa çağrılarını periyodik kontrol eder.
 """
 import threading
 import time
-from services.api_client import get_calling_tables
 
 
 class TableChecker:
-    def __init__(self, on_table_calling=None, interval=2):
+    def __init__(self, api_client, on_table_calling=None, interval=2):
         """
+        api_client: APIClient instance for networking
         on_table_calling: callable(str) — masa çağrısı geldiğinde çağrılır
         interval: kontrol aralığı (saniye)
         """
+        self.api_client = api_client
         self.on_table_calling = on_table_calling
         self.interval = interval
         self._running = False
@@ -34,7 +35,7 @@ class TableChecker:
     def _loop(self):
         while self._running:
             try:
-                calling = set(get_calling_tables())
+                calling = set(self.api_client.get_calling_tables())
                 for t_id in calling:
                     if t_id not in self._announced:
                         self._announced.add(t_id)

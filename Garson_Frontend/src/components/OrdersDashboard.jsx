@@ -14,7 +14,7 @@ function OrdersDashboard() {
 
   useEffect(() => {
     // 1. Initial HTTP Fetch
-    fetch(`http://${window.location.hostname}:8085/api/orders`)
+    fetch(`http://${window.location.hostname}:8081/api/orders`)
       .then(res => res.json())
       .then(data => {
         const sorted = data.sort((a,b) => b.id - a.id);
@@ -27,7 +27,7 @@ function OrdersDashboard() {
 
     // 2. WebSocket Connection
     const client = new Client({
-      webSocketFactory: () => new SockJS(`http://${window.location.hostname}:8085/ws`),
+      webSocketFactory: () => new SockJS(`http://${window.location.hostname}:8081/ws`),
       onConnect: () => {
         console.log('Connected to WebSocket!');
         client.subscribe('/topic/orders', (message) => {
@@ -64,7 +64,7 @@ function OrdersDashboard() {
     if (!nextStatus) return; // Fallback
     setUpdatingOrderId(orderId);
     try {
-      const response = await fetch(`http://${window.location.hostname}:8085/api/orders/${orderId}/status`, {
+      const response = await fetch(`http://${window.location.hostname}:8081/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: nextStatus }),

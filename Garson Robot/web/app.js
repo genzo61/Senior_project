@@ -127,7 +127,12 @@ async function addToCart(name, price, id) {
       renderCart(res.cart);
       showToast(`${name} ${t("added")}`, "success", 1500);
     } else {
-      showToast(`${name} ${t("no_stock")}`, "warning");
+      if (res.reason === "no_table") {
+        const msg = t("qr_scan_prompt") || "Önce masadaki karekodu okutmalısınız.";
+        showToast(msg, "warning");
+      } else {
+        showToast(`${name} ${t("no_stock")}`, "warning");
+      }
     }
   } catch (e) {
     console.error("Add to cart error:", e);
