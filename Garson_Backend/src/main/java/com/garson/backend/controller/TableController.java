@@ -56,9 +56,14 @@ public class TableController {
                         order.setStatus("PAID");
                         order.setPaidAt(now);
                         order.setPaymentMethod(paymentMethod);
+                        if (order.getVersion() == null) {
+                            order.setVersion(0L);
+                        }
                     }
                 });
-                orderRepository.saveAll(orders);
+                // Orders loaded in this transaction are managed; flush prevents
+                // saveAll from misclassifying legacy null-version rows as new.
+                orderRepository.flush();
             }
 
             table.setStatus(TableStatus.EMPTY);

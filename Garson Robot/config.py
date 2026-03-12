@@ -25,6 +25,8 @@ API_PRODUCTS_URL = f"{API_BASE}/products"
 API_TABLES_URL = f"{API_BASE}/tables"
 CAMERA_ID = CONFIG.get("camera_id", 0)
 QR_DELAY = CONFIG.get("qr_delay", 5)
+QR_ENABLED = bool(CONFIG.get("qr_enabled", True))
+DEFAULT_TABLE_NO = str(CONFIG.get("default_table_no", "")).strip()
 LLM_TEMPERATURE = CONFIG.get("llm_temperature", 0.0)
 
 # ── Language ──────────────────────────────────────────

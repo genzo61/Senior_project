@@ -4,9 +4,17 @@ Kamera ile QR kod okuma.
 """
 import threading
 import time
-import cv2
-from pyzbar.pyzbar import decode
 from config import CAMERA_ID, QR_DELAY
+
+try:
+    import cv2
+except Exception:
+    cv2 = None
+
+try:
+    from pyzbar.pyzbar import decode
+except Exception:
+    decode = None
 
 
 class QRScanner:
@@ -32,6 +40,10 @@ class QRScanner:
 
     def _loop(self):
         try:
+            if cv2 is None or decode is None:
+                print("⚠️ QR bağımlılıkları (opencv/pyzbar) yok, QR okuyucu devre dışı.")
+                return
+
             cap = cv2.VideoCapture(CAMERA_ID)
             if not cap.isOpened():
                 print("⚠️ Kamera açılamadı, QR okuyucu devre dışı.")

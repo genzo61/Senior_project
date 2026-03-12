@@ -22,11 +22,11 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from config import (
     CONFIG, MODEL_NAME, IMG_FOLDER, BASE_DIR,
-    set_lang, tr, CURRENT_LANG, LANG
+    set_lang, tr, CURRENT_LANG, LANG,
+    QR_ENABLED, DEFAULT_TABLE_NO
 )
 from services.api_client import APIClient
 from services import llm_service
-from workers.qr_worker import QRScanner
 from workers.table_checker import TableChecker
 from workers.tts_worker import TTSManager
 from workers.stt_worker import STTManager
@@ -177,13 +177,27 @@ def main():
         daemon=True,
     ).start()
 
-    # QR Scanner
-    qr = QRScanner(on_qr_found=_on_qr_found)
-    qr.start()
+    # QR Scanner (kamera yoksa config.json -> "qr_enabled": false yap)
+    qr = None
+    if QR_ENABLED:
+        try:
+            from workers.qr_worker import QRScanner
+            qr = QRScanner(on_qr_found=_on_qr_found)
+            qr.start()
+            print("📷 QR okuyucu aktif.")
+        except Exception as e:
+            print(f"⚠️ QR okuyucu başlatılamadı: {e}")
+    else:
+        print("ℹ️ QR okuyucu config ile devre dışı (qr_enabled=false).")
 
     # Table Checker
     tc = TableChecker(api_client=api_client, on_table_calling=_on_table_calling)
     tc.start()
+
+    # QR kapalıyken sipariş akışının kilitlenmemesi için varsayılan masa
+    if DEFAULT_TABLE_NO and app.get_table_number() is None:
+        if app.set_table_number(DEFAULT_TABLE_NO):
+            print(f"ℹ️ Varsayılan masa atandı: {DEFAULT_TABLE_NO}")
 
     print("🚀 Garson Robot başlatılıyor...")
     print("   Web UI: http://localhost:8686")
@@ -195,26 +209,31 @@ def main():
     if is_pi:
         # ── Raspberry Pi 5 + 13.3" Dokunmatik Ekran (1920x1080) ──
         print("   📟 Raspberry Pi algılandı — Kiosk modu aktif")
-        try:
-            eel.start(
-                "index.html",
-                size=(1920, 1080),
-                port=8686,
-                mode="chrome",      # Pi'de Chromium = "chrome"
-                cmdline_args=[
-                    "--kiosk",                    # Tam ekran, adres çubuğu yok
-                    "--touch-events=enabled",     # Dokunmatik destek
-                    "--disable-pinch",            # Pinch-to-zoom kapat (kiosk)
-                    "--noerrdialogs",             # Hata diyaloglarını gizle
-                    "--disable-infobars",         # Bilgi çubuklarını gizle
-                    "--disable-translate",         # Çeviri pop-up kapat
-                    "--overscroll-history-navigation=disabled",  # Swipe geri gitme kapat
-                    "--check-for-update-interval=31536000",      # Güncelleme pop-up kapat
-                ],
-                block=True,
-            )
-        except (SystemExit, KeyboardInterrupt):
-            pass
+        for mode in ["chrome", "chromium", "default"]:
+            try:
+                eel.start(
+                    "index.html",
+                    size=(1920, 1080),
+                    port=8686,
+                    mode=mode,
+                    cmdline_args=[
+                        "--kiosk",                    # Tam ekran, adres çubuğu yok
+                        "--touch-events=enabled",     # Dokunmatik destek
+                        "--disable-pinch",            # Pinch-to-zoom kapat (kiosk)
+                        "--noerrdialogs",             # Hata diyaloglarını gizle
+                        "--disable-infobars",         # Bilgi çubuklarını gizle
+                        "--disable-translate",        # Çeviri pop-up kapat
+                        "--overscroll-history-navigation=disabled",  # Swipe geri gitme kapat
+                        "--check-for-update-interval=31536000",      # Güncelleme pop-up kapat
+                    ],
+                    block=True,
+                )
+                break
+            except EnvironmentError:
+                print(f"⚠️ {mode} bulunamadı, sonraki mod deneniyor...")
+                continue
+            except (SystemExit, KeyboardInterrupt):
+                break
     else:
         # ── Masaüstü (Windows/Mac) — Geliştirme modu ─────
         for mode in ["edge", "chrome", "default"]:
@@ -233,7 +252,8 @@ def main():
             except (SystemExit, KeyboardInterrupt):
                 break
 
-    qr.stop()
+    if qr:
+        qr.stop()
     tc.stop()
     app.shutdown()
     print("Garson Robot kapatıldı.")

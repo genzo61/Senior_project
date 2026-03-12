@@ -45,6 +45,9 @@ async function selectLanguage(langCode) {
     translations = await eel.get_translations()();
     updateUITexts();
     await loadMenu();
+    const cartData = await eel.get_cart()();
+    cart = cartData.items || {};
+    renderCart(cartData);
     switchScreen("app-screen");
   } catch (e) {
     console.error("Language set error:", e);

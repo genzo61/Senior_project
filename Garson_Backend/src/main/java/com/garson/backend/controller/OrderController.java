@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.garson.backend.model.OrderStatus;
 import com.garson.backend.model.OrderItem;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,23 +36,21 @@ public class OrderController {
     @PostMapping
     @Transactional
     public ResponseEntity<Order> createOrder(@RequestBody Order orderInput) {
-
-        // Setup bi-directional relationship and populate prices
-        if (orderInput.getItems() != null) {
-            orderInput.getItems().forEach(item -> {
-                item.setOrder(orderInput);
-                // Try to find the product price if not provided
-                if (item.getPrice() == null && item.getProductName() != null) {
-                    productRepository.findByNameIgnoreCase(item.getProductName())
-                            .ifPresent(p -> item.setPrice(p.getPrice()));
-                }
-            });
+        if (orderInput.getItems() == null) {
+            orderInput.setItems(new ArrayList<>());
         }
 
-        // 3. Setup bi-directional relationship
-        orderInput.getItems().forEach(item -> item.setOrder(orderInput));
+        // Setup bi-directional relationship and populate prices
+        orderInput.getItems().forEach(item -> {
+            item.setOrder(orderInput);
+            // Try to find the product price if not provided
+            if (item.getPrice() == null && item.getProductName() != null) {
+                productRepository.findByNameIgnoreCase(item.getProductName())
+                        .ifPresent(p -> item.setPrice(p.getPrice()));
+            }
+        });
 
-        // 4. Defaults
+        // 3. Defaults
         orderInput.setStatus(OrderStatus.NEW.name());
         orderInput.setCreatedAt(Instant.now());
         orderInput.setUpdatedAt(Instant.now());
@@ -116,11 +115,11 @@ public class OrderController {
     @Transactional
     public ResponseEntity<?> updateStatus(@PathVariable("id") Long id,
             @RequestBody Map<String, String> statusMap) {
-        System.out.println("DEBUG: updateStatus called for ID: " + id + " with statusMap: " + statusMap);
-        String statusStr = statusMap.get("status");
-        if (statusStr == null) {
+        String statusStr = (statusMap != null) ? statusMap.get("status") : null;
+        if (statusStr == null || statusStr.isBlank()) {
             return ResponseEntity.badRequest().body("Status is required");
         }
+        statusStr = statusStr.trim().toUpperCase();
 
         Optional<Order> orderOpt = orderRepository.findById(id);
         if (orderOpt.isEmpty()) {
@@ -135,10 +134,12 @@ public class OrderController {
             return ResponseEntity.badRequest().body("Invalid status: " + statusStr);
         }
 
-        System.out.println("DEBUG: Transitioning order " + id + " from " + order.getStatus() + " to " + newStatus);
-
         // Status Transition Rules
         String currentStatus = order.getStatus();
+        if (currentStatus == null || currentStatus.isBlank()) {
+            currentStatus = OrderStatus.NEW.name();
+            order.setStatus(currentStatus);
+        }
 
         // Allowed transitions: NEW -> READY, READY -> DELIVERED
         if ("NEW".equals(currentStatus) && newStatus != OrderStatus.READY) {
@@ -160,29 +161,32 @@ public class OrderController {
         // Stock deduction logic if moving to READY
         if (newStatus == OrderStatus.READY) {
             try {
-                System.out.println("DEBUG: Deducting stock for order " + id);
                 deductStock(order);
             } catch (IllegalStateException e) {
-                System.out.println("DEBUG: Stock deduction error: " + e.getMessage());
                 return ResponseEntity.badRequest().body(e.getMessage());
             } catch (Exception e) {
-                System.out.println("DEBUG: Unexpected stock error: " + e.getMessage());
                 return ResponseEntity.internalServerError().body("Stock deduction failed: " + e.getMessage());
             }
         }
 
         order.setStatus(newStatus.name());
+        if (order.getVersion() == null) {
+            order.setVersion(0L);
+        }
+        if (order.getCreatedAt() == null) {
+            order.setCreatedAt(Instant.now());
+        }
+        order.setUpdatedAt(Instant.now());
 
         try {
-            System.out.println("DEBUG: Saving order " + id);
-            Order updatedOrder = orderRepository.saveAndFlush(order);
+            // order was loaded in this transaction and is managed; flushing avoids
+            // save() trying to treat legacy null-version rows as new entities.
+            orderRepository.flush();
             if (messagingTemplate != null) {
-                messagingTemplate.convertAndSend("/topic/orders", updatedOrder);
+                messagingTemplate.convertAndSend("/topic/orders", order);
             }
-            System.out.println("DEBUG: Success updating order " + id);
-            return ResponseEntity.ok(updatedOrder);
+            return ResponseEntity.ok(order);
         } catch (Exception e) {
-            System.out.println("DEBUG: Save error: " + e.getMessage());
             return ResponseEntity.internalServerError().body("Could not update order status: " + e.getMessage());
         }
     }
