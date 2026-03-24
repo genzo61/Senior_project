@@ -1,12 +1,12 @@
-{
-  "api_url": "http://192.168.1.12:8081/api/orders",
-  "api_base_url": "http://192.168.1.12:8081",
-  "llm_model": "llama3.2:3b",
-  "llm_temperature": 0.0,
-  "db_name": "restoran.db",
-  "image_folder": "img",
-  "camera_id": 0,
-  "qr_delay": 5,
-  "qr_enabled": false,
-  "default_table_no": "05"
+﻿{
+    "api_url":  "http:///api/orders",
+    "api_base_url":  "http://",
+    "llm_model":  "llama3.2:3b",
+    "llm_temperature":  0.0,
+    "db_name":  "restoran.db",
+    "image_folder":  "img",
+    "camera_id":  0,
+    "qr_delay":  5,
+    "qr_enabled":  false,
+    "default_table_no":  "05"
 }
