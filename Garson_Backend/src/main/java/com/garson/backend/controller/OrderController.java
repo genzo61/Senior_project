@@ -1,6 +1,11 @@
 package com.garson.backend.controller;
 
+import com.garson.backend.dto.order.OrderCreateItemRequest;
+import com.garson.backend.dto.order.OrderCreateRequest;
+import com.garson.backend.dto.order.OrderResponse;
 import com.garson.backend.model.Order;
+import com.garson.backend.model.OrderItem;
+import com.garson.backend.model.OrderStatus;
 import com.garson.backend.model.Product;
 import com.garson.backend.model.RestaurantTable;
 import com.garson.backend.model.TableStatus;
@@ -12,10 +17,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import com.garson.backend.model.OrderStatus;
-import com.garson.backend.model.OrderItem;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,31 +48,20 @@ public class OrderController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<Order> createOrder(@RequestBody Order orderInput) {
-
-        // Setup bi-directional relationship and populate prices
-        if (orderInput.getItems() != null) {
-            orderInput.getItems().forEach(item -> {
-                item.setOrder(orderInput);
-                // Try to find the product price if not provided
-                if (item.getPrice() == null && item.getProductName() != null) {
-                    productRepository.findByNameIgnoreCase(item.getProductName())
-                            .ifPresent(p -> item.setPrice(p.getPrice()));
-                }
-            });
+    public ResponseEntity<?> createOrder(@RequestBody OrderCreateRequest request) {
+        final Order orderInput;
+        try {
+            orderInput = mapCreateRequest(request);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
 
-        // 3. Setup bi-directional relationship
-        orderInput.getItems().forEach(item -> item.setOrder(orderInput));
-
-        // 4. Defaults
         orderInput.setStatus(OrderStatus.NEW.name());
         orderInput.setCreatedAt(Instant.now());
         orderInput.setUpdatedAt(Instant.now());
 
         Order savedOrder = orderRepository.saveAndFlush(orderInput);
 
-        // 2. Set Table Status to OCCUPIED
         if (savedOrder.getTableNo() != null) {
             try {
                 Long tableId = Long.parseLong(savedOrder.getTableNo());
@@ -66,7 +69,6 @@ public class OrderController {
                     if (table.getStatus() == TableStatus.EMPTY || table.getStatus() == TableStatus.CALLING_ROBOT) {
                         table.setStatus(TableStatus.OCCUPIED);
                         tableRepository.save(table);
-                        // Notify table status change via WebSocket
                         messagingTemplate.convertAndSend("/topic/tables", tableRepository.findAll());
                     }
                 });
@@ -75,39 +77,42 @@ public class OrderController {
             }
         }
 
-        // 2. Broadcast to "/topic/orders" for React Kitchen Display System (KDS)
         messagingTemplate.convertAndSend("/topic/orders", savedOrder);
 
-        return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
+        return new ResponseEntity<>(OrderResponse.fromEntity(savedOrder), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
-        List<Order> activeOrders = orderRepository.findAll().stream()
+    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+        List<OrderResponse> activeOrders = orderRepository.findAll().stream()
                 .filter(o -> !"PAID".equals(o.getStatus()))
+                .map(OrderResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(activeOrders);
     }
 
     @GetMapping("/table/{tableNo}")
-    public ResponseEntity<List<Order>> getOrdersByTable(@PathVariable("tableNo") String tableNo) {
-        List<Order> activeOrders = orderRepository.findAll().stream()
+    public ResponseEntity<List<OrderResponse>> getOrdersByTable(@PathVariable("tableNo") String tableNo) {
+        List<OrderResponse> activeOrders = orderRepository.findAll().stream()
                 .filter(o -> tableNo.equals(o.getTableNo()) && !"PAID".equals(o.getStatus()))
+                .map(OrderResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(activeOrders);
     }
 
     @GetMapping("/paid")
-    public ResponseEntity<List<Order>> getPaidOrders() {
-        List<Order> paidOrders = orderRepository.findAll().stream()
+    public ResponseEntity<List<OrderResponse>> getPaidOrders() {
+        List<OrderResponse> paidOrders = orderRepository.findAll().stream()
                 .filter(o -> "PAID".equals(o.getStatus()))
+                .map(OrderResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(paidOrders);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable("id") Long id) {
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable("id") Long id) {
         return orderRepository.findById(id)
+                .map(OrderResponse::fromEntity)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -116,7 +121,6 @@ public class OrderController {
     @Transactional
     public ResponseEntity<?> updateStatus(@PathVariable("id") Long id,
             @RequestBody Map<String, String> statusMap) {
-        System.out.println("DEBUG: updateStatus called for ID: " + id + " with statusMap: " + statusMap);
         String statusStr = statusMap.get("status");
         if (statusStr == null) {
             return ResponseEntity.badRequest().body("Status is required");
@@ -135,12 +139,8 @@ public class OrderController {
             return ResponseEntity.badRequest().body("Invalid status: " + statusStr);
         }
 
-        System.out.println("DEBUG: Transitioning order " + id + " from " + order.getStatus() + " to " + newStatus);
-
-        // Status Transition Rules
         String currentStatus = order.getStatus();
 
-        // Allowed transitions: NEW -> READY, READY -> DELIVERED
         if ("NEW".equals(currentStatus) && newStatus != OrderStatus.READY) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("NEW orders can only transition to READY");
@@ -154,19 +154,15 @@ public class OrderController {
                     .body("DELIVERED orders cannot be changed");
         }
         if (currentStatus != null && currentStatus.equals(newStatus.name())) {
-            return ResponseEntity.ok(order); // No change needed
+            return ResponseEntity.ok(OrderResponse.fromEntity(order));
         }
 
-        // Stock deduction logic if moving to READY
         if (newStatus == OrderStatus.READY) {
             try {
-                System.out.println("DEBUG: Deducting stock for order " + id);
                 deductStock(order);
             } catch (IllegalStateException e) {
-                System.out.println("DEBUG: Stock deduction error: " + e.getMessage());
                 return ResponseEntity.badRequest().body(e.getMessage());
             } catch (Exception e) {
-                System.out.println("DEBUG: Unexpected stock error: " + e.getMessage());
                 return ResponseEntity.internalServerError().body("Stock deduction failed: " + e.getMessage());
             }
         }
@@ -174,51 +170,138 @@ public class OrderController {
         order.setStatus(newStatus.name());
 
         try {
-            System.out.println("DEBUG: Saving order " + id);
             Order updatedOrder = orderRepository.saveAndFlush(order);
-            if (messagingTemplate != null) {
-                messagingTemplate.convertAndSend("/topic/orders", updatedOrder);
-            }
-            System.out.println("DEBUG: Success updating order " + id);
-            return ResponseEntity.ok(updatedOrder);
+            messagingTemplate.convertAndSend("/topic/orders", updatedOrder);
+            return ResponseEntity.ok(OrderResponse.fromEntity(updatedOrder));
         } catch (Exception e) {
-            System.out.println("DEBUG: Save error: " + e.getMessage());
             return ResponseEntity.internalServerError().body("Could not update order status: " + e.getMessage());
         }
     }
 
-    private void deductStock(Order order) {
-        if (order.getItems() == null || order.getItems().isEmpty())
-            return;
+    private Order mapCreateRequest(OrderCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Order payload is required");
+        }
 
-        // 1. Identify all products needed
+        String tableNo = safeTrim(request.getTableNo());
+        if (tableNo.isEmpty()) {
+            throw new IllegalArgumentException("tableNo is required");
+        }
+
+        Order order = new Order();
+        order.setTableNo(tableNo);
+        order.setItems(new ArrayList<>());
+
+        List<OrderCreateItemRequest> requestItems = request.getItems() == null ? List.of() : request.getItems();
+        if (requestItems.isEmpty()) {
+            throw new IllegalArgumentException("At least one order item is required");
+        }
+
+        int lineNo = 0;
+        for (OrderCreateItemRequest itemRequest : requestItems) {
+            lineNo++;
+            if (itemRequest == null) {
+                throw new IllegalArgumentException("Item at index " + lineNo + " is null");
+            }
+
+            OrderItem item = new OrderItem();
+
+            Product linkedProduct = resolveProduct(itemRequest);
+            String requestedProductName = safeTrim(itemRequest.getProductName());
+            if (linkedProduct != null && !requestedProductName.isEmpty()
+                    && !isSameProductName(linkedProduct.getName(), requestedProductName)) {
+                throw new IllegalArgumentException("Item at index " + lineNo + " has mismatched productId/productName");
+            }
+
+            if (linkedProduct == null && !requestedProductName.isEmpty()) {
+                throw new IllegalArgumentException("Item at index " + lineNo + " has unknown product: " + requestedProductName);
+            }
+
+            String productName = requestedProductName;
+            if (productName.isEmpty() && linkedProduct != null) {
+                productName = linkedProduct.getName();
+            }
+
+            if (productName.isEmpty()) {
+                throw new IllegalArgumentException("Item at index " + lineNo + " requires productName or productId");
+            }
+
+            item.setProductName(productName);
+            item.setQuantity(itemRequest.getQuantity() == null || itemRequest.getQuantity() <= 0 ? 1 : itemRequest.getQuantity());
+
+            Double price = itemRequest.getPrice();
+            if (price == null && linkedProduct != null) {
+                price = linkedProduct.getPrice();
+            }
+            if (price == null && productName != null) {
+                price = productRepository.findByNameIgnoreCase(productName).map(Product::getPrice).orElse(0.0);
+            }
+            item.setPrice(price);
+            item.setSpecialNote(safeTrim(itemRequest.getSpecialNote()));
+
+            order.addItem(item);
+        }
+
+        if (order.getItems().isEmpty()) {
+            throw new IllegalArgumentException("At least one valid order item is required");
+        }
+
+        return order;
+    }
+
+    private Product resolveProduct(OrderCreateItemRequest itemRequest) {
+        if (itemRequest.getProductId() != null) {
+            Optional<Product> product = productRepository.findById(itemRequest.getProductId());
+            if (product.isPresent()) {
+                return product.get();
+            }
+        }
+
+        String productName = safeTrim(itemRequest.getProductName());
+        if (!productName.isEmpty()) {
+            return productRepository.findByNameIgnoreCase(productName).orElse(null);
+        }
+
+        return null;
+    }
+
+    private boolean isSameProductName(String left, String right) {
+        return canonical(left).equals(canonical(right));
+    }
+
+    private String canonical(String value) {
+        return safeTrim(value).toLowerCase().replaceAll("\\s+", " ");
+    }
+
+    private String safeTrim(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private void deductStock(Order order) {
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            return;
+        }
+
         for (OrderItem item : order.getItems()) {
-            if (item.getProductName() == null)
+            if (item.getProductName() == null) {
                 continue;
+            }
 
             Product p = productRepository.findByNameIgnoreCase(item.getProductName())
                     .orElseThrow(() -> new IllegalStateException("Product not found: " + item.getProductName()));
 
-            int currentStock = (p.getStock() != null) ? p.getStock() : 0;
+            int currentStock = p.getStock() != null ? p.getStock() : 0;
             if (currentStock < item.getQuantity()) {
                 throw new IllegalStateException("Insufficient stock for: " + item.getProductName() +
                         " (Available: " + currentStock + ")");
             }
 
-            // 2. Perform deduction
             p.setStock(currentStock - item.getQuantity());
             productRepository.save(p);
         }
 
         productRepository.flush();
-
-        try {
-            if (messagingTemplate != null) {
-                messagingTemplate.convertAndSend("/topic/products", productRepository.findAll());
-            }
-        } catch (Exception e) {
-            System.err.println("Messaging error after stock deduction: " + e.getMessage());
-        }
+        messagingTemplate.convertAndSend("/topic/products", productRepository.findAll());
     }
 
     @DeleteMapping("/{id}")

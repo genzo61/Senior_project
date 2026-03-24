@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Column;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +22,13 @@ public class Product {
     private String name;
     private Double price;
     private Integer stock;
+    private String category;
+
+    @Column(length = 2048)
+    private String description;
+
+    @Column(length = 2048)
+    private String tags;
 
     @Version
     private Long version = 0L;

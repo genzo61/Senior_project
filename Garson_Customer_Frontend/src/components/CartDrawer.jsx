@@ -1,0 +1,135 @@
+import { formatPrice } from '../utils/textUtils';
+
+function CartDrawer({
+  open,
+  onClose,
+  cartItems,
+  tableId,
+  orderNote,
+  onOrderNoteChange,
+  onIncrease,
+  onDecrease,
+  onRemove,
+  onItemNoteChange,
+  total,
+  onCheckout,
+  isSubmitting,
+  checkoutError,
+}) {
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div className="absolute bottom-0 left-0 right-0 max-h-[90vh] rounded-t-3xl border-t border-slate-700 bg-slate-900 p-4 shadow-2xl">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-wider text-slate-400">Masa {tableId}</p>
+            <h2 className="text-xl font-bold text-white">Sepet</h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-slate-700 px-3 py-1 text-sm text-slate-300"
+          >
+            Kapat
+          </button>
+        </div>
+
+        <div className="mb-4 max-h-[46vh] space-y-3 overflow-y-auto pr-1">
+          {cartItems.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-700 p-4 text-center text-sm text-slate-400">
+              Sepetiniz bos.
+            </div>
+          ) : (
+            cartItems.map((line) => (
+              <div key={line.lineId} className="rounded-xl border border-slate-800 bg-slate-950 p-3">
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{line.productName}</p>
+                    <p className="text-xs text-slate-400">{formatPrice(line.price)} / adet</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onRemove(line.lineId)}
+                    className="text-xs text-rose-300 transition hover:text-rose-200"
+                  >
+                    Sil
+                  </button>
+                </div>
+
+                <div className="mb-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onDecrease(line.lineId, line.quantity - 1)}
+                    className="h-8 w-8 rounded-lg border border-slate-700 text-sm text-slate-200"
+                  >
+                    -
+                  </button>
+                  <span className="min-w-8 text-center text-sm font-semibold text-white">{line.quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => onIncrease(line.lineId, line.quantity + 1)}
+                    className="h-8 w-8 rounded-lg border border-slate-700 text-sm text-slate-200"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <label className="block text-xs text-slate-400">
+                  Urun notu
+                  <input
+                    type="text"
+                    value={line.specialNote}
+                    onChange={(event) => onItemNoteChange(line.lineId, event.target.value)}
+                    placeholder="Orn: sogansiz"
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
+                  />
+                </label>
+              </div>
+            ))
+          )}
+        </div>
+
+        <label className="mb-3 block text-xs text-slate-400">
+          Siparis notu (opsiyonel)
+          <textarea
+            value={orderNote}
+            onChange={(event) => onOrderNoteChange(event.target.value)}
+            rows={2}
+            placeholder="Servis icin genel not"
+            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
+          />
+        </label>
+
+        {checkoutError ? (
+          <p className="mb-3 rounded-lg border border-rose-400/40 bg-rose-950/40 px-3 py-2 text-xs text-rose-200">
+            {checkoutError}
+          </p>
+        ) : null}
+
+        <div className="flex items-center justify-between border-t border-slate-800 pt-3">
+          <div>
+            <p className="text-xs text-slate-400">Toplam</p>
+            <p className="text-lg font-bold text-emerald-300">{formatPrice(total)}</p>
+          </div>
+          <button
+            type="button"
+            disabled={!cartItems.length || isSubmitting}
+            onClick={onCheckout}
+            className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
+              !cartItems.length || isSubmitting
+                ? 'cursor-not-allowed bg-slate-700 text-slate-400'
+                : 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+            }`}
+          >
+            {isSubmitting ? 'Gonderiliyor...' : 'Siparisi gonder'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default CartDrawer;

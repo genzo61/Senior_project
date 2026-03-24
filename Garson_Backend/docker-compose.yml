@@ -1,0 +1,43 @@
+services:
+  garson-db:
+    image: postgres:16-alpine
+    container_name: garson-backend-db
+    environment:
+      POSTGRES_DB: garson_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "123"
+    ports:
+      - "5432:5432"
+    volumes:
+      - garson_backend_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d garson_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  garson-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: garson-backend:local
+    container_name: garson-backend-api
+    depends_on:
+      garson-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://garson-db:5432/garson_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "123"
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: llama3.2:3b
+      OLLAMA_TIMEOUT_MS: "8000"
+      OLLAMA_TEMPERATURE: "0.0"
+    ports:
+      - "8085:8085"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+volumes:
+  garson_backend_pg_data:
