@@ -21,30 +21,30 @@ function CartDrawer({
   }
 
   return (
-    <div className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <div className="absolute bottom-0 left-0 right-0 max-h-[90vh] rounded-t-3xl border-t border-slate-700 bg-slate-900 p-4 shadow-2xl">
+    <div className="fixed inset-0 z-[70] bg-slate-950/70 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div className="absolute bottom-0 left-0 right-0 max-h-[92vh] rounded-t-3xl border-t border-cyan-300/25 bg-slate-900 p-4 shadow-2xl md:left-auto md:right-6 md:top-6 md:bottom-6 md:w-[440px] md:rounded-3xl md:border md:p-5">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-wider text-slate-400">Masa {tableId}</p>
-            <h2 className="text-xl font-bold text-white">Sepet</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Masa {tableId}</p>
+            <h2 className="text-xl font-bold text-white">Siparis Sepeti</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-slate-700 px-3 py-1 text-sm text-slate-300"
+            className="rounded-full border border-slate-700 px-3 py-1 text-sm text-slate-300 transition hover:border-cyan-300/60"
           >
             Kapat
           </button>
         </div>
 
-        <div className="mb-4 max-h-[46vh] space-y-3 overflow-y-auto pr-1">
+        <div className="mb-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1 md:max-h-[52vh]">
           {cartItems.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-700 p-4 text-center text-sm text-slate-400">
               Sepetiniz bos.
             </div>
           ) : (
             cartItems.map((line) => (
-              <div key={line.lineId} className="rounded-xl border border-slate-800 bg-slate-950 p-3">
+              <div key={line.lineId} className="rounded-xl border border-slate-800 bg-slate-950/90 p-3">
                 <div className="mb-2 flex items-start justify-between gap-2">
                   <div>
                     <p className="text-sm font-semibold text-white">{line.productName}</p>
@@ -84,7 +84,7 @@ function CartDrawer({
                     value={line.specialNote}
                     onChange={(event) => onItemNoteChange(line.lineId, event.target.value)}
                     placeholder="Orn: sogansiz"
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-300/70"
                   />
                 </label>
               </div>
@@ -99,7 +99,7 @@ function CartDrawer({
             onChange={(event) => onOrderNoteChange(event.target.value)}
             rows={2}
             placeholder="Servis icin genel not"
-            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-amber-400"
+            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-300/70"
           />
         </label>
 
@@ -121,7 +121,7 @@ function CartDrawer({
             className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
               !cartItems.length || isSubmitting
                 ? 'cursor-not-allowed bg-slate-700 text-slate-400'
-                : 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                : 'bg-cyan-300 text-slate-950 hover:bg-cyan-200'
             }`}
           >
             {isSubmitting ? 'Gonderiliyor...' : 'Siparisi gonder'}

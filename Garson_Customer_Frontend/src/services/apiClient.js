@@ -17,8 +17,9 @@ export function getBackendBaseUrl() {
 
 export function getAiEndpoint() {
   const endpoint = import.meta.env.VITE_AI_CHAT_ENDPOINT;
-  if (!endpoint) {
-    return null;
+  if (endpoint) {
+    return endpoint.replace(/\/$/, '');
   }
-  return endpoint.replace(/\/$/, '');
+
+  return `${backendBaseUrl}/api/ai/customer-chat`;
 }

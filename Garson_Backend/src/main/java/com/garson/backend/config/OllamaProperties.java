@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class OllamaProperties {
     private String baseUrl = "http://127.0.0.1:11434";
     private String model = "llama3.2:3b";
+    private String embeddingModel = "nomic-embed-text";
     private int timeoutMs = 8000;
     private double temperature = 0.0;
 }

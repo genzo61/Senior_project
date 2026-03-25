@@ -69,41 +69,40 @@ function OrderStatusPage() {
   }, [order]);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-md px-5 py-6">
-      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
-        <p className="text-xs uppercase tracking-wider text-emerald-300">Siparis alindi</p>
-        <h1 className="mt-1 text-2xl font-bold text-white">Siparis #{orderId}</h1>
+    <main className="mx-auto min-h-screen w-full max-w-6xl px-5 py-8">
+      <div className="rounded-[2rem] border border-cyan-200/25 bg-slate-900/85 p-5 shadow-[0_24px_70px_rgba(2,6,23,0.65)] backdrop-blur sm:p-7">
+        <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Siparis alindi</p>
+        <h1 className="mt-1 text-3xl font-black text-white">Siparis #{orderId}</h1>
         <p className="mt-2 text-sm text-slate-300">Masa: {tableId}</p>
 
         {loading ? <p className="mt-4 text-sm text-slate-400">Durum yukleniyor...</p> : null}
         {error ? <p className="mt-4 rounded-lg bg-rose-950/40 px-3 py-2 text-sm text-rose-200">{error}</p> : null}
 
         {order ? (
-          <>
-            <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950 p-3">
+          <div className="mt-4 grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <div className="rounded-2xl border border-slate-700 bg-slate-950/80 p-4">
               <p className="text-xs text-slate-400">Durum</p>
-              <p className="text-sm font-semibold text-amber-300">{STATUS_LABELS[order.status] ?? order.status}</p>
+              <p className="text-sm font-semibold text-cyan-200">{STATUS_LABELS[order.status] ?? order.status}</p>
+              <div className="mt-4 border-t border-slate-700 pt-3">
+                <p className="text-xs text-slate-400">Toplam</p>
+                <p className="text-2xl font-black text-emerald-300">{formatPrice(total)}</p>
+              </div>
             </div>
 
-            <div className="mt-4 space-y-2">
+            <div className="space-y-2">
               {(order.items ?? []).map((item, index) => (
-                <div key={`item-${index}`} className="rounded-xl border border-slate-800 bg-slate-950 p-3">
+                <div key={`item-${index}`} className="rounded-xl border border-slate-800 bg-slate-950/75 p-3">
                   <p className="text-sm font-semibold text-white">{item.productName}</p>
                   <p className="text-xs text-slate-400">{item.quantity} adet</p>
                 </div>
               ))}
             </div>
-
-            <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-3">
-              <p className="text-sm text-slate-300">Toplam</p>
-              <p className="text-lg font-bold text-emerald-300">{formatPrice(total)}</p>
-            </div>
-          </>
+          </div>
         ) : null}
 
         <Link
           to={`/menu?table=${tableId}`}
-          className="mt-5 inline-flex rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950"
+          className="mt-6 inline-flex rounded-xl bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950"
         >
           Yeni siparis ver
         </Link>

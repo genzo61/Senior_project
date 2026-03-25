@@ -12,12 +12,14 @@ This backend supports the new QR-based customer web flow while keeping admin/kit
 - AI customer endpoint:
   - `POST /api/ai/customer-chat`
   - Local Ollama only (no cloud LLM)
+  - Embedding + retrieval assisted generation (RAG)
   - Structured JSON response (no free-form output)
 
 ## Environment variables
 
 - `OLLAMA_BASE_URL` (default: `http://127.0.0.1:11434`)
 - `OLLAMA_MODEL` (default: `llama3.2:3b`)
+- `OLLAMA_EMBEDDING_MODEL` (default: `nomic-embed-text`)
 - `OLLAMA_TIMEOUT_MS` (default: `8000`)
 - `OLLAMA_TEMPERATURE` (default: `0.0`)
 
@@ -28,6 +30,7 @@ This backend supports the new QR-based customer web flow while keeping admin/kit
 3. Pull model once if needed:
    ```bash
    ollama pull llama3.2:3b
+   ollama pull nomic-embed-text
    ```
 4. Start backend:
    ```bash

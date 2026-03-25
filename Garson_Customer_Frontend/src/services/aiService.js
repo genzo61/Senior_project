@@ -15,9 +15,32 @@ const NUMBER_WORDS = {
   on: 10,
 };
 
-const CART_ADD_WORDS = ['ekle', 'olsun', 'isterim', 'istiyorum', 'alalim', 'almak'];
-const CART_REMOVE_WORDS = ['cikar', 'sil', 'istemiyorum', 'olmasin'];
-const MENU_ASSISTANT_WORDS = ['oner', 'onerir', 'ne var', 'hafif', 'yanina', 'acisiz', 'tatli', 'tavuk'];
+const CART_ADD_WORDS = ['ekle', 'olsun', 'isterim', 'istiyorum', 'alalim', 'almak', 'sepete at', 'koy'];
+const CART_REMOVE_WORDS = ['cikar', 'sil', 'istemiyorum', 'olmasin', 'iptal'];
+const MENU_ASSISTANT_WORDS = [
+  'oner',
+  'onerir',
+  'onerirsin',
+  'onerir misin',
+  'tavsiye',
+  'ne var',
+  'neler var',
+  'hangi',
+  'listesi',
+  'listele',
+  'hafif',
+  'yanina',
+  'acisiz',
+  'tatli',
+  'tavuk',
+  'vegan',
+  'kahvalti',
+  'corba',
+  'icecek',
+];
+const MENU_LISTING_WORDS = ['ne var', 'neler var', 'hangi', 'listesi', 'listele', 'menu'];
+const SMALL_TALK_WORDS = ['merhaba', 'selam', 'nasilsin', 'orada misin', 'yardim', 'konusalim'];
+const THANK_WORDS = ['tesekkur', 'sagol', 'eyvallah'];
 
 const NOTE_PATTERNS = [
   { token: 'acili', note: 'Acili olsun' },
@@ -135,26 +158,81 @@ function matchProductsFromMessage(normalizedMessage, menuItems) {
 
 function buildMenuSuggestions(normalizedMessage, menuItems) {
   const inStock = menuItems.filter((item) => item.available);
+  const detectedCategory = detectCategoryFromMessage(normalizedMessage);
+
+  if (detectedCategory) {
+    return inStock.filter((item) => item.category === detectedCategory).slice(0, 10);
+  }
 
   if (includesPhrase(normalizedMessage, 'sutlu') || includesPhrase(normalizedMessage, 'tatli')) {
-    return inStock.filter((item) => item.tags.includes('sutlu tatli')).slice(0, 4);
+    return inStock.filter((item) => item.tags.includes('sutlu tatli')).slice(0, 6);
   }
 
   if (includesPhrase(normalizedMessage, 'hafif')) {
-    return inStock
-      .filter((item) => ['Salata', 'Tatli', 'Icecek'].includes(item.category))
-      .slice(0, 4);
+    return inStock.filter((item) => ['Salata', 'Icecek', 'Tatli', 'Corba'].includes(item.category)).slice(0, 6);
   }
 
   if (includesPhrase(normalizedMessage, 'tavuk')) {
-    return inStock.filter((item) => includesPhrase(normalizeText(item.name), 'tavuk')).slice(0, 4);
+    return inStock.filter((item) => includesPhrase(normalizeText(item.name), 'tavuk')).slice(0, 6);
   }
 
   if (includesPhrase(normalizedMessage, 'acisiz')) {
-    return inStock.filter((item) => item.tags.includes('acisiz')).slice(0, 4);
+    return inStock.filter((item) => item.tags.includes('acisiz')).slice(0, 6);
   }
 
-  return inStock.slice(0, 4);
+  if (includesPhrase(normalizedMessage, 'vegan')) {
+    return inStock.filter((item) => item.tags.includes('vegan')).slice(0, 6);
+  }
+
+  if (includesPhrase(normalizedMessage, 'kahvalti')) {
+    return inStock.filter((item) => item.category === 'Kahvaltilik').slice(0, 6);
+  }
+
+  if (includesPhrase(normalizedMessage, 'corba')) {
+    return inStock.filter((item) => item.category === 'Corba').slice(0, 6);
+  }
+
+  return inStock.slice(0, 6);
+}
+
+function detectCategoryFromMessage(normalizedMessage) {
+  if (messageHasAny(normalizedMessage, ['icecek', 'kola', 'ayran', 'kahve', 'cay', 'limonata'])) {
+    return 'Icecek';
+  }
+  if (messageHasAny(normalizedMessage, ['tatli', 'sutlu', 'brownie', 'cheesecake'])) {
+    return 'Tatli';
+  }
+  if (messageHasAny(normalizedMessage, ['salata', 'vegan'])) {
+    return 'Salata';
+  }
+  if (messageHasAny(normalizedMessage, ['corba', 'mercimek', 'ezogelin'])) {
+    return 'Corba';
+  }
+  if (messageHasAny(normalizedMessage, ['kahvalti', 'menemen', 'tost', 'simit'])) {
+    return 'Kahvaltilik';
+  }
+  if (messageHasAny(normalizedMessage, ['atistirmalik', 'patates', 'halkasi'])) {
+    return 'Atistirmalik';
+  }
+  if (messageHasAny(normalizedMessage, ['burger', 'hamburger'])) {
+    return 'Burger';
+  }
+  if (messageHasAny(normalizedMessage, ['pizza'])) {
+    return 'Pizza';
+  }
+  if (messageHasAny(normalizedMessage, ['kebap', 'lahmacun', 'doner', 'kofte', 'sis'])) {
+    return 'Kebap';
+  }
+  return '';
+}
+
+function buildMenuAssistantMessage(normalizedMessage, suggestions) {
+  const labels = suggestions.map((item) => item.name).join(', ');
+  const detectedCategory = detectCategoryFromMessage(normalizedMessage);
+  if (detectedCategory) {
+    return `${detectedCategory} kategorisinde su urunler var: ${labels}. Isterseniz istediginizi sepete ekleyebilirim.`;
+  }
+  return `Su anki tercihinize gore bunlari oneririm: ${labels}.`;
 }
 
 function buildCartAssistantResponse(normalizedMessage, menuItems) {
@@ -164,10 +242,11 @@ function buildCartAssistantResponse(normalizedMessage, menuItems) {
 
   if (matchedProducts.length === 0) {
     return {
-      intent: 'none',
+      intent: 'clarification',
       items: [],
       suggested_products: [],
-      assistant_message: 'Mesajinizda menude eslesen bir urun bulamadim. Urun adini tekrar yazabilir misiniz?',
+      assistant_message:
+        'Mesajinizda menude eslesen bir urun bulamadim. Ornek: "2 kola ekle" veya "bir lahmacun cikar".',
       source: 'mock',
     };
   }
@@ -206,8 +285,6 @@ function buildMenuAssistantResponse(normalizedMessage, menuItems) {
     };
   }
 
-  const labels = suggestions.map((item) => item.name).join(', ');
-
   return {
     intent: 'menu_assistant',
     items: [],
@@ -217,7 +294,37 @@ function buildMenuAssistantResponse(normalizedMessage, menuItems) {
       price: item.price,
       tags: item.tags,
     })),
-    assistant_message: `Menuye gore su secenekleri oneririm: ${labels}. Isterseniz karttan sepete ekleyebilirsiniz.`,
+    assistant_message: buildMenuAssistantMessage(normalizedMessage, suggestions),
+    source: 'mock',
+  };
+}
+
+function buildSmallTalkResponse(normalizedMessage, menuItems) {
+  const inStock = menuItems.filter((item) => item.available).slice(0, 3);
+  const suggestionText = inStock.map((item) => item.name).join(', ');
+
+  if (messageHasAny(normalizedMessage, THANK_WORDS)) {
+    return {
+      intent: 'clarification',
+      items: [],
+      suggested_products: [],
+      assistant_message: 'Rica ederim. Isterseniz yeni bir urun onerisi de yapabilirim.',
+      source: 'mock',
+    };
+  }
+
+  return {
+    intent: 'menu_assistant',
+    items: [],
+    suggested_products: inStock.map((item) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      tags: item.tags,
+    })),
+    assistant_message: suggestionText
+      ? `Buradayim. Sohbet edebiliriz veya hizlica su urunlerden baslayabiliriz: ${suggestionText}.`
+      : 'Buradayim. Isterseniz menuden bir urun adi yazin, birlikte secelim.',
     source: 'mock',
   };
 }
@@ -251,6 +358,24 @@ function normalizeBackendResponse(payload) {
   };
 }
 
+function buildClarificationResponse(menuItems) {
+  const sample = menuItems
+    .filter((item) => item.available)
+    .slice(0, 2)
+    .map((item) => item.name)
+    .join(', ');
+
+  return {
+    intent: 'clarification',
+    items: [],
+    suggested_products: [],
+    assistant_message: sample
+      ? `Isterseniz soyle yazabilirsiniz: "2 ${normalizeText(sample.split(', ')[0] ?? 'kola')} ekle" veya "hafif bir sey oner".`
+      : 'Mesaji anlayamadim. Urun adi veya "oner" gibi bir ifade kullanabilirsiniz.',
+    source: 'mock',
+  };
+}
+
 export async function sendAssistantMessage({ message, menuItems, tableId, cartItems = [] }) {
   const trimmedMessage = String(message ?? '').trim();
   if (!trimmedMessage) {
@@ -266,39 +391,45 @@ export async function sendAssistantMessage({ message, menuItems, tableId, cartIt
   const aiEndpoint = getAiEndpoint();
   if (aiEndpoint) {
     try {
-      const response = await axios.post(aiEndpoint, {
-        tableId: Number(tableId),
-        message: trimmedMessage,
-        cart: cartItems.map((line) => ({
-          productId: Number(line.productId),
-          quantity: Number(line.quantity ?? 1),
-          specialNote: line.specialNote ?? '',
-        })),
-      });
+      const response = await axios.post(
+        aiEndpoint,
+        {
+          tableId: Number(tableId),
+          message: trimmedMessage,
+          cart: cartItems.map((line) => ({
+            productId: Number(line.productId),
+            quantity: Number(line.quantity ?? 1),
+            specialNote: line.specialNote ?? '',
+          })),
+        },
+        {
+          timeout: 7000,
+        },
+      );
       return normalizeBackendResponse(response.data);
     } catch {
-      // If backend AI service is unavailable, fallback parser keeps the flow usable.
+      // Backend is optional; local parser keeps assistant usable.
     }
   }
 
   const normalizedMessage = normalizeText(trimmedMessage);
   const hasCartWords = messageHasAny(normalizedMessage, [...CART_ADD_WORDS, ...CART_REMOVE_WORDS]);
   const hasMenuWords = messageHasAny(normalizedMessage, MENU_ASSISTANT_WORDS);
+  const hasMenuListingWords = messageHasAny(normalizedMessage, MENU_LISTING_WORDS);
+  const hasSmallTalk = messageHasAny(normalizedMessage, SMALL_TALK_WORDS) || messageHasAny(normalizedMessage, THANK_WORDS);
   const matchedProducts = matchProductsFromMessage(normalizedMessage, menuItems);
 
   if (hasCartWords || matchedProducts.length > 0) {
     return buildCartAssistantResponse(normalizedMessage, menuItems);
   }
 
-  if (hasMenuWords || matchedProducts.length === 0) {
+  if (hasMenuWords || hasMenuListingWords) {
     return buildMenuAssistantResponse(normalizedMessage, menuItems);
   }
 
-  return {
-    intent: 'none',
-    items: [],
-    suggested_products: [],
-    assistant_message: 'Mesajinizi menudeki urunlerle eslestiremedim. Urun adi belirtebilir misiniz?',
-    source: 'mock',
-  };
+  if (hasSmallTalk) {
+    return buildSmallTalkResponse(normalizedMessage, menuItems);
+  }
+
+  return buildClarificationResponse(menuItems);
 }

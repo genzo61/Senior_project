@@ -56,25 +56,22 @@ function QrEntryPage() {
   }, [navigate, token]);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md items-center px-5 py-10">
-      <div className="w-full rounded-3xl border border-slate-800 bg-slate-900 p-6 text-center shadow-xl">
+    <main className="mx-auto flex min-h-screen w-full max-w-4xl items-center px-5 py-10">
+      <div className="w-full rounded-3xl border border-cyan-200/25 bg-slate-900/85 p-6 text-center shadow-[0_24px_70px_rgba(2,6,23,0.65)] backdrop-blur sm:p-8">
         {status === 'loading' ? (
           <>
-            <p className="text-xs uppercase tracking-wider text-slate-400">QR kontrol</p>
-            <h1 className="mt-1 text-2xl font-bold text-white">Masa bilgisi dogrulaniyor</h1>
+            <p className="text-xs uppercase tracking-[0.22em] text-cyan-300">QR kontrol</p>
+            <h1 className="mt-1 text-3xl font-black text-white">Masa bilgisi dogrulaniyor</h1>
             <p className="mt-2 text-sm text-slate-300">Lutfen bekleyin...</p>
           </>
         ) : null}
 
         {status === 'error' ? (
           <>
-            <p className="text-xs uppercase tracking-wider text-rose-300">Erisim hatasi</p>
-            <h1 className="mt-1 text-2xl font-bold text-white">Gecersiz QR kod</h1>
+            <p className="text-xs uppercase tracking-[0.22em] text-rose-300">Erisim hatasi</p>
+            <h1 className="mt-1 text-3xl font-black text-white">Gecersiz QR kod</h1>
             <p className="mt-2 text-sm text-slate-300">{errorMessage}</p>
-            <Link
-              to="/"
-              className="mt-5 inline-flex rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-200"
-            >
+            <Link to="/" className="mt-5 inline-flex rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-200">
               Ana yardim ekranina don
             </Link>
           </>

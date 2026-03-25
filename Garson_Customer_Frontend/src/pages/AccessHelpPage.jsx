@@ -2,25 +2,25 @@ import { Link } from 'react-router-dom';
 
 function AccessHelpPage({ notFound = false }) {
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 py-10">
-      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <p className="mb-2 text-xs uppercase tracking-wider text-amber-300">QR Mobil Siparis</p>
-        <h1 className="mb-2 text-2xl font-bold text-white">
+    <main className="mx-auto flex min-h-screen w-full max-w-5xl items-center px-5 py-10 sm:px-8">
+      <div className="w-full rounded-[2rem] border border-cyan-200/25 bg-slate-900/85 p-6 shadow-[0_24px_70px_rgba(2,6,23,0.65)] backdrop-blur sm:p-8">
+        <p className="mb-2 text-xs uppercase tracking-[0.24em] text-cyan-300">Robot Kafe Web Siparis</p>
+        <h1 className="mb-2 text-3xl font-black tracking-wide text-white sm:text-4xl">
           {notFound ? 'Gecersiz sayfa' : 'Musteri siparis ekrani'}
         </h1>
-        <p className="mb-4 text-sm text-slate-300">
-          Lutfen masa QR kodunu okutun veya test icin `/menu?table=1` adresini kullanin.
+        <p className="mb-4 max-w-3xl text-sm text-slate-300 sm:text-base">
+          Lutfen masa QR kodunu okutun veya test icin <code>/menu?table=1</code> adresini kullanin.
         </p>
 
-        <div className="space-y-2 text-xs text-slate-400">
-          <p>- QR girisi: `/q/:token`</p>
-          <p>- Menu girisi: `/menu?table=4`</p>
-          <p>- Durum ekrani: `/order/:orderId?table=4`</p>
+        <div className="grid gap-2 text-sm text-slate-300 sm:grid-cols-3">
+          <p className="rounded-xl border border-slate-700 bg-slate-950/80 px-3 py-2">QR girisi: `/q/:token`</p>
+          <p className="rounded-xl border border-slate-700 bg-slate-950/80 px-3 py-2">Menu: `/menu?table=4`</p>
+          <p className="rounded-xl border border-slate-700 bg-slate-950/80 px-3 py-2">Durum: `/order/:orderId?table=4`</p>
         </div>
 
         <Link
           to="/menu?table=1"
-          className="mt-5 inline-flex rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950"
+          className="mt-6 inline-flex rounded-xl bg-cyan-300 px-5 py-2.5 text-sm font-bold text-slate-950"
         >
           Demo menu ac
         </Link>
