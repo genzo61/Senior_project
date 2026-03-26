@@ -4,6 +4,7 @@ import { Banknote, CreditCard, Wallet, Search, CheckCircle2, AlertCircle, Refres
 import axios from "axios";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { backendBaseUrl, backendWsUrl } from "../config/backendUrl";
 
 const CashRegisterDashboard = () => {
   const [tables, setTables] = useState([]);
@@ -19,7 +20,7 @@ const CashRegisterDashboard = () => {
   const [cashTotal, setCashTotal] = useState(0);
   const [cardTotal, setCardTotal] = useState(0);
 
-  const backendUrl = `http://${window.location.hostname}:8085`;
+  const backendUrl = backendBaseUrl;
 
   const fetchData = async () => {
     try {
@@ -66,7 +67,7 @@ const CashRegisterDashboard = () => {
   useEffect(() => {
     fetchData();
 
-    const socket = new SockJS(`${backendUrl}/ws`);
+    const socket = new SockJS(backendWsUrl);
     const stompClient = new Client({
       webSocketFactory: () => socket,
       onConnect: () => {

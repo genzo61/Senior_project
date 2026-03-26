@@ -1,24 +1,34 @@
 package com.garson.backend.controller;
 
-import com.garson.backend.model.Product;
 import com.garson.backend.dto.product.ProductResponse;
-import com.garson.backend.dto.product.ProductUpsertRequest;
 import com.garson.backend.dto.product.ProductTagUtils;
+import com.garson.backend.dto.product.ProductUpsertRequest;
+import com.garson.backend.model.Product;
 import com.garson.backend.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.garson.backend.service.N8nWebhookService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "*") // Frontend'den ve Robot'tan direkt erişime izin vermek için
+@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class ProductController {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final N8nWebhookService n8nWebhookService;
 
     @GetMapping
     public List<ProductResponse> getAllProducts() {
@@ -40,12 +50,14 @@ public class ProductController {
 
     @PutMapping("/{id}/stock")
     public ResponseEntity<ProductResponse> updateStock(@PathVariable(name = "id") Long id,
-            @RequestParam(name = "quantity") Integer quantity) {
+                                                       @RequestParam(name = "quantity") Integer quantity) {
         Optional<Product> opt = productRepository.findById(id);
         if (opt.isPresent()) {
             Product p = opt.get();
             p.setStock(quantity);
-            return ResponseEntity.ok(ProductResponse.fromEntity(productRepository.save(p)));
+            Product updatedProduct = productRepository.save(p);
+            n8nWebhookService.notifyLowStockIfNeeded(updatedProduct);
+            return ResponseEntity.ok(ProductResponse.fromEntity(updatedProduct));
         }
         return ResponseEntity.notFound().build();
     }

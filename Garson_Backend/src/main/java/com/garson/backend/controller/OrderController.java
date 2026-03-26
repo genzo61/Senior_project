@@ -12,6 +12,7 @@ import com.garson.backend.model.TableStatus;
 import com.garson.backend.repository.OrderRepository;
 import com.garson.backend.repository.ProductRepository;
 import com.garson.backend.repository.RestaurantTableRepository;
+import com.garson.backend.service.N8nWebhookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,7 @@ public class OrderController {
     private final ProductRepository productRepository;
     private final RestaurantTableRepository tableRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final N8nWebhookService n8nWebhookService;
 
     @PostMapping
     @Transactional
@@ -60,7 +62,13 @@ public class OrderController {
         orderInput.setCreatedAt(Instant.now());
         orderInput.setUpdatedAt(Instant.now());
 
-        Order savedOrder = orderRepository.saveAndFlush(orderInput);
+        final Order savedOrder;
+        try {
+            savedOrder = orderRepository.saveAndFlush(orderInput);
+        } catch (Exception ex) {
+            n8nWebhookService.notifyCriticalError("Order creation failed", ex.getMessage());
+            return ResponseEntity.internalServerError().body("Could not create order: " + ex.getMessage());
+        }
 
         if (savedOrder.getTableNo() != null) {
             try {
@@ -163,6 +171,7 @@ public class OrderController {
             } catch (IllegalStateException e) {
                 return ResponseEntity.badRequest().body(e.getMessage());
             } catch (Exception e) {
+                n8nWebhookService.notifyCriticalError("Stock deduction failed", e.getMessage());
                 return ResponseEntity.internalServerError().body("Stock deduction failed: " + e.getMessage());
             }
         }
@@ -174,6 +183,7 @@ public class OrderController {
             messagingTemplate.convertAndSend("/topic/orders", updatedOrder);
             return ResponseEntity.ok(OrderResponse.fromEntity(updatedOrder));
         } catch (Exception e) {
+            n8nWebhookService.notifyCriticalError("Order status update failed", e.getMessage());
             return ResponseEntity.internalServerError().body("Could not update order status: " + e.getMessage());
         }
     }
@@ -297,7 +307,8 @@ public class OrderController {
             }
 
             p.setStock(currentStock - item.getQuantity());
-            productRepository.save(p);
+            Product updatedProduct = productRepository.save(p);
+            n8nWebhookService.notifyLowStockIfNeeded(updatedProduct);
         }
 
         productRepository.flush();

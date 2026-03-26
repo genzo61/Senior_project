@@ -3,6 +3,7 @@ import axios from 'axios';
 import { LayoutGrid, AlertCircle, Loader2, RefreshCw, HandPlatter, Clock } from 'lucide-react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { backendBaseUrl, backendWsUrl } from '../config/backendUrl';
 
 const ManagerTablesDashboard = () => {
     const [tables, setTables] = useState([]);
@@ -12,7 +13,7 @@ const ManagerTablesDashboard = () => {
     const [selectedTable, setSelectedTable] = useState(null);
     const [closingTable, setClosingTable] = useState(false);
 
-    const backendUrl = `http://${window.location.hostname}:8085`;
+    const backendUrl = backendBaseUrl;
 
     const fetchData = async () => {
         try {
@@ -35,7 +36,7 @@ const ManagerTablesDashboard = () => {
     useEffect(() => {
         fetchData();
 
-        const socket = new SockJS(`${backendUrl}/ws`);
+        const socket = new SockJS(backendWsUrl);
         const stompClient = new Client({
             webSocketFactory: () => socket,
             onConnect: () => {

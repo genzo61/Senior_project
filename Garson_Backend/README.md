@@ -59,6 +59,28 @@ docker compose down
 If you also run Ollama on host machine, backend container uses:
 - `OLLAMA_BASE_URL=http://host.docker.internal:11434`
 
+## Ngrok public URLs
+
+If you want to expose backend and customer web publicly:
+
+1. Set your token in terminal:
+   ```powershell
+   $env:NGROK_AUTHTOKEN="YOUR_TOKEN"
+   ```
+2. Start your app stack (backend on `8085`, customer web on `5174`).
+3. Start ngrok:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File ..\scripts\start-ngrok.ps1
+   ```
+4. Stop ngrok:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File ..\scripts\stop-ngrok.ps1
+   ```
+
+Notes:
+- Script auto-downloads ngrok to `tools/ngrok/ngrok.exe` if missing.
+- If your environment blocks outbound `443`, ngrok cannot connect.
+
 ## Flyway behavior (important)
 
 - Flyway is enabled with `baseline-on-migrate=true`.

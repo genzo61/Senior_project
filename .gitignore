@@ -194,3 +194,8 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# ngrok local binaries/config
+tools/ngrok/ngrok.exe
+tools/ngrok/ngrok.yml
+tools/ngrok/ngrok.zip

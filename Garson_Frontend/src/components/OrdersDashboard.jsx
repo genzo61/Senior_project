@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import OrderCard from './OrderCard';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { backendBaseUrl, backendWsUrl } from '../config/backendUrl';
 
 function OrdersDashboard() {
   const [allOrders, setAllOrders] = useState([]);
@@ -14,7 +15,7 @@ function OrdersDashboard() {
 
   useEffect(() => {
     // 1. Initial HTTP Fetch
-    fetch(`http://${window.location.hostname}:8085/api/orders`)
+    fetch(`${backendBaseUrl}/api/orders`)
       .then(res => res.json())
       .then(data => {
         const sorted = data.sort((a,b) => b.id - a.id);
@@ -27,7 +28,7 @@ function OrdersDashboard() {
 
     // 2. WebSocket Connection
     const client = new Client({
-      webSocketFactory: () => new SockJS(`http://${window.location.hostname}:8085/ws`),
+      webSocketFactory: () => new SockJS(backendWsUrl),
       onConnect: () => {
         console.log('Connected to WebSocket!');
         client.subscribe('/topic/orders', (message) => {
@@ -64,7 +65,7 @@ function OrdersDashboard() {
     if (!nextStatus) return; // Fallback
     setUpdatingOrderId(orderId);
     try {
-      const response = await fetch(`http://${window.location.hostname}:8085/api/orders/${orderId}/status`, {
+      const response = await fetch(`${backendBaseUrl}/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: nextStatus }),

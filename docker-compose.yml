@@ -34,6 +34,9 @@ services:
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL-nomic-embed-text}
       OLLAMA_TIMEOUT_MS: ${OLLAMA_TIMEOUT_MS-8000}
       OLLAMA_TEMPERATURE: ${OLLAMA_TEMPERATURE-0.0}
+      N8N_LOW_STOCK_WEBHOOK_URL: ${N8N_LOW_STOCK_WEBHOOK_URL-}
+      N8N_CRITICAL_ERROR_WEBHOOK_URL: ${N8N_CRITICAL_ERROR_WEBHOOK_URL-}
+      LOW_STOCK_THRESHOLD_DEFAULT: ${LOW_STOCK_THRESHOLD_DEFAULT-5}
     ports:
       - "8085:8085"
     extra_hosts:
@@ -53,6 +56,20 @@ services:
       - garson-backend
     ports:
       - "5174:80"
+    restart: unless-stopped
+
+  garson-kitchen-web:
+    build:
+      context: ./Garson_Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_BACKEND_URL: ${VITE_KITCHEN_BACKEND_URL-}
+    image: garson-root-kitchen-web:local
+    container_name: garson-root-kitchen-web
+    depends_on:
+      - garson-backend
+    ports:
+      - "5175:80"
     restart: unless-stopped
 
 volumes:

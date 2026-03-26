@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { backendBaseUrl, backendWsUrl } from '../config/backendUrl';
 
 function StockDashboard() {
   const [products, setProducts] = useState([]);
@@ -12,7 +13,7 @@ function StockDashboard() {
 
     // Canlı Stock güncellemeleri için WebSocket
     const client = new Client({
-      webSocketFactory: () => new SockJS(`http://${window.location.hostname}:8085/ws`),
+      webSocketFactory: () => new SockJS(backendWsUrl),
       onConnect: () => {
         console.log('StockDashboard WebSocket Connected!');
         client.subscribe('/topic/products', (message) => {
@@ -34,7 +35,7 @@ function StockDashboard() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://${window.location.hostname}:8085/api/products`);
+      const res = await fetch(`${backendBaseUrl}/api/products`);
       const data = await res.json();
       setProducts(data);
     } catch (err) {
@@ -61,7 +62,7 @@ function StockDashboard() {
     const newStock = pendingChanges[id];
     
     try {
-      const res = await fetch(`http://${window.location.hostname}:8085/api/products/${id}/stock?quantity=${newStock}`, {
+      const res = await fetch(`${backendBaseUrl}/api/products/${id}/stock?quantity=${newStock}`, {
         method: 'PUT'
       });
       if (res.ok) {
