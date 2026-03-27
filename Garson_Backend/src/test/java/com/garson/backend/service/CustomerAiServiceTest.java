@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -101,6 +102,25 @@ class CustomerAiServiceTest {
     }
 
     @Test
+    void shouldHandleMultipleProductsInSingleSentence() {
+        when(productRepository.findAll()).thenReturn(sampleProducts());
+
+        CustomerAiChatResponse response = customerAiService.handleCustomerChat(request("1 ayran bir lahmacun istiyorum"));
+
+        assertEquals("cart_update", response.getIntent());
+        assertEquals(2, response.getItems().size());
+
+        Map<String, Integer> quantityByName = response.getItems().stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        item -> item.getProductName(),
+                        item -> item.getQuantity()));
+
+        assertEquals(1, quantityByName.get("Ayran"));
+        assertEquals(1, quantityByName.get("Lahmacun"));
+        verify(ollamaClient, never()).chatJsonOnly(anyString(), anyString());
+    }
+
+    @Test
     void shouldHandleSoupAndBurgerNotesSafely() {
         when(productRepository.findAll()).thenReturn(sampleProducts());
 
@@ -180,7 +200,8 @@ class CustomerAiServiceTest {
                 product(6L, "Tiramisu", "Tatli", "sutlu tatli"),
                 product(7L, "Kahve", "Icecek", "acisiz"),
                 product(8L, "Mercimek Corbasi", "Corba", "acisiz"),
-                product(9L, "Tavuk Burger", "Burger", "tavuk"));
+                product(9L, "Tavuk Burger", "Burger", "tavuk"),
+                product(10L, "Lahmacun", "Kebap", "popular"));
     }
 
     private Product product(Long id, String name, String category, String tags) {

@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 public class CustomerAiService {
 
     private static final Pattern QUANTITY_TOKEN_PATTERN = Pattern.compile("(^|\\s)(\\d+|bir|iki|uc|dort|bes|alti|yedi|sekiz|dokuz|on)(\\s|$)");
+    private static final Pattern QUANTITY_CHUNK_PATTERN = Pattern.compile(
+            "(\\d+|bir|iki|uc|dort|bes|alti|yedi|sekiz|dokuz|on)\\s+([a-z0-9\\s]+?)(?=\\s+(\\d+|bir|iki|uc|dort|bes|alti|yedi|sekiz|dokuz|on)\\s+|$)");
 
     private static final Map<String, Integer> NUMBER_WORDS = Map.of(
             "bir", 1,
@@ -66,7 +68,10 @@ public class CustomerAiService {
             "olsun",
             "alalim",
             "sepete at",
-            "koy");
+            "koy",
+            "getir",
+            "ver",
+            "gonder");
     private static final List<String> MENU_KEYWORDS = List.of(
             "oner",
             "ne var",
@@ -206,55 +211,86 @@ public class CustomerAiService {
     }
 
     private DeterministicDecision evaluateDeterministicCartUpdate(String normalizedMessage, List<Product> products) {
-        if (isComplexCartMessage(normalizedMessage)) {
-            return DeterministicDecision.needLlm("complex_cart_message");
-        }
-
-        CartPreprocess cartPreprocess = preprocessCartMessage(normalizedMessage);
-        debugLog("Deterministic cart preprocess quantity={} note='{}' productQuery='{}'",
-                cartPreprocess.quantity(),
-                cartPreprocess.specialNote(),
-                cartPreprocess.productQuery());
-
-        if (cartPreprocess.productQuery().isBlank()) {
+        List<CartCandidate> candidates = extractCartCandidates(normalizedMessage);
+        if (candidates.isEmpty()) {
             return DeterministicDecision.resolved(
                     CustomerAiChatResponse.clarification("Tam olarak hangi urunu eklemek istediginizi yazar misiniz?"),
                     "empty_product_query");
         }
 
-        ProductMatchResult match = findBestProductMatch(cartPreprocess.productQuery(), products);
-        if (match.confidence() == MatchConfidence.HIGH && match.product() != null) {
-            CustomerAiItemDraft item = new CustomerAiItemDraft(
-                    match.product().getId(),
-                    match.product().getName(),
-                    clampQuantity(cartPreprocess.quantity()),
-                    cartPreprocess.specialNote());
-            List<CustomerAiItemDraft> items = List.of(item);
-            return DeterministicDecision.resolved(
-                    new CustomerAiChatResponse(
-                            CustomerAiIntent.CART_UPDATE.value(),
-                            buildCartMessage(items),
-                            items,
-                            Collections.emptyList()),
-                    "deterministic_high_confidence_match");
+        debugLog("Deterministic cart candidate count={} queries='{}'",
+                candidates.size(),
+                candidates.stream().map(CartCandidate::productQuery).collect(Collectors.joining(" | ")));
+
+        LinkedHashMap<String, CustomerAiItemDraft> resolvedItems = new LinkedHashMap<>();
+        LinkedHashSet<String> clarificationOptions = new LinkedHashSet<>();
+        List<String> unresolvedQueries = new ArrayList<>();
+
+        for (CartCandidate candidate : candidates) {
+            ProductMatchResult match = findBestProductMatch(candidate.productQuery(), products);
+            if (match.confidence() == MatchConfidence.HIGH && match.product() != null) {
+                String note = safeTrim(candidate.specialNote());
+                String key = match.product().getId() + "|" + note;
+                CustomerAiItemDraft existing = resolvedItems.get(key);
+                if (existing == null) {
+                    resolvedItems.put(
+                            key,
+                            new CustomerAiItemDraft(
+                                    match.product().getId(),
+                                    match.product().getName(),
+                                    clampQuantity(candidate.quantity()),
+                                    note));
+                } else {
+                    existing.setQuantity(clampQuantity(existing.getQuantity() + candidate.quantity()));
+                }
+                continue;
+            }
+
+            unresolvedQueries.add(candidate.productQuery());
+            clarificationOptions.addAll(match.alternativeProductNames());
         }
 
-        if (match.confidence() == MatchConfidence.MEDIUM) {
-            String options = match.alternativeProductNames().isEmpty()
+        if (!unresolvedQueries.isEmpty()) {
+            String unresolvedText = unresolvedQueries.stream()
+                    .map(this::safeTrim)
+                    .filter(query -> !query.isBlank())
+                    .distinct()
+                    .limit(3)
+                    .collect(Collectors.joining(", "));
+            String options = clarificationOptions.isEmpty()
                     ? ""
-                    : " Ornek secenekler: " + String.join(", ", match.alternativeProductNames()) + ".";
+                    : " Ornek secenekler: " + clarificationOptions.stream().limit(4).collect(Collectors.joining(", ")) + ".";
+            if (resolvedItems.isEmpty()) {
+                return DeterministicDecision.resolved(
+                        CustomerAiChatResponse.unsupported("Mesajinizdaki urun menude bulunamadi. Lutfen menudeki urun adini yazar misiniz." + options),
+                        "deterministic_no_resolved_item");
+            }
+
+            String clarificationMessage = unresolvedText.isBlank()
+                    ? "Mesajdaki tum urunleri netlestiremedim. Lutfen urun adlarini tekrar yazar misiniz?"
+                    : "Mesajdaki tum urunleri netlestiremedim: " + unresolvedText + ". Lutfen urun adlarini tekrar yazar misiniz?";
             return DeterministicDecision.resolved(
-                    CustomerAiChatResponse.clarification("Hangi urunu kastettiginizi netlestirebilir misiniz?" + options),
-                    "deterministic_medium_confidence");
+                    CustomerAiChatResponse.clarification(clarificationMessage + options),
+                    "deterministic_partial_or_low_confidence");
         }
 
-        if (containsAny(normalizedMessage, CART_KEYWORDS) || cartPreprocess.hasQuantityToken()) {
+        if (resolvedItems.isEmpty()) {
+            String options = clarificationOptions.isEmpty()
+                    ? ""
+                    : " Ornek secenekler: " + clarificationOptions.stream().limit(4).collect(Collectors.joining(", ")) + ".";
             return DeterministicDecision.resolved(
-                    CustomerAiChatResponse.unsupported("Mesajinizdaki urun menude bulunamadi. Lutfen menudeki urun adini yazar misiniz?"),
-                    "deterministic_low_confidence_unsupported");
+                    CustomerAiChatResponse.unsupported("Mesajinizdaki urun menude bulunamadi. Lutfen menudeki urun adini yazar misiniz." + options),
+                    "deterministic_no_resolved_item");
         }
 
-        return DeterministicDecision.needLlm("cart_hint_but_no_clear_match");
+        List<CustomerAiItemDraft> items = new ArrayList<>(resolvedItems.values());
+        return DeterministicDecision.resolved(
+                new CustomerAiChatResponse(
+                        CustomerAiIntent.CART_UPDATE.value(),
+                        buildCartMessage(items),
+                        items,
+                        Collections.emptyList()),
+                "deterministic_multi_item_match");
     }
 
     private Optional<OllamaCustomerAiDraft> parseDraftSafely(String rawJson) {
@@ -381,28 +417,44 @@ public class CustomerAiService {
             return new ArrayList<>(merged.values());
         }
 
-        Optional<CustomerAiItemDraft> inferred = inferSingleItemFromMessage(normalizedMessage, products);
-        inferred.ifPresent(item -> merged.put(item.getProductId() + "|" + item.getSpecialNote(), item));
+        List<CustomerAiItemDraft> inferred = inferItemsFromMessage(normalizedMessage, products);
+        for (CustomerAiItemDraft item : inferred) {
+            merged.put(item.getProductId() + "|" + item.getSpecialNote(), item);
+        }
 
         return new ArrayList<>(merged.values());
     }
 
-    private Optional<CustomerAiItemDraft> inferSingleItemFromMessage(String normalizedMessage, List<Product> products) {
-        CartPreprocess cartPreprocess = preprocessCartMessage(normalizedMessage);
-        if (cartPreprocess.productQuery().isBlank()) {
-            return Optional.empty();
+    private List<CustomerAiItemDraft> inferItemsFromMessage(String normalizedMessage, List<Product> products) {
+        List<CartCandidate> candidates = extractCartCandidates(normalizedMessage);
+        if (candidates.isEmpty()) {
+            return List.of();
         }
 
-        ProductMatchResult match = findBestProductMatch(cartPreprocess.productQuery(), products);
-        if (match.confidence() != MatchConfidence.HIGH || match.product() == null) {
-            return Optional.empty();
+        LinkedHashMap<String, CustomerAiItemDraft> merged = new LinkedHashMap<>();
+        for (CartCandidate candidate : candidates) {
+            ProductMatchResult match = findBestProductMatch(candidate.productQuery(), products);
+            if (match.confidence() != MatchConfidence.HIGH || match.product() == null) {
+                return List.of();
+            }
+
+            String note = safeTrim(candidate.specialNote());
+            String key = match.product().getId() + "|" + note;
+            CustomerAiItemDraft existing = merged.get(key);
+            if (existing == null) {
+                merged.put(
+                        key,
+                        new CustomerAiItemDraft(
+                                match.product().getId(),
+                                match.product().getName(),
+                                clampQuantity(candidate.quantity()),
+                                note));
+            } else {
+                existing.setQuantity(clampQuantity(existing.getQuantity() + candidate.quantity()));
+            }
         }
 
-        return Optional.of(new CustomerAiItemDraft(
-                match.product().getId(),
-                match.product().getName(),
-                clampQuantity(cartPreprocess.quantity()),
-                cartPreprocess.specialNote()));
+        return new ArrayList<>(merged.values());
     }
 
     private List<CustomerAiSuggestedProduct> sanitizeSuggestions(List<CustomerAiSuggestedProduct> raw, List<Product> products) {
@@ -716,12 +768,11 @@ public class CustomerAiService {
 
     private CartPreprocess preprocessCartMessage(String normalizedMessage) {
         int quantity = inferQuantity(normalizedMessage);
-        boolean hasQuantityToken = QUANTITY_TOKEN_PATTERN.matcher(" " + normalizedMessage + " ").find();
         String specialNote = extractSpecialNote(normalizedMessage);
         String withoutNotes = removeNoteTokens(normalizedMessage);
         String productQuery = stripControlTokens(withoutNotes);
 
-        return new CartPreprocess(productQuery, quantity, specialNote, hasQuantityToken);
+        return new CartPreprocess(productQuery, quantity, specialNote);
     }
 
     private int inferQuantity(String normalizedMessage) {
@@ -744,6 +795,23 @@ public class CustomerAiService {
         }
 
         return clampQuantity(NUMBER_WORDS.getOrDefault(token, 1));
+    }
+
+    private int parseQuantity(String quantityToken) {
+        if (quantityToken == null || quantityToken.isBlank()) {
+            return 1;
+        }
+
+        String normalizedToken = normalize(quantityToken);
+        if (normalizedToken.matches("\\d+")) {
+            try {
+                return clampQuantity(Integer.parseInt(normalizedToken));
+            } catch (NumberFormatException ex) {
+                return 1;
+            }
+        }
+
+        return clampQuantity(NUMBER_WORDS.getOrDefault(normalizedToken, 1));
     }
 
     private String extractSpecialNote(String normalizedMessage) {
@@ -796,6 +864,77 @@ public class CustomerAiService {
                 .map(String::trim)
                 .filter(s -> !s.isBlank())
                 .toList();
+    }
+
+    private List<CartCandidate> extractCartCandidates(String normalizedMessage) {
+        if (normalizedMessage == null || normalizedMessage.isBlank()) {
+            return List.of();
+        }
+
+        String globalNote = extractSpecialNote(normalizedMessage);
+        String withoutNotes = removeNoteTokens(normalizedMessage);
+        List<CartCandidate> candidates = new ArrayList<>();
+
+        Matcher quantityChunkMatcher = QUANTITY_CHUNK_PATTERN.matcher(withoutNotes);
+        while (quantityChunkMatcher.find()) {
+            String quantityToken = safeTrim(quantityChunkMatcher.group(1));
+            String rawChunk = safeTrim(quantityChunkMatcher.group(2));
+            String productQuery = stripControlTokens(rawChunk);
+            if (productQuery.isBlank()) {
+                continue;
+            }
+
+            int quantity = parseQuantity(quantityToken);
+            String clauseNote = extractSpecialNote(rawChunk);
+            String effectiveNote = clauseNote.isBlank() ? globalNote : clauseNote;
+            candidates.add(new CartCandidate(productQuery, quantity, effectiveNote));
+        }
+
+        if (!candidates.isEmpty()) {
+            return mergeCartCandidates(candidates);
+        }
+
+        List<String> clauses = splitClauses(withoutNotes);
+        for (String clause : clauses) {
+            int quantity = inferQuantity(clause);
+            String productQuery = stripControlTokens(clause);
+            if (productQuery.isBlank()) {
+                continue;
+            }
+            String clauseNote = extractSpecialNote(clause);
+            String effectiveNote = clauseNote.isBlank() ? globalNote : clauseNote;
+            candidates.add(new CartCandidate(productQuery, quantity, effectiveNote));
+        }
+
+        if (!candidates.isEmpty()) {
+            return mergeCartCandidates(candidates);
+        }
+
+        CartPreprocess fallback = preprocessCartMessage(normalizedMessage);
+        if (fallback.productQuery().isBlank()) {
+            return List.of();
+        }
+        return List.of(new CartCandidate(fallback.productQuery(), fallback.quantity(), fallback.specialNote()));
+    }
+
+    private List<CartCandidate> mergeCartCandidates(List<CartCandidate> rawCandidates) {
+        LinkedHashMap<String, CartCandidate> merged = new LinkedHashMap<>();
+        for (CartCandidate candidate : rawCandidates) {
+            String note = safeTrim(candidate.specialNote());
+            String key = candidate.productQuery() + "|" + note;
+            CartCandidate existing = merged.get(key);
+            if (existing == null) {
+                merged.put(key, new CartCandidate(candidate.productQuery(), clampQuantity(candidate.quantity()), note));
+            } else {
+                merged.put(
+                        key,
+                        new CartCandidate(
+                                existing.productQuery(),
+                                clampQuantity(existing.quantity() + candidate.quantity()),
+                                note));
+            }
+        }
+        return new ArrayList<>(merged.values());
     }
 
     private List<String> aliasesForProduct(String productName) {
@@ -860,12 +999,13 @@ public class CustomerAiService {
         if (!QUANTITY_TOKEN_PATTERN.matcher(" " + normalizedMessage + " ").find()) {
             return false;
         }
-        CartPreprocess preprocess = preprocessCartMessage(normalizedMessage);
-        if (preprocess.productQuery().isBlank()) {
+        List<CartCandidate> candidates = extractCartCandidates(normalizedMessage);
+        if (candidates.isEmpty()) {
             return false;
         }
-        ProductMatchResult match = findBestProductMatch(preprocess.productQuery(), products);
-        return match.confidence() != MatchConfidence.LOW;
+        return candidates.stream()
+                .map(candidate -> findBestProductMatch(candidate.productQuery(), products))
+                .anyMatch(match -> match.confidence() != MatchConfidence.LOW);
     }
 
     private boolean hasMenuIntentHint(String normalizedMessage) {
@@ -881,19 +1021,9 @@ public class CustomerAiService {
                 || normalizedMessage.length() < 3;
     }
 
-    private boolean isComplexCartMessage(String normalizedMessage) {
-        List<String> clauses = splitClauses(normalizedMessage);
-        long productLikeClauses = clauses.stream()
-                .map(this::stripControlTokens)
-                .filter(clause -> !clause.isBlank())
-                .count();
-
-        long quantityTokenCount = QUANTITY_TOKEN_PATTERN.matcher(" " + normalizedMessage + " ").results().count();
-        return productLikeClauses > 1 && (quantityTokenCount > 1 || normalizedMessage.contains(" ve "));
-    }
-
     private CustomerAiChatResponse maybeBuildDirectMenuResponse(String normalizedMessage, List<Product> products) {
-        if (containsAny(normalizedMessage, CART_KEYWORDS)) {
+        boolean quantityLooksLikeOrder = hasQuantityBackedByProduct(normalizedMessage, products);
+        if (containsAny(normalizedMessage, CART_KEYWORDS) || quantityLooksLikeOrder) {
             return null;
         }
 
@@ -1136,13 +1266,11 @@ public class CustomerAiService {
         private final String productQuery;
         private final int quantity;
         private final String specialNote;
-        private final boolean hasQuantityToken;
 
-        private CartPreprocess(String productQuery, int quantity, String specialNote, boolean hasQuantityToken) {
+        private CartPreprocess(String productQuery, int quantity, String specialNote) {
             this.productQuery = productQuery == null ? "" : productQuery;
             this.quantity = quantity;
             this.specialNote = specialNote == null ? "" : specialNote;
-            this.hasQuantityToken = hasQuantityToken;
         }
 
         private String productQuery() {
@@ -1156,9 +1284,29 @@ public class CustomerAiService {
         private String specialNote() {
             return specialNote;
         }
+    }
 
-        private boolean hasQuantityToken() {
-            return hasQuantityToken;
+    private static final class CartCandidate {
+        private final String productQuery;
+        private final int quantity;
+        private final String specialNote;
+
+        private CartCandidate(String productQuery, int quantity, String specialNote) {
+            this.productQuery = productQuery == null ? "" : productQuery;
+            this.quantity = quantity;
+            this.specialNote = specialNote == null ? "" : specialNote;
+        }
+
+        private String productQuery() {
+            return productQuery;
+        }
+
+        private int quantity() {
+            return quantity;
+        }
+
+        private String specialNote() {
+            return specialNote;
         }
     }
 
