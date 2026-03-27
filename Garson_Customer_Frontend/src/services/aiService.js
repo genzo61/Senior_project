@@ -38,18 +38,18 @@ const MENU_ASSISTANT_WORDS = [
   'corba',
   'icecek',
 ];
-const MENU_LISTING_WORDS = ['ne var', 'neler var', 'hangi', 'listesi', 'listele', 'menu'];
+const MENU_LISTING_WORDS = ['ne var', 'neler var', 'hangi', 'listesi', 'listele', 'menu', 'menü'];
 const SMALL_TALK_WORDS = ['merhaba', 'selam', 'nasilsin', 'orada misin', 'yardim', 'konusalim'];
 const THANK_WORDS = ['tesekkur', 'sagol', 'eyvallah'];
 
 const NOTE_PATTERNS = [
-  { token: 'acili', note: 'Acili olsun' },
-  { token: 'sogansiz', note: 'Sogansiz' },
-  { token: 'sekersiz', note: 'Sekersiz' },
+  { token: 'acili', note: 'Acılı olsun' },
+  { token: 'sogansiz', note: 'Soğansız' },
+  { token: 'sekersiz', note: 'Şekersiz' },
   { token: 'az tuzlu', note: 'Az tuzlu' },
   { token: 'tuzsuz', note: 'Tuzsuz' },
-  { token: 'az pis', note: 'Az pisirilsin' },
-  { token: 'iyi pismis', note: 'Iyi pismis olsun' },
+  { token: 'az pis', note: 'Az pişirilsin' },
+  { token: 'iyi pismis', note: 'İyi pişmiş olsun' },
 ];
 
 function escapeRegExp(input) {
@@ -165,11 +165,11 @@ function buildMenuSuggestions(normalizedMessage, menuItems) {
   }
 
   if (includesPhrase(normalizedMessage, 'sutlu') || includesPhrase(normalizedMessage, 'tatli')) {
-    return inStock.filter((item) => item.tags.includes('sutlu tatli')).slice(0, 6);
+    return inStock.filter((item) => item.tags.includes('sütlü tatlı')).slice(0, 6);
   }
 
   if (includesPhrase(normalizedMessage, 'hafif')) {
-    return inStock.filter((item) => ['Salata', 'Icecek', 'Tatli', 'Corba'].includes(item.category)).slice(0, 6);
+    return inStock.filter((item) => ['Salata', 'İçecek', 'Tatlı', 'Çorba'].includes(item.category)).slice(0, 6);
   }
 
   if (includesPhrase(normalizedMessage, 'tavuk')) {
@@ -177,7 +177,7 @@ function buildMenuSuggestions(normalizedMessage, menuItems) {
   }
 
   if (includesPhrase(normalizedMessage, 'acisiz')) {
-    return inStock.filter((item) => item.tags.includes('acisiz')).slice(0, 6);
+    return inStock.filter((item) => item.tags.includes('acısız')).slice(0, 6);
   }
 
   if (includesPhrase(normalizedMessage, 'vegan')) {
@@ -185,11 +185,11 @@ function buildMenuSuggestions(normalizedMessage, menuItems) {
   }
 
   if (includesPhrase(normalizedMessage, 'kahvalti')) {
-    return inStock.filter((item) => item.category === 'Kahvaltilik').slice(0, 6);
+    return inStock.filter((item) => item.category === 'Kahvaltılık').slice(0, 6);
   }
 
   if (includesPhrase(normalizedMessage, 'corba')) {
-    return inStock.filter((item) => item.category === 'Corba').slice(0, 6);
+    return inStock.filter((item) => item.category === 'Çorba').slice(0, 6);
   }
 
   return inStock.slice(0, 6);
@@ -197,22 +197,22 @@ function buildMenuSuggestions(normalizedMessage, menuItems) {
 
 function detectCategoryFromMessage(normalizedMessage) {
   if (messageHasAny(normalizedMessage, ['icecek', 'kola', 'ayran', 'kahve', 'cay', 'limonata'])) {
-    return 'Icecek';
+    return 'İçecek';
   }
   if (messageHasAny(normalizedMessage, ['tatli', 'sutlu', 'brownie', 'cheesecake'])) {
-    return 'Tatli';
+    return 'Tatlı';
   }
   if (messageHasAny(normalizedMessage, ['salata', 'vegan'])) {
     return 'Salata';
   }
   if (messageHasAny(normalizedMessage, ['corba', 'mercimek', 'ezogelin'])) {
-    return 'Corba';
+    return 'Çorba';
   }
   if (messageHasAny(normalizedMessage, ['kahvalti', 'menemen', 'tost', 'simit'])) {
-    return 'Kahvaltilik';
+    return 'Kahvaltılık';
   }
   if (messageHasAny(normalizedMessage, ['atistirmalik', 'patates', 'halkasi'])) {
-    return 'Atistirmalik';
+    return 'Atıştırmalık';
   }
   if (messageHasAny(normalizedMessage, ['burger', 'hamburger'])) {
     return 'Burger';
@@ -230,9 +230,9 @@ function buildMenuAssistantMessage(normalizedMessage, suggestions) {
   const labels = suggestions.map((item) => item.name).join(', ');
   const detectedCategory = detectCategoryFromMessage(normalizedMessage);
   if (detectedCategory) {
-    return `${detectedCategory} kategorisinde su urunler var: ${labels}. Isterseniz istediginizi sepete ekleyebilirim.`;
+    return `${detectedCategory} kategorisinde şu ürünler var: ${labels}. İsterseniz istediğinizi sepete ekleyebilirim.`;
   }
-  return `Su anki tercihinize gore bunlari oneririm: ${labels}.`;
+  return `Şu anki tercihinize göre bunları öneririm: ${labels}.`;
 }
 
 function buildCartAssistantResponse(normalizedMessage, menuItems) {
@@ -246,7 +246,7 @@ function buildCartAssistantResponse(normalizedMessage, menuItems) {
       items: [],
       suggested_products: [],
       assistant_message:
-        'Mesajinizda menude eslesen bir urun bulamadim. Ornek: "2 kola ekle" veya "bir lahmacun cikar".',
+        'Mesajınızda menüde eşleşen bir ürün bulamadım. Örnek: "2 kola ekle" veya "bir lahmacun çıkar".',
       source: 'mock',
     };
   }
@@ -260,7 +260,7 @@ function buildCartAssistantResponse(normalizedMessage, menuItems) {
   }));
 
   const joinedNames = items.map((item) => `${item.quantity} x ${item.product_name}`).join(', ');
-  const actionText = removeMode ? 'sepetten dusuruldu' : 'sepete eklendi';
+  const actionText = removeMode ? 'sepetten düşürüldü' : 'sepete eklendi';
   const noteText = specialNote ? ` Not: ${specialNote}.` : '';
 
   return {
@@ -280,7 +280,7 @@ function buildMenuAssistantResponse(normalizedMessage, menuItems) {
       intent: 'menu_assistant',
       items: [],
       suggested_products: [],
-      assistant_message: 'Su an stokta uygun urun gorunmuyor.',
+      assistant_message: 'Şu an stokta uygun ürün görünmüyor.',
       source: 'mock',
     };
   }
@@ -308,7 +308,7 @@ function buildSmallTalkResponse(normalizedMessage, menuItems) {
       intent: 'clarification',
       items: [],
       suggested_products: [],
-      assistant_message: 'Rica ederim. Isterseniz yeni bir urun onerisi de yapabilirim.',
+      assistant_message: 'Rica ederim. İsterseniz yeni bir ürün önerisi de yapabilirim.',
       source: 'mock',
     };
   }
@@ -323,8 +323,8 @@ function buildSmallTalkResponse(normalizedMessage, menuItems) {
       tags: item.tags,
     })),
     assistant_message: suggestionText
-      ? `Buradayim. Sohbet edebiliriz veya hizlica su urunlerden baslayabiliriz: ${suggestionText}.`
-      : 'Buradayim. Isterseniz menuden bir urun adi yazin, birlikte secelim.',
+      ? `Buradayım. Sohbet edebiliriz veya hızlıca şu ürünlerden başlayabiliriz: ${suggestionText}.`
+      : 'Buradayım. İsterseniz menüden bir ürün adı yazın, birlikte seçelim.',
     source: 'mock',
   };
 }
@@ -353,7 +353,7 @@ function normalizeBackendResponse(payload) {
       price: Number(row.price ?? 0),
       tags: Array.isArray(row.tags) ? row.tags : [],
     })),
-    assistant_message: payload?.assistant_message ?? payload?.assistantMessage ?? 'Yaniti isleyemedim.',
+    assistant_message: payload?.assistant_message ?? payload?.assistantMessage ?? 'Yanıtı işleyemedim.',
     source: 'backend',
   };
 }
@@ -370,8 +370,8 @@ function buildClarificationResponse(menuItems) {
     items: [],
     suggested_products: [],
     assistant_message: sample
-      ? `Isterseniz soyle yazabilirsiniz: "2 ${normalizeText(sample.split(', ')[0] ?? 'kola')} ekle" veya "hafif bir sey oner".`
-      : 'Mesaji anlayamadim. Urun adi veya "oner" gibi bir ifade kullanabilirsiniz.',
+      ? `İsterseniz şöyle yazabilirsiniz: "2 ${sample.split(', ')[0] ?? 'kola'} ekle" veya "hafif bir şey öner".`
+      : 'Mesajı anlayamadım. Ürün adı veya "öner" gibi bir ifade kullanabilirsiniz.',
     source: 'mock',
   };
 }
@@ -383,7 +383,7 @@ export async function sendAssistantMessage({ message, menuItems, tableId, cartIt
       intent: 'none',
       items: [],
       suggested_products: [],
-      assistant_message: 'Lutfen bir mesaj yazin.',
+      assistant_message: 'Lütfen bir mesaj yazın.',
       source: 'mock',
     };
   }

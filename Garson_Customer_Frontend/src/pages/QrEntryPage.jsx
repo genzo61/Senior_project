@@ -18,7 +18,7 @@ function QrEntryPage() {
       if (!tableId) {
         if (isMounted) {
           setStatus('error');
-          setErrorMessage('QR kodu cozumlenemedi. Lutfen personelden yardim isteyin.');
+          setErrorMessage('QR kodu çözümlenemedi. Lütfen personelden yardım isteyin.');
         }
         return;
       }
@@ -29,7 +29,7 @@ function QrEntryPage() {
         if (!table) {
           if (isMounted) {
             setStatus('error');
-            setErrorMessage(`Masa ${tableId} sistemde bulunamadi.`);
+            setErrorMessage(`Masa ${tableId} sistemde bulunamadı.`);
           }
           return;
         }
@@ -43,7 +43,7 @@ function QrEntryPage() {
       } catch {
         if (isMounted) {
           setStatus('error');
-          setErrorMessage('Sunucuya baglanirken hata olustu. Lutfen tekrar deneyin.');
+          setErrorMessage('Sunucuya bağlanırken hata oluştu. Lütfen tekrar deneyin.');
         }
       }
     }
@@ -61,18 +61,18 @@ function QrEntryPage() {
         {status === 'loading' ? (
           <>
             <p className="text-xs uppercase tracking-[0.22em] text-cyan-300">QR kontrol</p>
-            <h1 className="mt-1 text-3xl font-black text-white">Masa bilgisi dogrulaniyor</h1>
-            <p className="mt-2 text-sm text-slate-300">Lutfen bekleyin...</p>
+            <h1 className="mt-1 text-3xl font-black text-white">Masa bilgisi doğrulanıyor</h1>
+            <p className="mt-2 text-sm text-slate-300">Lütfen bekleyin...</p>
           </>
         ) : null}
 
         {status === 'error' ? (
           <>
-            <p className="text-xs uppercase tracking-[0.22em] text-rose-300">Erisim hatasi</p>
-            <h1 className="mt-1 text-3xl font-black text-white">Gecersiz QR kod</h1>
+            <p className="text-xs uppercase tracking-[0.22em] text-rose-300">Erişim hatası</p>
+            <h1 className="mt-1 text-3xl font-black text-white">Geçersiz QR kod</h1>
             <p className="mt-2 text-sm text-slate-300">{errorMessage}</p>
             <Link to="/" className="mt-5 inline-flex rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-200">
-              Ana yardim ekranina don
+              Ana yardım ekranına dön
             </Link>
           </>
         ) : null}

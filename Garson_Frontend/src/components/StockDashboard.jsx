@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
-import { backendBaseUrl, backendWsUrl } from '../config/backendUrl';
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import { backendBaseUrl, backendWsUrl } from "../config/backendUrl";
 
 function StockDashboard() {
   const [products, setProducts] = useState([]);
@@ -11,25 +11,22 @@ function StockDashboard() {
   useEffect(() => {
     fetchProducts();
 
-    // Canlı Stock güncellemeleri için WebSocket
+    // Keep stock list in sync with websocket updates.
     const client = new Client({
       webSocketFactory: () => new SockJS(backendWsUrl),
       onConnect: () => {
-        console.log('StockDashboard WebSocket Connected!');
-        client.subscribe('/topic/products', (message) => {
-          if (message.body) {
-            const updatedProducts = JSON.parse(message.body);
-            setProducts(updatedProducts);
-          }
+        client.subscribe("/topic/products", (message) => {
+          if (!message.body) return;
+          const updatedProducts = JSON.parse(message.body);
+          setProducts(updatedProducts);
         });
-      }
+      },
     });
     client.activate();
 
     return () => {
       client.deactivate();
     };
-
   }, []);
 
   const fetchProducts = async () => {
@@ -39,7 +36,7 @@ function StockDashboard() {
       const data = await res.json();
       setProducts(data);
     } catch (err) {
-      console.error("Ürünler çekilemedi:", err);
+      console.error("Urunler cekilemedi:", err);
     } finally {
       setLoading(false);
     }
@@ -47,108 +44,114 @@ function StockDashboard() {
 
   const handleIncrement = (id, currentStock) => {
     const change = pendingChanges[id] !== undefined ? pendingChanges[id] : currentStock;
-    setPendingChanges({ ...pendingChanges, [id]: change + 1 });
+    setPendingChanges((prev) => ({ ...prev, [id]: change + 1 }));
   };
 
   const handleDecrement = (id, currentStock) => {
     const change = pendingChanges[id] !== undefined ? pendingChanges[id] : currentStock;
-    if (change > 0) {
-      setPendingChanges({ ...pendingChanges, [id]: change - 1 });
-    }
+    if (change <= 0) return;
+    setPendingChanges((prev) => ({ ...prev, [id]: change - 1 }));
   };
 
   const confirmStockUpdate = async (id) => {
     if (pendingChanges[id] === undefined) return;
     const newStock = pendingChanges[id];
-    
+
     try {
       const res = await fetch(`${backendBaseUrl}/api/products/${id}/stock?quantity=${newStock}`, {
-        method: 'PUT'
+        method: "PUT",
       });
-      if (res.ok) {
-        // Clear pending change for this id after success
-        const newPending = { ...pendingChanges };
-        delete newPending[id];
-        setPendingChanges(newPending);
-        // Products will also auto-update via WebSockets, but we do optimistic update
-        setProducts(products.map(p => p.id === id ? { ...p, stock: newStock } : p));
-      }
+      if (!res.ok) return;
+
+      setPendingChanges((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setProducts((prev) => prev.map((product) => (product.id === id ? { ...product, stock: newStock } : product)));
     } catch (err) {
-      console.error("Stok güncellenemedi:", err);
+      console.error("Stok guncellenemedi:", err);
     }
   };
 
-  if (loading)
-    return (
-      <div className="text-center mt-20 text-xl text-white">Yükleniyor...</div>
-    );
+  if (loading) {
+    return <div className="mt-16 px-4 text-center text-lg text-white sm:mt-20 sm:text-xl">Yukleniyor...</div>;
+  }
 
   return (
-    <div className="w-full min-h-screen p-8 text-white relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-green-500/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[40%] h-[40%] bg-teal-500/20 blur-[120px] rounded-full pointer-events-none" />
+    <div className="relative w-full min-h-screen overflow-hidden p-3 text-white sm:p-6 lg:p-8">
+      <div className="pointer-events-none absolute left-[-10%] top-[-20%] h-[50%] w-[50%] rounded-full bg-green-500/20 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-[-20%] right-[-10%] h-[40%] w-[40%] rounded-full bg-teal-500/20 blur-[120px]" />
 
-      <header className="mb-10 text-center relative z-10 flex flex-col items-center">
-        <h1 className="text-4xl font-extrabold tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-400 drop-shadow-sm">
-          📦 Stok & Menü Yönetimi
+      <header className="relative z-10 mb-6 flex flex-col items-center text-center sm:mb-10">
+        <h1 className="mb-2 bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent drop-shadow-sm sm:text-4xl">
+          Stok ve Menu Yonetimi
         </h1>
-        <p className="text-slate-400 max-w-lg mb-6 leading-relaxed">
-          Mutfaktaki anlık stok durumlarını buradan takip edebilir, bittikçe
-          güncelleyebilirsiniz. Bu stoklar robotun menüsünü anlık olarak
-          etkiler.
+        <p className="mb-2 max-w-lg text-sm leading-relaxed text-slate-400 sm:text-base">
+          Mutfaktaki anlik stok durumlarini buradan takip edip bittikce guncelleyebilirsiniz.
         </p>
       </header>
 
-      <main className="max-w-5xl mx-auto relative z-10">
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
-          <div className="grid grid-cols-4 gap-4 p-4 border-b border-white/10 font-bold text-slate-300 text-sm uppercase tracking-wider">
-            <div className="col-span-2">Ürün Adı</div>
+      <main className="relative z-10 mx-auto max-w-5xl">
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-800/50 shadow-2xl backdrop-blur-xl">
+          <div className="hidden grid-cols-4 gap-4 border-b border-white/10 p-4 text-sm font-bold uppercase tracking-wider text-slate-300 sm:grid">
+            <div className="col-span-2">Urun Adi</div>
             <div className="text-center">Fiyat</div>
             <div className="text-center">Stok Adedi</div>
           </div>
 
-          <div className="p-2 space-y-2">
+          <div className="space-y-2 p-2">
             {products.map((product) => {
               const displayStock = pendingChanges[product.id] !== undefined ? pendingChanges[product.id] : product.stock;
-              const hasChanges = pendingChanges[product.id] !== undefined && pendingChanges[product.id] !== product.stock;
-              
+              const hasChanges =
+                pendingChanges[product.id] !== undefined && pendingChanges[product.id] !== product.stock;
+
               return (
-                <div key={product.id} className="grid grid-cols-4 gap-4 p-3 items-center rounded-xl bg-slate-800/80 border border-white/5 hover:bg-slate-700/80 transition-all duration-300 group">
-                  <div className="col-span-2 flex items-center font-medium text-lg">
-                    <span className="w-10 h-10 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center mr-4 text-xl shadow-inner">
-                       {product.name.charAt(0)}
+                <div
+                  key={product.id}
+                  className="grid grid-cols-1 items-start gap-3 rounded-xl border border-white/5 bg-slate-800/80 p-3 transition-all duration-300 hover:bg-slate-700/80 sm:grid-cols-4 sm:items-center sm:gap-4"
+                >
+                  <div className="flex items-center text-base font-medium sm:col-span-2 sm:text-lg">
+                    <span className="mr-3 flex h-9 w-9 items-center justify-center rounded-lg bg-teal-500/20 text-lg text-teal-400 shadow-inner sm:mr-4 sm:h-10 sm:w-10 sm:text-xl">
+                      {product.name.charAt(0)}
                     </span>
-                    {product.name}
+                    <span className="truncate">{product.name}</span>
                   </div>
-                  
-                  <div className="text-center font-mono text-slate-300 bg-slate-900/50 py-1.5 rounded-lg border border-black/20">
-                    {product.price.toFixed(2)} ₺
+
+                  <div className="rounded-lg border border-black/20 bg-slate-900/50 px-2 py-1.5 text-center font-mono text-slate-300">
+                    {product.price.toFixed(2)} TL
                   </div>
-                  
-                  <div className="flex justify-center items-center gap-2">
-                    <button 
+
+                  <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-center">
+                    <button
+                      type="button"
                       onClick={() => handleDecrement(product.id, product.stock)}
-                      className="w-10 h-10 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200 border border-red-500/20 flex items-center justify-center text-xl font-bold shadow-lg"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10 text-xl font-bold text-red-400 shadow-lg transition-all duration-200 hover:bg-red-500 hover:text-white"
                     >
                       -
                     </button>
-                    
-                    <span className={`text-2xl font-black w-12 text-center drop-shadow-md ${displayStock < 10 ? 'text-red-400' : displayStock < 30 ? 'text-yellow-400' : 'text-green-400'}`}>
+
+                    <span
+                      className={`w-12 text-center text-2xl font-black drop-shadow-md ${
+                        displayStock < 10 ? "text-red-400" : displayStock < 30 ? "text-yellow-400" : "text-green-400"
+                      }`}
+                    >
                       {displayStock}
                     </span>
-                    
-                    <button 
+
+                    <button
+                      type="button"
                       onClick={() => handleIncrement(product.id, product.stock)}
-                      className="w-10 h-10 rounded-full bg-green-500/10 text-green-400 hover:bg-green-500 hover:text-white transition-all duration-200 border border-green-500/20 flex items-center justify-center text-xl font-bold shadow-lg"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-green-500/20 bg-green-500/10 text-xl font-bold text-green-400 shadow-lg transition-all duration-200 hover:bg-green-500 hover:text-white"
                     >
                       +
                     </button>
-                    
+
                     {hasChanges && (
-                      <button 
+                      <button
+                        type="button"
                         onClick={() => confirmStockUpdate(product.id)}
-                        className="ml-4 bg-teal-500 hover:bg-teal-400 text-white font-bold py-1.5 px-3 rounded-lg text-sm shadow-md transition-all"
+                        className="ml-0 rounded-lg bg-teal-500 px-3 py-1.5 text-sm font-bold text-white shadow-md transition-all hover:bg-teal-400 sm:ml-2"
                       >
                         Onayla
                       </button>
@@ -157,11 +160,7 @@ function StockDashboard() {
                 </div>
               );
             })}
-            {products.length === 0 && (
-              <div className="p-8 text-center text-slate-500">
-                Kayıtlı ürün bulunamadı.
-              </div>
-            )}
+            {products.length === 0 && <div className="p-8 text-center text-slate-500">Kayitli urun bulunamadi.</div>}
           </div>
         </div>
       </main>

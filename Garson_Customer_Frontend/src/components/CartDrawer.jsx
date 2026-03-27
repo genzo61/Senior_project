@@ -26,7 +26,7 @@ function CartDrawer({
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Masa {tableId}</p>
-            <h2 className="text-xl font-bold text-white">Siparis Sepeti</h2>
+            <h2 className="text-xl font-bold text-white">Sipariş Sepeti</h2>
           </div>
           <button
             type="button"
@@ -40,7 +40,7 @@ function CartDrawer({
         <div className="mb-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1 md:max-h-[52vh]">
           {cartItems.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-700 p-4 text-center text-sm text-slate-400">
-              Sepetiniz bos.
+              Sepetiniz boş.
             </div>
           ) : (
             cartItems.map((line) => (
@@ -78,12 +78,12 @@ function CartDrawer({
                 </div>
 
                 <label className="block text-xs text-slate-400">
-                  Urun notu
+                  Ürün notu
                   <input
                     type="text"
                     value={line.specialNote}
                     onChange={(event) => onItemNoteChange(line.lineId, event.target.value)}
-                    placeholder="Orn: sogansiz"
+                    placeholder="Örn: soğansız"
                     className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-300/70"
                   />
                 </label>
@@ -93,12 +93,12 @@ function CartDrawer({
         </div>
 
         <label className="mb-3 block text-xs text-slate-400">
-          Siparis notu (opsiyonel)
+          Sipariş notu (opsiyonel)
           <textarea
             value={orderNote}
             onChange={(event) => onOrderNoteChange(event.target.value)}
             rows={2}
-            placeholder="Servis icin genel not"
+            placeholder="Servis için genel not"
             className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-300/70"
           />
         </label>
@@ -124,7 +124,7 @@ function CartDrawer({
                 : 'bg-cyan-300 text-slate-950 hover:bg-cyan-200'
             }`}
           >
-            {isSubmitting ? 'Gonderiliyor...' : 'Siparisi gonder'}
+            {isSubmitting ? 'Gönderiliyor...' : 'Siparişi gönder'}
           </button>
         </div>
       </div>

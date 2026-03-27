@@ -1,5 +1,19 @@
 import React from "react";
 
+const statusBadgeClass = {
+  NEW: "border-rose-400/50 bg-rose-500/20 text-rose-100",
+  READY: "border-amber-400/50 bg-amber-500/20 text-amber-100",
+  DELIVERED: "border-emerald-400/50 bg-emerald-500/20 text-emerald-100",
+  PAID: "border-emerald-400/50 bg-emerald-500/20 text-emerald-100",
+};
+
+const actionButtonClass = {
+  READY:
+    "border border-emerald-300/60 bg-emerald-400/20 text-emerald-100 hover:bg-emerald-400/30",
+  DELIVERED:
+    "border border-cyan-300/60 bg-cyan-400/20 text-cyan-100 hover:bg-cyan-400/30",
+};
+
 const OrderCard = ({ order, onStatusChange, nextStatus, isLoading }) => {
   const timeStr = order.orderTime
     ? new Date(order.orderTime).toLocaleTimeString([], {
@@ -13,86 +27,74 @@ const OrderCard = ({ order, onStatusChange, nextStatus, isLoading }) => {
         })
       : "??:??";
 
+  const buttonClass = nextStatus ? actionButtonClass[nextStatus] : "";
+  const statusClass = statusBadgeClass[order.status] || "border-slate-600 bg-slate-700/40 text-slate-200";
+
   return (
-    <div className={`relative p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl overflow-hidden group transition-all hover:scale-[1.01] hover:bg-white/15 z-20 ${isLoading ? 'opacity-70 grayscale-[0.3]' : ''}`}>
-      {/* Status indicator */}
-      <div
-        className={`absolute top-4 right-4 w-3 h-3 rounded-full animate-pulse shadow-lg ${
-          order.status === "NEW"
-            ? "bg-red-500 shadow-red-500/50"
-            : order.status === "READY"
-              ? "bg-amber-500 shadow-amber-500/50"
-              : "bg-emerald-500 shadow-emerald-500/50"
-        }`}
-      />
+    <article
+      className={`relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/80 p-4 shadow-[0_16px_48px_rgba(2,6,23,0.55)] backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/35 sm:p-5 ${
+        isLoading ? "opacity-70" : ""
+      }`}
+    >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-400/0 via-cyan-300/70 to-cyan-400/0" />
 
-      <div className="flex justify-between items-start mb-4 border-b border-white/10 pb-4">
+      <header className="mb-4 flex items-start justify-between gap-3 border-b border-white/10 pb-3">
         <div>
-          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-indigo-400">
-            Masa {order.tableNo || "?"}
-          </h2>
-          <div className="flex flex-col gap-1 mt-1">
-            <span className="text-xs text-slate-300 bg-black/20 px-2 py-1 rounded-md inline-block">
-              Sipariş No: #{order.id} | {timeStr}
-            </span>
-            {order.language && (
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-                Dil: {order.language}
-              </span>
-            )}
-          </div>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-cyan-300">Masa {order.tableNo || "?"}</p>
+          <h3 className="mt-1 text-lg font-black text-slate-100 sm:text-xl">Siparis #{order.id}</h3>
+          <p className="mt-1 text-xs text-slate-400">Saat {timeStr}</p>
         </div>
-      </div>
 
-      <div className="space-y-2 mb-6 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+        <span className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${statusClass}`}>
+          {order.status}
+        </span>
+      </header>
+
+      <div className="space-y-2.5">
         {order.items?.map((item, idx) => (
           <div
             key={item.id || idx}
-            className="flex justify-between items-center bg-black/20 p-3 rounded-lg border border-white/5"
+            className="flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-slate-950/65 px-3 py-2"
           >
-            <span className="font-semibold text-lg text-slate-100">
-              {item.productName || item.name}
-            </span>
-            <span className="bg-indigo-500/80 text-white min-w-[32px] h-8 px-2 flex items-center justify-center rounded-full font-bold shadow-lg">
+            <div className="min-w-0 pr-3">
+              <p className="truncate text-sm font-semibold text-slate-100">{item.productName || item.name}</p>
+              {item.specialNote ? <p className="truncate text-xs text-amber-200">Not: {item.specialNote}</p> : null}
+            </div>
+            <span className="rounded-full border border-cyan-300/40 bg-cyan-400/15 px-2.5 py-1 text-xs font-bold text-cyan-100">
               {item.quantity || item.qty}x
             </span>
           </div>
         ))}
       </div>
 
-      {order.notes && (
-        <div className="mb-6 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-sm text-amber-200 italic">
-          "{order.notes}"
+      {order.notes ? (
+        <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+          {order.notes}
         </div>
-      )}
+      ) : null}
 
-      {nextStatus && (
+      {nextStatus ? (
         <button
           type="button"
           disabled={isLoading}
           onClick={() => onStatusChange(order.id, nextStatus)}
-          className={`relative z-30 w-full py-3 font-bold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
-            isLoading ? "cursor-not-allowed bg-slate-600 opacity-50" : "cursor-pointer"
-          } ${
-            nextStatus === "READY"
-              ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400"
-              : "bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400"
+          className={`mt-4 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
+            isLoading ? "cursor-not-allowed border border-slate-600 bg-slate-700/60 text-slate-300" : buttonClass
           }`}
         >
           {isLoading ? (
-             <div className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>İşleniyor...</span>
-             </div>
-          ) : (
             <>
-              <span>{nextStatus === "READY" ? "✅" : "🚚"}</span>
-              {nextStatus === "READY" ? "Siparişi Hazırla" : "Teslim Et"}
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              Isleniyor...
             </>
+          ) : nextStatus === "READY" ? (
+            "Siparisi Hazirla"
+          ) : (
+            "Teslim Edildi Olarak Isle"
           )}
         </button>
-      )}
-    </div>
+      ) : null}
+    </article>
   );
 };
 

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Banknote, CreditCard, Wallet, Search, CheckCircle2, AlertCircle, RefreshCw, LayoutGrid } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Banknote, CreditCard, Wallet, CheckCircle2, AlertCircle, RefreshCw, LayoutGrid } from "lucide-react";
 import axios from "axios";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
@@ -14,53 +13,73 @@ const CashRegisterDashboard = () => {
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-
-  // Stats
   const [dailyTotal, setDailyTotal] = useState(0);
-  const [cashTotal, setCashTotal] = useState(0);
-  const [cardTotal, setCardTotal] = useState(0);
+
+  const selectedTableRef = useRef(null);
+  const paymentSuccessRef = useRef(false);
 
   const backendUrl = backendBaseUrl;
+
+  selectedTableRef.current = selectedTable;
+  paymentSuccessRef.current = paymentSuccess;
+
+  const parseDateValue = (value) => {
+    if (!value) return null;
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return parsed;
+  };
+
+  const isSameLocalDay = (left, right) =>
+    left.getFullYear() === right.getFullYear()
+    && left.getMonth() === right.getMonth()
+    && left.getDate() === right.getDate();
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-      // Fetch Tables
+
       const tablesRes = await axios.get(`${backendUrl}/api/tables`);
-      // Sadece dolu veya çağrı yapan masaları kasaya al
       const activeTables = tablesRes.data.filter((t) => t.status !== "EMPTY");
       setTables(activeTables);
 
-      // Fetch Daily Paid Orders
       const paidRes = await axios.get(`${backendUrl}/api/orders/paid`);
       const paidOrders = paidRes.data;
-      
-      let _total = 0;
-      let _cash = 0;
-      let _card = 0;
-
-      paidOrders.forEach((o) => {
-        let orderTotal = 0;
-        if (o.items) {
-          o.items.forEach((item) => {
-             orderTotal += (item.price || 0) * (item.quantity || item.qty);
-          });
-        }
-        _total += orderTotal;
-        if (o.paymentMethod === "CASH") _cash += orderTotal;
-        if (o.paymentMethod === "CARD") _card += orderTotal;
+      const today = new Date();
+      const todayPaidOrders = paidOrders.filter((order) => {
+        const paidDate = parseDateValue(
+          order.paidAt || order.updatedAt || order.orderTime || order.createdAt
+        );
+        return paidDate ? isSameLocalDay(paidDate, today) : false;
       });
 
-      setDailyTotal(_total);
-      setCashTotal(_cash);
-      setCardTotal(_card);
-      
+      let total = 0;
+      todayPaidOrders.forEach((order) => {
+        let orderTotal = 0;
+        if (order.items) {
+          order.items.forEach((item) => {
+            orderTotal += (item.price || 0) * (item.quantity || item.qty || 0);
+          });
+        }
+        total += orderTotal;
+      });
+
+      setDailyTotal(total);
     } catch (err) {
-      console.error("Kasaya veri çekilirken hata:", err);
-      setError("Veriler yüklenemedi. Bağlantıyı kontrol edin.");
+      console.error("Kasaya veri cekilirken hata:", err);
+      setError("Veriler yuklenemedi. Baglantiyi kontrol edin.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadTableOrders = async (tableId) => {
+    try {
+      const res = await axios.get(`${backendUrl}/api/orders/table/${tableId}`);
+      setTableOrders(res.data);
+    } catch (err) {
+      console.error(`Masa ${tableId} siparisleri alinamadi:`, err);
     }
   };
 
@@ -74,24 +93,27 @@ const CashRegisterDashboard = () => {
         stompClient.subscribe("/topic/tables", (message) => {
           const updatedTables = JSON.parse(message.body);
           setTables(updatedTables.filter((t) => t.status !== "EMPTY"));
-          // Eğer seçilen masa kapandıysa ekranı temizle
+
+          // If selected table was closed from another panel, clear selection.
           setSelectedTable((currentSelected) => {
-             if (currentSelected) {
-                 const stillActive = updatedTables.find(t => t.id === currentSelected.id && t.status !== "EMPTY");
-                 if (!stillActive && !paymentSuccess) return null; // Kapanmış
-             }
-             return currentSelected;
+            if (!currentSelected) return currentSelected;
+            const stillActive = updatedTables.find(
+              (t) => t.id === currentSelected.id && t.status !== "EMPTY"
+            );
+            if (!stillActive && !paymentSuccessRef.current) return null;
+            return currentSelected;
           });
         });
-        
+
         stompClient.subscribe("/topic/orders", () => {
-          // Bir sipariş eklendiğinde/silindiğinde açık masa siparişlerini yenile
-          if (selectedTable) {
-             loadTableOrders(selectedTable.id);
+          const currentSelected = selectedTableRef.current;
+          if (currentSelected) {
+            loadTableOrders(currentSelected.id);
           }
         });
       },
     });
+
     stompClient.activate();
 
     return () => {
@@ -100,15 +122,6 @@ const CashRegisterDashboard = () => {
       }
     };
   }, []);
-
-  const loadTableOrders = async (tableId) => {
-    try {
-      const res = await axios.get(`${backendUrl}/api/orders/table/${tableId}`);
-      setTableOrders(res.data);
-    } catch (err) {
-      console.error(`Masa ${tableId} siparişleri alınamadı:`, err);
-    }
-  };
 
   const handleTableClick = (table) => {
     setPaymentSuccess(false);
@@ -121,7 +134,7 @@ const CashRegisterDashboard = () => {
     tableOrders.forEach((order) => {
       if (order.items) {
         order.items.forEach((item) => {
-          total += (item.price || 0) * (item.quantity || item.qty);
+          total += (item.price || 0) * (item.quantity || item.qty || 0);
         });
       }
     });
@@ -130,47 +143,48 @@ const CashRegisterDashboard = () => {
 
   const handlePayment = async (method) => {
     if (!selectedTable) return;
+
     setIsProcessing(true);
     setPaymentSuccess(false);
+
     try {
       await axios.post(`${backendUrl}/api/tables/${selectedTable.id}/kapat?paymentMethod=${method}`);
       setPaymentSuccess(true);
-      fetchData(); // Raporu güncelle
+      fetchData();
+
       setTimeout(() => {
-         setSelectedTable(null);
-         setPaymentSuccess(false);
+        setSelectedTable(null);
+        setPaymentSuccess(false);
       }, 3000);
     } catch (err) {
-      console.error("Ödeme alınamadı", err);
-      setError("Ödeme işlemi başarısız oldu.");
+      console.error("Odeme alinamadi", err);
+      setError("Odeme islemi basarisiz oldu.");
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="w-full min-h-screen p-8 text-white relative overflow-hidden bg-slate-900">
-      {/* Background Decor */}
+    <div className="relative w-full min-h-screen overflow-hidden bg-slate-900 p-3 text-white sm:p-6 lg:p-8">
       <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-emerald-500/10 blur-[150px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none" />
 
-      {/* Header */}
-      <header className="mb-8 flex justify-between items-center relative z-10">
+      <header className="relative z-10 mb-5 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
-            Kasa Yönetimi
+          <h1 className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-3xl font-extrabold text-transparent sm:text-4xl">
+            Kasa Yonetimi
           </h1>
-          <p className="text-slate-400 mt-1">Ödemeler ve Günlük Ciro Takibi</p>
+          <p className="mt-1 text-sm text-slate-400 sm:text-base">Odemeler ve gunluk ciro takibi</p>
         </div>
-        
-        <div className="flex gap-4">
-          <div className="bg-slate-800/80 border border-white/10 rounded-xl px-6 py-3 shadow-lg flex flex-col items-center">
-             <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">Günlük Ciro</span>
-             <span className="text-2xl font-black text-emerald-400 font-mono">₺{dailyTotal.toFixed(2)}</span>
+
+        <div className="flex w-full items-stretch gap-3 sm:w-auto sm:gap-4">
+          <div className="flex flex-1 flex-col items-center rounded-xl border border-white/10 bg-slate-800/80 px-4 py-3 shadow-lg sm:flex-none sm:px-6">
+            <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">Gunluk Ciro</span>
+            <span className="font-mono text-xl font-black text-emerald-400 sm:text-2xl">TL {dailyTotal.toFixed(2)}</span>
           </div>
           <button
             onClick={fetchData}
-            className="h-full px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/10 transition-colors flex items-center"
+            className="flex items-center justify-center rounded-xl border border-white/10 bg-slate-800 px-4 transition-colors hover:bg-slate-700"
           >
             <RefreshCw size={20} className={loading && !isProcessing ? "animate-spin text-slate-400" : "text-slate-400"} />
           </button>
@@ -178,146 +192,133 @@ const CashRegisterDashboard = () => {
       </header>
 
       {error && (
-         <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3">
-             <AlertCircle size={20} /> {error}
-         </div>
+        <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3">
+          <AlertCircle size={20} /> {error}
+        </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10 h-[calc(100vh-220px)]">
-        
-        {/* Sol Panel: Açık Masalar */}
-        <div className="col-span-1 bg-slate-800/50 backdrop-blur-md rounded-3xl border border-white/5 p-6 flex flex-col overflow-hidden">
+      <div className="relative z-10 grid grid-cols-1 gap-4 pb-2 lg:grid-cols-3 lg:gap-8">
+        <div className="col-span-1 flex flex-col overflow-hidden rounded-3xl border border-white/5 bg-slate-800/50 p-4 backdrop-blur-md sm:p-6">
           <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
             <LayoutGrid className="text-emerald-400" />
-            <h2 className="text-xl font-bold">Açık Masalar</h2>
+            <h2 className="text-xl font-bold">Acik Masalar</h2>
             <span className="ml-auto bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold">
               {tables.length} Masa
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+          <div className="max-h-[36vh] flex-1 space-y-3 overflow-y-auto pr-1 sm:max-h-[44vh] lg:max-h-[calc(100vh-360px)] lg:pr-2 custom-scrollbar">
             {tables.length === 0 && !loading && (
-               <div className="text-center text-slate-500 py-10">Açık masa bulunmuyor.</div>
+              <div className="text-center text-slate-500 py-10">Acik masa bulunmuyor.</div>
             )}
-            
-            {tables.sort((a,b) => a.id - b.id).map(table => (
+
+            {[...tables].sort((a, b) => a.id - b.id).map((table) => (
               <button
                 key={table.id}
                 onClick={() => handleTableClick(table)}
-                className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex justify-between items-center group
-                  ${selectedTable?.id === table.id 
-                    ? 'bg-emerald-500/20 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]' 
-                    : 'bg-slate-900/50 border-white/5 hover:border-emerald-500/30 hover:bg-slate-800'
+                className={`group flex w-full items-center justify-between rounded-2xl border p-3 text-left transition-all duration-300 sm:p-4
+                  ${selectedTable?.id === table.id
+                    ? "bg-emerald-500/20 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+                    : "bg-slate-900/50 border-white/5 hover:border-emerald-500/30 hover:bg-slate-800"
                   }`}
               >
                 <div>
-                  <h3 className={`text-xl font-black ${selectedTable?.id === table.id ? 'text-emerald-400' : 'text-slate-200'}`}>
+                  <h3 className={`text-lg font-black sm:text-xl ${selectedTable?.id === table.id ? "text-emerald-400" : "text-slate-200"}`}>
                     Masa {table.id}
                   </h3>
                   <span className={`text-xs mt-1 px-2 py-0.5 rounded-md inline-block ${
-                      table.status === 'CALLING_ROBOT' ? 'bg-amber-500/20 text-amber-400 animate-pulse' : 'bg-blue-500/20 text-blue-400'
+                    table.status === "CALLING_ROBOT" ? "bg-amber-500/20 text-amber-400 animate-pulse" : "bg-blue-500/20 text-blue-400"
                   }`}>
-                      {table.status === 'CALLING_ROBOT' ? 'Robot Çağrıldı' : 'Dolu'}
+                    {table.status === "CALLING_ROBOT" ? "Robot Cagrildi" : "Dolu"}
                   </span>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
-                   <Banknote size={18} className={selectedTable?.id === table.id ? 'text-emerald-400' : 'text-slate-400'} />
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 transition-colors group-hover:bg-emerald-500/20 sm:h-10 sm:w-10">
+                  <Banknote size={18} className={selectedTable?.id === table.id ? "text-emerald-400" : "text-slate-400"} />
                 </div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Sağ Panel: Hesap Detayı ve Ödeme */}
-        <div className="col-span-1 lg:col-span-2 bg-slate-800/50 backdrop-blur-md rounded-3xl border border-white/5 p-6 flex flex-col overflow-hidden">
+        <div className="col-span-1 flex flex-col overflow-hidden rounded-3xl border border-white/5 bg-slate-800/50 p-4 backdrop-blur-md sm:p-6 lg:col-span-2">
           {!selectedTable ? (
             <div className="flex-1 flex flex-col items-center justify-center text-slate-500">
-               <div className="w-24 h-24 rounded-full bg-slate-900 flex items-center justify-center border border-white/5 mb-6 shadow-inner">
-                  <Wallet size={40} className="text-slate-600" />
-               </div>
-               <p className="text-xl font-medium">Hesap kesmek için soldan masa seçin</p>
+              <div className="w-24 h-24 rounded-full bg-slate-900 flex items-center justify-center border border-white/5 mb-6 shadow-inner">
+                <Wallet size={40} className="text-slate-600" />
+              </div>
+              <p className="text-center text-base font-medium sm:text-xl">Hesap kesmek icin soldan masa secin</p>
             </div>
           ) : (
             <>
-              {/* Hesap Başlığı */}
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
+              <div className="mb-5 flex flex-col gap-3 border-b border-white/10 pb-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                   <h2 className="text-3xl font-black text-white">Masa {selectedTable.id} Hesabı</h2>
-                   <p className="text-slate-400 text-sm mt-1">{tableOrders.length} aktif sipariş</p>
+                  <h2 className="text-2xl font-black text-white sm:text-3xl">Masa {selectedTable.id} Hesabi</h2>
+                  <p className="text-slate-400 text-sm mt-1">{tableOrders.length} aktif siparis</p>
                 </div>
                 <div className="text-right">
-                   <div className="text-4xl font-mono font-black text-white tracking-tight">
-                     ₺{calculateTotal().toFixed(2)}
-                   </div>
+                  <div className="text-3xl font-black tracking-tight text-white font-mono sm:text-4xl">TL {calculateTotal().toFixed(2)}</div>
                 </div>
               </div>
 
-              {/* Sipariş Kalemleri */}
-              <div className="flex-1 overflow-y-auto mb-6 bg-slate-900/50 rounded-2xl border border-white/5 p-4 custom-scrollbar">
-                 {tableOrders.length === 0 ? (
-                    <div className="text-center text-slate-500 py-10">Kayıtlı sipariş kalemi bulunamadı.</div>
-                 ) : (
-                    <div className="space-y-4">
-                       {tableOrders.map(order => (
-                          <div key={order.id} className="p-4 rounded-xl bg-slate-800/80 border border-slate-700">
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-1 rounded">
-                                    Sipariş #{order.id}
-                                </span>
-                                <span className="text-xs px-2 py-1 rounded border border-slate-600 text-slate-300">
-                                    {order.status}
-                                </span>
-                            </div>
-                            <ul className="space-y-2 mt-2 border-t border-slate-700/50 pt-3">
-                                {order.items && order.items.map((item, idx) => (
-                                    <li key={idx} className="flex justify-between items-center text-sm">
-                                        <div className="flex items-center">
-                                            <span className="text-emerald-400 font-bold w-6 text-right mr-3">{item.qty || item.quantity}x</span>
-                                            <span className="text-slate-200 text-base">{item.name || item.productName}</span>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <span className="text-slate-500 text-xs">(₺{item.price?.toFixed(2)})</span>
-                                            <span className="text-white font-mono font-medium text-base w-16 text-right">
-                                                ₺{((item.price || 0) * (item.quantity || item.qty)).toFixed(2)}
-                                            </span>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                          </div>
-                       ))}
-                    </div>
-                 )}
-              </div>
-
-              {/* Alt Action Alanı */}
-              <div className="grid grid-cols-2 gap-4">
-                {paymentSuccess ? (
-                   <div className="col-span-2 py-5 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center gap-3 text-emerald-400 font-bold text-xl animate-in fade-in slide-in-from-bottom-2">
-                      <CheckCircle2 size={28} /> Ödeme Başarıyla Alındı
-                   </div>
+              <div className="mb-5 max-h-[45vh] flex-1 overflow-y-auto rounded-2xl border border-white/5 bg-slate-900/50 p-3 custom-scrollbar sm:mb-6 sm:max-h-[50vh] sm:p-4 lg:max-h-[calc(100vh-470px)]">
+                {tableOrders.length === 0 ? (
+                  <div className="text-center text-slate-500 py-10">Kayitli siparis kalemi bulunamadi.</div>
                 ) : (
-                   <>
-                    <button
-                        onClick={() => handlePayment("CASH")}
-                        disabled={isProcessing || tableOrders.length === 0}
-                        className="py-5 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl text-xl flex flex-col items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all active:scale-[0.98] disabled:opacity-50 disabled:grayscale"
-                    >
-                        <Banknote size={28} />
-                        Nakit Ödeme Al
-                    </button>
-                    <button
-                        onClick={() => handlePayment("CARD")}
-                        disabled={isProcessing || tableOrders.length === 0}
-                        className="py-5 bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-bold rounded-2xl text-xl flex flex-col items-center justify-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all active:scale-[0.98] disabled:opacity-50 disabled:grayscale"
-                    >
-                        <CreditCard size={28} />
-                        Kredi Kartı
-                    </button>
-                   </>
+                  <div className="space-y-4">
+                    {tableOrders.map((order) => (
+                      <div key={order.id} className="rounded-xl border border-slate-700 bg-slate-800/80 p-3 sm:p-4">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-1 rounded">Siparis #{order.id}</span>
+                          <span className="text-xs px-2 py-1 rounded border border-slate-600 text-slate-300">{order.status}</span>
+                        </div>
+                        <ul className="space-y-2 mt-2 border-t border-slate-700/50 pt-3">
+                          {order.items?.map((item, idx) => (
+                            <li key={idx} className="flex items-center justify-between gap-2 text-sm">
+                              <div className="flex min-w-0 items-center">
+                                <span className="text-emerald-400 font-bold w-6 text-right mr-3">{item.qty || item.quantity}x</span>
+                                <span className="truncate text-sm text-slate-200 sm:text-base">{item.name || item.productName}</span>
+                              </div>
+                              <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-4">
+                                <span className="text-xs text-slate-500">(TL {(item.price || 0).toFixed(2)})</span>
+                                <span className="w-16 text-right text-sm font-medium text-white font-mono sm:text-base">
+                                  TL {((item.price || 0) * (item.quantity || item.qty || 0)).toFixed(2)}
+                                </span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                {paymentSuccess ? (
+                  <div className="py-5 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center gap-3 text-emerald-400 font-bold text-lg sm:col-span-2 sm:text-xl animate-in fade-in slide-in-from-bottom-2">
+                    <CheckCircle2 size={28} /> Odeme basariyla alindi
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handlePayment("CASH")}
+                      disabled={isProcessing || tableOrders.length === 0}
+                      className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 py-4 text-lg font-bold text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all active:scale-[0.98] hover:from-emerald-400 hover:to-teal-500 disabled:opacity-50 disabled:grayscale sm:py-5 sm:text-xl"
+                    >
+                      <Banknote size={28} />
+                      Nakit Odeme Al
+                    </button>
+                    <button
+                      onClick={() => handlePayment("CARD")}
+                      disabled={isProcessing || tableOrders.length === 0}
+                      className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 py-4 text-lg font-bold text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all active:scale-[0.98] hover:from-blue-400 hover:to-indigo-500 disabled:opacity-50 disabled:grayscale sm:py-5 sm:text-xl"
+                    >
+                      <CreditCard size={28} />
+                      Kredi Karti
+                    </button>
+                  </>
+                )}
+              </div>
             </>
           )}
         </div>

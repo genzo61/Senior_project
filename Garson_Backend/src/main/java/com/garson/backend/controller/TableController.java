@@ -11,6 +11,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -49,6 +50,7 @@ public class TableController {
         return tableRepository.findById(id).map(table -> {
             // Mark all active orders for this table as PAID instead of deleting
             List<Order> orders = orderRepository.findByTableNo(String.valueOf(id));
+            List<Order> changedOrders = new ArrayList<>();
             if (!orders.isEmpty()) {
                 java.time.LocalDateTime now = java.time.LocalDateTime.now();
                 orders.forEach(order -> {
@@ -56,9 +58,10 @@ public class TableController {
                         order.setStatus("PAID");
                         order.setPaidAt(now);
                         order.setPaymentMethod(paymentMethod);
+                        changedOrders.add(order);
                     }
                 });
-                orderRepository.saveAll(orders);
+                orderRepository.saveAll(changedOrders);
             }
 
             table.setStatus(TableStatus.EMPTY);
@@ -66,7 +69,7 @@ public class TableController {
 
             // Notify frontend
             messagingTemplate.convertAndSend("/topic/tables", tableRepository.findAll());
-            messagingTemplate.convertAndSend("/topic/orders", orderRepository.findAll()); // Also notify order changes
+            changedOrders.forEach(order -> messagingTemplate.convertAndSend("/topic/orders", order));
 
             return ResponseEntity.ok(updatedTable);
         }).orElse(ResponseEntity.notFound().build());

@@ -19,9 +19,9 @@ import { formatPrice } from '../utils/textUtils';
 import { getStoredTableContext, parseTableFromSearchParams, saveTableContext } from '../utils/tableContext';
 
 const AI_TEASERS = [
-  { label: 'Urun onereyim mi?', prompt: 'Bugun ne onerirsin?' },
-  { label: 'Hafif secenek bulalim mi?', prompt: 'Hafif bir menu oner' },
-  { label: 'Sohbet edip secelim mi?', prompt: 'Konusalim ve secelim' },
+  { label: 'Ürün önereyim mi?', prompt: 'Bugün ne önerirsin?' },
+  { label: 'Hafif seçenek bulalım mı?', prompt: 'Hafif bir menü öner' },
+  { label: 'Sohbet edip seçelim mi?', prompt: 'Konuşalım ve seçelim' },
 ];
 
 function RobotDoodle({ variant }) {
@@ -126,7 +126,7 @@ function MenuPage() {
 
         if (!table) {
           if (isMounted) {
-            setTableError(`Masa ${candidateTableId} sistemde bulunamadi.`);
+            setTableError(`Masa ${candidateTableId} sistemde bulunamadı.`);
             setTableLoading(false);
           }
           return;
@@ -145,7 +145,7 @@ function MenuPage() {
         }
       } catch {
         if (isMounted) {
-          setTableError('Masa bilgisi dogrulanirken sunucuya baglanilamadi.');
+          setTableError('Masa bilgisi doğrulanırken sunucuya bağlanılamadı.');
           setTableLoading(false);
         }
       }
@@ -171,7 +171,7 @@ function MenuPage() {
         }
       } catch {
         if (isMounted) {
-          setProductsError('Menu yuklenemedi. Lutfen daha sonra tekrar deneyin.');
+          setProductsError('Menü yüklenemedi. Lütfen daha sonra tekrar deneyin.');
         }
       } finally {
         if (isMounted) {
@@ -204,7 +204,7 @@ function MenuPage() {
   const handleQuickAddProduct = (productCandidate) => {
     const matched = menuMap.get(Number(productCandidate?.id));
     if (!matched) {
-      setInlineMessage('Onerilen urun menude bulunamadi.');
+      setInlineMessage('Önerilen ürün menüde bulunamadı.');
       return;
     }
 
@@ -214,18 +214,18 @@ function MenuPage() {
 
   const handleAiCartUpdate = (items) => {
     setCartItems((prev) => applyStructuredCartItems(prev, items, menuMap));
-    setInlineMessage('AI sepet taslagi guncellendi.');
+    setInlineMessage('AI sepet taslağı güncellendi.');
   };
 
   const handleCheckout = async () => {
     if (!tableId) {
-      setCheckoutError('Masa bilgisi olmadan siparis gonderilemez.');
+      setCheckoutError('Masa bilgisi olmadan sipariş gönderilemez.');
       return;
     }
 
     const payload = buildOrderPayload(tableId, cartItems);
     if (!payload.items.length) {
-      setCheckoutError('Sepet bos oldugu icin siparis gonderilemedi.');
+      setCheckoutError('Sepet boş olduğu için sipariş gönderilemedi.');
       return;
     }
 
@@ -235,7 +235,7 @@ function MenuPage() {
     try {
       const order = await createOrder(payload);
       if (!order?.id) {
-        throw new Error('Siparis numarasi donmedi');
+        throw new Error('Sipariş numarası dönmedi');
       }
 
       navigate(`/order/${order.id}?table=${tableId}`, {
@@ -247,7 +247,7 @@ function MenuPage() {
         },
       });
     } catch {
-      setCheckoutError('Siparis gonderilirken hata olustu. Lutfen tekrar deneyin.');
+      setCheckoutError('Sipariş gönderilirken hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setIsSubmittingOrder(false);
     }
@@ -262,7 +262,7 @@ function MenuPage() {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-5 py-8">
         <div className="w-full rounded-3xl border border-slate-700 bg-slate-900/90 p-6 text-center">
-          <p className="text-sm text-slate-300">Masa bilgisi dogrulaniyor...</p>
+          <p className="text-sm text-slate-300">Masa bilgisi doğrulanıyor...</p>
         </div>
       </main>
     );
@@ -272,11 +272,11 @@ function MenuPage() {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-5 py-8">
         <div className="w-full rounded-3xl border border-rose-500/40 bg-slate-900/95 p-6 text-center">
-          <p className="text-xs uppercase tracking-wider text-rose-300">Gecersiz masa</p>
-          <h1 className="mt-1 text-xl font-bold text-white">Siparis baslatilamadi</h1>
+          <p className="text-xs uppercase tracking-wider text-rose-300">Geçersiz masa</p>
+          <h1 className="mt-1 text-xl font-bold text-white">Sipariş başlatılamadı</h1>
           <p className="mt-2 text-sm text-slate-300">{tableError}</p>
           <Link to="/" className="mt-5 inline-flex rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-200">
-            Yardim ekranina don
+            Yardım ekranına dön
           </Link>
         </div>
       </main>
@@ -299,11 +299,11 @@ function MenuPage() {
       </div>
       <div className="relative mx-auto w-full max-w-7xl px-4 pb-24 pt-5 sm:px-6 lg:px-8">
         <header className="mb-5 rounded-3xl border border-cyan-200/25 bg-slate-900/85 p-4 shadow-[0_18px_60px_rgba(2,6,23,0.65)] backdrop-blur">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Robot Kafe Musteri Ekrani</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Robot Kafe Müşteri Ekranı</p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-black tracking-wide text-slate-100 sm:text-3xl">Masa {tableId}</h1>
-              <p className="text-sm text-slate-300">Web responsive menu, AI asistan ve sepet yonetimi</p>
+              <p className="text-sm text-slate-300">Web responsive menü, AI asistan ve sepet yönetimi</p>
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -312,7 +312,7 @@ function MenuPage() {
                 onClick={() => setChatOpen(true)}
                 className="rounded-2xl border border-cyan-300/40 bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200"
               >
-                AI Garsonu ac
+                AI Garsonu aç
               </button>
               <button
                 type="button"
@@ -333,7 +333,7 @@ function MenuPage() {
 
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div>
-            {productsLoading ? <p className="text-sm text-slate-300">Menu yukleniyor...</p> : null}
+            {productsLoading ? <p className="text-sm text-slate-300">Menü yükleniyor...</p> : null}
             {productsError ? (
               <p className="rounded-xl border border-rose-500/40 bg-rose-950/40 px-3 py-2 text-sm text-rose-200">
                 {productsError}
@@ -360,14 +360,14 @@ function MenuPage() {
 
           <aside className="hidden xl:block">
             <div className="sticky top-6 rounded-3xl border border-slate-700/80 bg-slate-900/85 p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Canli Ozet</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Canlı Özet</p>
               <div className="mt-3 space-y-3">
                 <div className="rounded-2xl border border-slate-700 bg-slate-950/80 p-3">
                   <p className="text-xs text-slate-400">Kategori</p>
                   <p className="text-sm font-semibold text-slate-100">{activeCategory || '-'}</p>
                 </div>
                 <div className="rounded-2xl border border-slate-700 bg-slate-950/80 p-3">
-                  <p className="text-xs text-slate-400">Sepet toplami</p>
+                  <p className="text-xs text-slate-400">Sepet toplamı</p>
                   <p className="text-sm font-semibold text-emerald-300">{formatPrice(cartTotal)}</p>
                 </div>
                 <button
@@ -375,14 +375,14 @@ function MenuPage() {
                   onClick={() => setChatOpen(true)}
                   className="w-full rounded-2xl border border-cyan-300/40 bg-cyan-400/15 px-4 py-2.5 text-sm font-semibold text-cyan-100"
                 >
-                  AI ile urun sec
+                  AI ile ürün seç
                 </button>
                 <button
                   type="button"
                   onClick={() => setCartOpen(true)}
                   className="w-full rounded-2xl border border-emerald-300/40 bg-emerald-400/15 px-4 py-2.5 text-sm font-semibold text-emerald-100"
                 >
-                  Sepeti duzenle
+                  Sepeti düzenle
                 </button>
               </div>
             </div>
@@ -409,7 +409,7 @@ function MenuPage() {
         type="button"
         onClick={() => setChatOpen((prev) => !prev)}
         className="robot-ai-fab ai-fab-pulse fixed bottom-24 right-4 z-50 h-16 w-16 rounded-2xl border border-cyan-200/70 bg-[radial-gradient(circle_at_35%_20%,#67e8f9,#0e7490)] text-sm font-black tracking-widest text-slate-950 transition hover:scale-105 sm:right-6"
-        aria-label="AI asistani ac"
+        aria-label="AI asistanı aç"
       >
         <RobotFaceIcon />
         <span className="sr-only">AI</span>
@@ -440,7 +440,7 @@ function MenuPage() {
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
           <div>
-            <p className="text-xs text-slate-400">Sepet toplami</p>
+            <p className="text-xs text-slate-400">Sepet toplamı</p>
             <p className="text-sm font-bold text-emerald-300">{formatPrice(cartTotal)}</p>
           </div>
           <div className="flex gap-2">
@@ -457,7 +457,7 @@ function MenuPage() {
               onClick={() => setCartOpen(true)}
               className="rounded-xl bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950"
             >
-              Sepeti ac
+              Sepeti aç
             </button>
           </div>
         </div>

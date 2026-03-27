@@ -6,10 +6,10 @@ import { formatPrice } from '../utils/textUtils';
 import { parseTableFromSearchParams } from '../utils/tableContext';
 
 const STATUS_LABELS = {
-  NEW: 'Mutfakta hazirlaniyor',
-  READY: 'Servise hazir',
+  NEW: 'Mutfakta hazırlanıyor',
+  READY: 'Servise hazır',
   DELIVERED: 'Teslim edildi',
-  PAID: 'Odeme tamamlandi',
+  PAID: 'Ödeme tamamlandı',
 };
 
 function OrderStatusPage() {
@@ -34,7 +34,7 @@ function OrderStatusPage() {
         }
       } catch {
         if (isMounted) {
-          setError('Siparis bilgisi alinamadi.');
+          setError('Sipariş bilgisi alınamadı.');
         }
       } finally {
         if (isMounted) {
@@ -71,11 +71,11 @@ function OrderStatusPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-5 py-8">
       <div className="rounded-[2rem] border border-cyan-200/25 bg-slate-900/85 p-5 shadow-[0_24px_70px_rgba(2,6,23,0.65)] backdrop-blur sm:p-7">
-        <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Siparis alindi</p>
-        <h1 className="mt-1 text-3xl font-black text-white">Siparis #{orderId}</h1>
+        <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Sipariş alındı</p>
+        <h1 className="mt-1 text-3xl font-black text-white">Sipariş #{orderId}</h1>
         <p className="mt-2 text-sm text-slate-300">Masa: {tableId}</p>
 
-        {loading ? <p className="mt-4 text-sm text-slate-400">Durum yukleniyor...</p> : null}
+        {loading ? <p className="mt-4 text-sm text-slate-400">Durum yükleniyor...</p> : null}
         {error ? <p className="mt-4 rounded-lg bg-rose-950/40 px-3 py-2 text-sm text-rose-200">{error}</p> : null}
 
         {order ? (
@@ -104,7 +104,7 @@ function OrderStatusPage() {
           to={`/menu?table=${tableId}`}
           className="mt-6 inline-flex rounded-xl bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950"
         >
-          Yeni siparis ver
+          Yeni sipariş ver
         </Link>
       </div>
     </main>

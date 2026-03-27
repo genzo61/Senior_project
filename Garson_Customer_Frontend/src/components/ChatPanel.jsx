@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { sendAssistantMessage } from '../services/aiService';
 import { formatPrice } from '../utils/textUtils';
 
-const QUICK_PROMPTS = ['Bugun ne onerirsin?', 'Hafif bir menu oner', '2 kola sepete ekle'];
+const QUICK_PROMPTS = ['Bugün ne önerirsin?', 'Hafif bir menü öner', '2 kola sepete ekle'];
 
 function ChatMessage({ message, onQuickAdd }) {
   const isAssistant = message.role === 'assistant';
@@ -41,7 +41,7 @@ function ChatPanel({ menuItems, tableId, cartItems, onApplyCartUpdate, onQuickAd
     {
       id: 'welcome',
       role: 'assistant',
-      text: 'Robot asistan buradayim. Urun onerisi isteyebilir veya sepete urun ekletebilirsiniz.',
+      text: 'Robot asistan buradayım. Ürün önerisi isteyebilir veya sepete ürün ekletebilirsiniz.',
       suggestedProducts: [],
     },
   ]);
@@ -101,7 +101,7 @@ function ChatPanel({ menuItems, tableId, cartItems, onApplyCartUpdate, onQuickAd
         {
           id: `assistant-error-${Date.now()}`,
           role: 'assistant',
-          text: 'Asistan yaniti alinamadi. Lutfen tekrar deneyin.',
+          text: 'Asistan yanıtı alınamadı. Lütfen tekrar deneyin.',
           suggestedProducts: [],
         },
       ]);
@@ -150,7 +150,7 @@ function ChatPanel({ menuItems, tableId, cartItems, onApplyCartUpdate, onQuickAd
           type="text"
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder="Orn: bir lahmacun ekle"
+          placeholder="Örn: bir lahmacun ekle"
           className="flex-1 rounded-2xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-300/80"
         />
         <button
@@ -160,7 +160,7 @@ function ChatPanel({ menuItems, tableId, cartItems, onApplyCartUpdate, onQuickAd
             isLoading ? 'cursor-not-allowed bg-slate-700 text-slate-400' : 'bg-cyan-300 text-slate-950 hover:bg-cyan-200'
           }`}
         >
-          {isLoading ? 'Bekleyin...' : 'Gonder'}
+          {isLoading ? 'Bekleyin...' : 'Gönder'}
         </button>
       </form>
     </section>

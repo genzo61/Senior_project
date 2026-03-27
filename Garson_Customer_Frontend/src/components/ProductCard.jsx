@@ -6,7 +6,7 @@ function ProductCard({ product, onAdd }) {
 
   const fallbackCode = useMemo(
     () =>
-      String(product.name ?? 'Urun')
+      String(product.name ?? 'Ürün')
         .split(' ')
         .slice(0, 2)
         .map((part) => part.charAt(0))
