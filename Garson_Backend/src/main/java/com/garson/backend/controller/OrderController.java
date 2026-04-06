@@ -1,8 +1,13 @@
 package com.garson.backend.controller;
 
+import com.garson.backend.alerts.CriticalErrorAlertService;
+import com.garson.backend.analytics.CustomerInteractionService;
+import com.garson.backend.analytics.CustomerInteractionType;
 import com.garson.backend.dto.order.OrderCreateItemRequest;
 import com.garson.backend.dto.order.OrderCreateRequest;
 import com.garson.backend.dto.order.OrderResponse;
+import com.garson.backend.event.OrderCreatedEvent;
+import com.garson.backend.event.ProductStockChangedEvent;
 import com.garson.backend.model.Order;
 import com.garson.backend.model.OrderItem;
 import com.garson.backend.model.OrderStatus;
@@ -12,8 +17,8 @@ import com.garson.backend.model.TableStatus;
 import com.garson.backend.repository.OrderRepository;
 import com.garson.backend.repository.ProductRepository;
 import com.garson.backend.repository.RestaurantTableRepository;
-import com.garson.backend.service.N8nWebhookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -33,6 +38,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -46,7 +52,9 @@ public class OrderController {
     private final ProductRepository productRepository;
     private final RestaurantTableRepository tableRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final N8nWebhookService n8nWebhookService;
+    private final CriticalErrorAlertService criticalErrorAlertService;
+    private final CustomerInteractionService customerInteractionService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @PostMapping
     @Transactional
@@ -65,8 +73,15 @@ public class OrderController {
         final Order savedOrder;
         try {
             savedOrder = orderRepository.saveAndFlush(orderInput);
+            customerInteractionService.track(
+                    CustomerInteractionType.CHECKOUT_STARTED,
+                    null,
+                    savedOrder.getTableNo(),
+                    1,
+                    "source=order-controller");
+            eventPublisher.publishEvent(new OrderCreatedEvent(savedOrder.getId(), savedOrder.getTableNo(), "order-controller"));
         } catch (Exception ex) {
-            n8nWebhookService.notifyCriticalError("Order creation failed", ex.getMessage());
+            criticalErrorAlertService.notifyCriticalError("Order creation failed", ex.getMessage());
             return ResponseEntity.internalServerError().body("Could not create order: " + ex.getMessage());
         }
 
@@ -119,7 +134,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable("id") Long id) {
-        return orderRepository.findById(id)
+        return orderRepository.findById(Objects.requireNonNull(id))
                 .map(OrderResponse::fromEntity)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -134,7 +149,7 @@ public class OrderController {
             return ResponseEntity.badRequest().body("Status is required");
         }
 
-        Optional<Order> orderOpt = orderRepository.findById(id);
+        Optional<Order> orderOpt = orderRepository.findById(Objects.requireNonNull(id));
         if (orderOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -171,7 +186,7 @@ public class OrderController {
             } catch (IllegalStateException e) {
                 return ResponseEntity.badRequest().body(e.getMessage());
             } catch (Exception e) {
-                n8nWebhookService.notifyCriticalError("Stock deduction failed", e.getMessage());
+                criticalErrorAlertService.notifyCriticalError("Stock deduction failed", e.getMessage());
                 return ResponseEntity.internalServerError().body("Stock deduction failed: " + e.getMessage());
             }
         }
@@ -183,7 +198,7 @@ public class OrderController {
             messagingTemplate.convertAndSend("/topic/orders", updatedOrder);
             return ResponseEntity.ok(OrderResponse.fromEntity(updatedOrder));
         } catch (Exception e) {
-            n8nWebhookService.notifyCriticalError("Order status update failed", e.getMessage());
+            criticalErrorAlertService.notifyCriticalError("Order status update failed", e.getMessage());
             return ResponseEntity.internalServerError().body("Could not update order status: " + e.getMessage());
         }
     }
@@ -261,7 +276,7 @@ public class OrderController {
 
     private Product resolveProduct(OrderCreateItemRequest itemRequest) {
         if (itemRequest.getProductId() != null) {
-            Optional<Product> product = productRepository.findById(itemRequest.getProductId());
+            Optional<Product> product = productRepository.findById(Objects.requireNonNull(itemRequest.getProductId()));
             if (product.isPresent()) {
                 return product.get();
             }
@@ -308,7 +323,7 @@ public class OrderController {
 
             p.setStock(currentStock - item.getQuantity());
             Product updatedProduct = productRepository.save(p);
-            n8nWebhookService.notifyLowStockIfNeeded(updatedProduct);
+            eventPublisher.publishEvent(new ProductStockChangedEvent(updatedProduct, "order-ready"));
         }
 
         productRepository.flush();
@@ -318,8 +333,9 @@ public class OrderController {
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Void> deleteOrder(@PathVariable("id") Long id) {
-        if (orderRepository.existsById(id)) {
-            orderRepository.deleteById(id);
+        Long nonNullId = Objects.requireNonNull(id);
+        if (orderRepository.existsById(nonNullId)) {
+            orderRepository.deleteById(nonNullId);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();

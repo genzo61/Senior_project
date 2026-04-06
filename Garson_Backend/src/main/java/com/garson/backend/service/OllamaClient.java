@@ -94,6 +94,7 @@ public class OllamaClient {
                 "input", text);
 
         try {
+            @SuppressWarnings("null")
             ResponseEntity<JsonNode> response = restTemplate.postForEntity(
                     endpoint,
                     new HttpEntity<>(request, jsonHeaders()),
@@ -132,6 +133,7 @@ public class OllamaClient {
                 "prompt", text);
 
         try {
+            @SuppressWarnings("null")
             ResponseEntity<JsonNode> response = restTemplate.postForEntity(
                     endpoint,
                     new HttpEntity<>(request, jsonHeaders()),

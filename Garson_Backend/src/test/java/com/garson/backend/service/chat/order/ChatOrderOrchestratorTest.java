@@ -1,5 +1,6 @@
 package com.garson.backend.service.chat.order;
 
+import com.garson.backend.alerts.CriticalErrorAlertService;
 import com.garson.backend.dto.chat.ChatMessageRequest;
 import com.garson.backend.dto.chat.ChatMessageResponse;
 import com.garson.backend.model.Order;
@@ -7,15 +8,16 @@ import com.garson.backend.model.Product;
 import com.garson.backend.repository.OrderRepository;
 import com.garson.backend.repository.ProductRepository;
 import com.garson.backend.repository.RestaurantTableRepository;
-import com.garson.backend.service.N8nWebhookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
 class ChatOrderOrchestratorTest {
 
@@ -42,7 +45,10 @@ class ChatOrderOrchestratorTest {
     private SimpMessagingTemplate messagingTemplate;
 
     @Mock
-    private N8nWebhookService n8nWebhookService;
+    private CriticalErrorAlertService criticalErrorAlertService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private ChatOrderOrchestrator orchestrator;
 
@@ -53,7 +59,8 @@ class ChatOrderOrchestratorTest {
                 orderRepository,
                 tableRepository,
                 messagingTemplate,
-                n8nWebhookService);
+                criticalErrorAlertService,
+                eventPublisher);
     }
 
     @Test
@@ -63,7 +70,7 @@ class ChatOrderOrchestratorTest {
         when(orderRepository.saveAndFlush(any(Order.class))).thenAnswer(invocation -> {
             Order order = invocation.getArgument(0);
             order.setId(101L);
-            return order;
+            return Objects.requireNonNull(order);
         });
 
         ChatMessageRequest request = new ChatMessageRequest();

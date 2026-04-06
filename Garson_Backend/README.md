@@ -14,6 +14,15 @@ This backend supports the new QR-based customer web flow while keeping admin/kit
   - Local Ollama only (no cloud LLM)
   - Embedding + retrieval assisted generation (RAG)
   - Structured JSON response (no free-form output)
+- Local automation layer (no n8n):
+  - Daily summary scheduler
+  - Sales analysis scheduler
+  - Customer engagement scheduler
+  - Restock suggestion scheduler
+  - Low-stock alert with cooldown anti-spam
+  - Critical error notification channel
+- Customer interaction tracking endpoint:
+  - `POST /api/analytics/customer-events`
 
 ## Environment variables
 
@@ -22,6 +31,21 @@ This backend supports the new QR-based customer web flow while keeping admin/kit
 - `OLLAMA_EMBEDDING_MODEL` (default: `nomic-embed-text`)
 - `OLLAMA_TIMEOUT_MS` (default: `8000`)
 - `OLLAMA_TEMPERATURE` (default: `0.0`)
+- `AUTOMATION_ENABLED` (default: `true`)
+- `DAILY_SUMMARY_CRON` (default: `0 0 23 * * *`)
+- `SALES_ANALYSIS_CRON` (default: `0 5 23 * * *`)
+- `CUSTOMER_ENGAGEMENT_CRON` (default: `0 10 23 * * *`)
+- `RESTOCK_SUGGESTION_CRON` (default: `0 15 23 * * *`)
+- `LOW_STOCK_THRESHOLD_DEFAULT` (default: `10`)
+- `LOW_STOCK_ALERT_COOLDOWN_MINUTES` (default: `120`)
+- `RESTOCK_SUGGESTION_DAYS` (default: `3`)
+- `APP_TIMEZONE` (default: `Europe/Istanbul`)
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
+- `TELEGRAM_CONNECT_TIMEOUT_MS` (default: `3000`)
+- `TELEGRAM_READ_TIMEOUT_MS` (default: `3000`)
+- `TELEGRAM_MAX_RETRIES` (default: `2`)
+- `TELEGRAM_RETRY_BACKOFF_MS` (default: `750`)
 
 ## Local run
 
@@ -158,6 +182,14 @@ curl -X POST http://localhost:8085/api/ai/customer-chat ^
   -d "{\"tableId\":4,\"message\":\"sogansiz burger\",\"cart\":[]}"
 ```
 
+Track customer interaction event:
+
+```bash
+curl -X POST http://localhost:8085/api/analytics/customer-events ^
+  -H "Content-Type: application/json" ^
+  -d "{\"eventType\":\"chatOpened\",\"sessionId\":\"session-1\",\"tableNo\":\"4\"}"
+```
+
 ## Notes / known limitations
 
 - Item-level `specialNote` is now persisted in `order_items.special_note`.
@@ -165,3 +197,4 @@ curl -X POST http://localhost:8085/api/ai/customer-chat ^
 - AI endpoint is draft-oriented only; it never creates/finalizes orders.
 - If Ollama is unavailable or invalid JSON is returned, backend falls back to deterministic parser logic.
 - Future improvement: richer modifier/variant modeling and stronger product matching strategy.
+- Notifications are best-effort; order flow never fails if Telegram is unavailable.

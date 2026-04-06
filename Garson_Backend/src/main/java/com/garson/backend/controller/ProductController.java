@@ -3,10 +3,11 @@ package com.garson.backend.controller;
 import com.garson.backend.dto.product.ProductResponse;
 import com.garson.backend.dto.product.ProductTagUtils;
 import com.garson.backend.dto.product.ProductUpsertRequest;
+import com.garson.backend.event.ProductStockChangedEvent;
 import com.garson.backend.model.Product;
 import com.garson.backend.repository.ProductRepository;
-import com.garson.backend.service.N8nWebhookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -28,7 +30,7 @@ import java.util.Optional;
 public class ProductController {
 
     private final ProductRepository productRepository;
-    private final N8nWebhookService n8nWebhookService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @GetMapping
     public List<ProductResponse> getAllProducts() {
@@ -51,12 +53,12 @@ public class ProductController {
     @PutMapping("/{id}/stock")
     public ResponseEntity<ProductResponse> updateStock(@PathVariable(name = "id") Long id,
                                                        @RequestParam(name = "quantity") Integer quantity) {
-        Optional<Product> opt = productRepository.findById(id);
+        Optional<Product> opt = productRepository.findById(Objects.requireNonNull(id));
         if (opt.isPresent()) {
             Product p = opt.get();
             p.setStock(quantity);
             Product updatedProduct = productRepository.save(p);
-            n8nWebhookService.notifyLowStockIfNeeded(updatedProduct);
+            eventPublisher.publishEvent(new ProductStockChangedEvent(updatedProduct, "manual-stock-update"));
             return ResponseEntity.ok(ProductResponse.fromEntity(updatedProduct));
         }
         return ResponseEntity.notFound().build();

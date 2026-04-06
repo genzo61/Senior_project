@@ -1,5 +1,9 @@
 package com.garson.backend.service;
 
+import com.garson.backend.analytics.CustomerInteractionMetrics;
+import com.garson.backend.analytics.CustomerInteractionService;
+import com.garson.backend.analytics.CustomerInteractionType;
+import com.garson.backend.config.AppProperties;
 import com.garson.backend.dto.report.CustomerEngagementResponseDto;
 import com.garson.backend.dto.report.DailySummaryResponseDto;
 import com.garson.backend.dto.report.ProductCountDto;
@@ -38,6 +42,8 @@ public class ReportsService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final CustomerInteractionService customerInteractionService;
+    private final AppProperties appProperties;
 
     public DailySummaryResponseDto getDailySummary(LocalDate date) {
         List<Order> dailyOrders = findOrdersByDate(date);
@@ -71,6 +77,7 @@ public class ReportsService {
 
     public CustomerEngagementResponseDto getCustomerEngagement(LocalDate date) {
         List<Order> dailyOrders = findOrdersByDate(date);
+        CustomerInteractionMetrics interactionMetrics = customerInteractionService.getMetrics(date);
         long totalItemsSold = totalItemsSold(dailyOrders);
         long totalOrders = dailyOrders.size();
         long uniqueTables = dailyOrders.stream()
@@ -89,12 +96,17 @@ public class ReportsService {
                 totalOrders,
                 uniqueTables,
                 totalItemsSold,
-                avgItemsPerOrder);
+                avgItemsPerOrder,
+                interactionMetrics.count(CustomerInteractionType.CHAT_OPENED),
+                interactionMetrics.count(CustomerInteractionType.AI_SUGGESTION_SHOWN),
+                interactionMetrics.count(CustomerInteractionType.ADDED_TO_CART),
+                interactionMetrics.count(CustomerInteractionType.CHECKOUT_STARTED),
+                interactionMetrics.count(CustomerInteractionType.ORDERS_CREATED));
     }
 
     public RestockSuggestionsResponseDto getRestockSuggestions(int days) {
         int safeDays = Math.max(1, days);
-        LocalDate endDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now(resolveZoneId());
         LocalDate startDate = endDate.minusDays(safeDays - 1L);
 
         Map<String, Long> soldCounts = calculateProductCounts(
@@ -141,7 +153,7 @@ public class ReportsService {
         }
         Instant createdAt = order.getCreatedAt();
         if (createdAt != null) {
-            return LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault()).toLocalDate();
+            return LocalDateTime.ofInstant(createdAt, resolveZoneId()).toLocalDate();
         }
         return LocalDate.MIN;
     }
@@ -279,5 +291,14 @@ public class ReportsService {
 
     private String safeTrim(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private ZoneId resolveZoneId() {
+        String timezone = safeTrim(appProperties.getTimezone());
+        try {
+            return ZoneId.of(timezone.isEmpty() ? "Europe/Istanbul" : timezone);
+        } catch (Exception ex) {
+            return ZoneId.of("Europe/Istanbul");
+        }
     }
 }

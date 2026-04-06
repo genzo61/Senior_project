@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Configuration
@@ -22,7 +23,7 @@ public class DataSeeder {
                     boolean changed = applySeedMetadata(current, seed);
                     changed = applyDefaultMetadataIfMissing(current, seed) || changed;
                     if (changed) {
-                        repository.save(current);
+                        repository.save(Objects.requireNonNull(current));
                     }
                     continue;
                 }
@@ -37,7 +38,7 @@ public class DataSeeder {
             repository.findAll().forEach(product -> {
                 boolean changed = applyDefaultMetadataIfMissing(product, null);
                 if (changed) {
-                    repository.save(product);
+                    repository.save(Objects.requireNonNull(product));
                 }
             });
         };

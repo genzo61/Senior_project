@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/tables")
@@ -32,7 +33,7 @@ public class TableController {
     @PostMapping("/{id}/cagir")
     @Transactional
     public ResponseEntity<?> callRobot(@PathVariable("id") Long id) {
-        return tableRepository.findById(id).map(table -> {
+        return tableRepository.findById(Objects.requireNonNull(id)).map(table -> {
             if (table.getStatus() == TableStatus.EMPTY || table.getStatus() == TableStatus.OCCUPIED) {
                 table.setStatus(TableStatus.CALLING_ROBOT);
                 RestaurantTable updatedTable = tableRepository.save(table);
@@ -47,7 +48,7 @@ public class TableController {
     @Transactional
     public ResponseEntity<?> closeTable(@PathVariable("id") Long id,
             @RequestParam(required = false, defaultValue = "CASH") String paymentMethod) {
-        return tableRepository.findById(id).map(table -> {
+        return tableRepository.findById(Objects.requireNonNull(id)).map(table -> {
             // Mark all active orders for this table as PAID instead of deleting
             List<Order> orders = orderRepository.findByTableNo(String.valueOf(id));
             List<Order> changedOrders = new ArrayList<>();
@@ -69,7 +70,7 @@ public class TableController {
 
             // Notify frontend
             messagingTemplate.convertAndSend("/topic/tables", tableRepository.findAll());
-            changedOrders.forEach(order -> messagingTemplate.convertAndSend("/topic/orders", order));
+            changedOrders.forEach(order -> messagingTemplate.convertAndSend("/topic/orders", Objects.requireNonNull(order)));
 
             return ResponseEntity.ok(updatedTable);
         }).orElse(ResponseEntity.notFound().build());

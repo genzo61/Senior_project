@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -67,7 +68,7 @@ public class ChatOrderStatusService {
 
     private Optional<Order> findBySession(String sessionId) {
         return chatSessionStateService.getSessionState(sessionId)
-                .flatMap(state -> orderRepository.findById(state.lastOrderId()));
+                .flatMap(state -> orderRepository.findById(Objects.requireNonNull(state.lastOrderId())));
     }
 
     private String formatStatusMessage(Order order) {

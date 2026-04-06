@@ -1,7 +1,9 @@
 package com.garson.backend.service.chat.order;
 
+import com.garson.backend.alerts.CriticalErrorAlertService;
 import com.garson.backend.dto.chat.ChatMessageRequest;
 import com.garson.backend.dto.chat.ChatMessageResponse;
+import com.garson.backend.event.OrderCreatedEvent;
 import com.garson.backend.model.Order;
 import com.garson.backend.model.OrderItem;
 import com.garson.backend.model.OrderStatus;
@@ -10,10 +12,10 @@ import com.garson.backend.model.TableStatus;
 import com.garson.backend.repository.OrderRepository;
 import com.garson.backend.repository.ProductRepository;
 import com.garson.backend.repository.RestaurantTableRepository;
-import com.garson.backend.service.N8nWebhookService;
 import com.garson.backend.service.chat.ChatTextNormalizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,7 +61,8 @@ public class ChatOrderOrchestrator {
     private final OrderRepository orderRepository;
     private final RestaurantTableRepository tableRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final N8nWebhookService n8nWebhookService;
+    private final CriticalErrorAlertService criticalErrorAlertService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public ChatMessageResponse handleOrderCreate(ChatMessageRequest request) {
@@ -181,7 +184,7 @@ public class ChatOrderOrchestrator {
                     .suggestions(topInStockProducts(products, 3))
                     .build();
         } catch (Exception ex) {
-            n8nWebhookService.notifyCriticalError("Chat order create failed", ex.getMessage());
+            criticalErrorAlertService.notifyCriticalError("Chat order create failed", ex.getMessage());
             log.warn("Chat order create failed: {}", ex.getMessage());
             return ChatMessageResponse.builder()
                     .intent("ORDER_CREATE")
@@ -207,6 +210,7 @@ public class ChatOrderOrchestrator {
         }
 
         Order saved = orderRepository.saveAndFlush(order);
+        eventPublisher.publishEvent(new OrderCreatedEvent(saved.getId(), saved.getTableNo(), "chat-order"));
         updateTableStatusIfPresent(tableNo);
         messagingTemplate.convertAndSend("/topic/orders", saved);
         return saved;

@@ -1,6 +1,6 @@
 package com.garson.backend.exception;
 
-import com.garson.backend.service.N8nWebhookService;
+import com.garson.backend.alerts.CriticalErrorAlertService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-    private final N8nWebhookService n8nWebhookService;
+    private final CriticalErrorAlertService criticalErrorAlertService;
 
     @ExceptionHandler({
             IllegalArgumentException.class,
@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
                 ? ""
                 : (request.getMethod() + " " + request.getRequestURI());
 
-        n8nWebhookService.notifyCriticalError(
+        criticalErrorAlertService.notifyCriticalError(
                 "Unhandled backend exception",
                 requestInfo + " - " + safeMessage(ex));
 
