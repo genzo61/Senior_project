@@ -13,9 +13,9 @@ function QrEntryPage() {
     let isMounted = true;
 
     async function resolveToken() {
-      const tableId = parseTableToken(token);
+      const tableNo = parseTableToken(token);
 
-      if (!tableId) {
+      if (!tableNo) {
         if (isMounted) {
           setStatus('error');
           setErrorMessage('QR kodu çözümlenemedi. Lütfen personelden yardım isteyin.');
@@ -24,21 +24,21 @@ function QrEntryPage() {
       }
 
       try {
-        const table = await fetchTableById(tableId);
+        const table = await fetchTableById(tableNo);
 
         if (!table) {
           if (isMounted) {
             setStatus('error');
-            setErrorMessage(`Masa ${tableId} sistemde bulunamadı.`);
+            setErrorMessage(`Masa ${tableNo} sistemde bulunamadı.`);
           }
           return;
         }
 
-        saveTableContext({ tableId, source: 'qr_token' });
+        saveTableContext({ tableNo, source: 'qr_token' });
 
         if (isMounted) {
           setStatus('success');
-          navigate(`/menu?table=${tableId}`, { replace: true });
+          navigate(`/menu?tableNo=${tableNo}`, { replace: true });
         }
       } catch {
         if (isMounted) {

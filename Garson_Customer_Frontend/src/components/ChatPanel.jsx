@@ -34,7 +34,7 @@ function ChatMessage({ message, onQuickAdd }) {
   );
 }
 
-function ChatPanel({ menuItems, tableId, cartItems, onApplyCartUpdate, onQuickAddProduct, onClose, prefillDraft }) {
+function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAddProduct, onClose, prefillDraft }) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState([
@@ -77,7 +77,7 @@ function ChatPanel({ menuItems, tableId, cartItems, onApplyCartUpdate, onQuickAd
       const response = await sendAssistantMessage({
         message: trimmed,
         menuItems,
-        tableId,
+        tableNo,
         cartItems,
       });
 
@@ -115,7 +115,7 @@ function ChatPanel({ menuItems, tableId, cartItems, onApplyCartUpdate, onQuickAd
       <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-cyan-300">AI Garson</p>
-          <p className="text-sm text-slate-400">Masa {tableId}</p>
+          <p className="text-sm text-slate-400">Masa {tableNo}</p>
         </div>
         <button
           type="button"

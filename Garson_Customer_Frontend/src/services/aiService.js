@@ -376,7 +376,7 @@ function buildClarificationResponse(menuItems) {
   };
 }
 
-export async function sendAssistantMessage({ message, menuItems, tableId, cartItems = [] }) {
+export async function sendAssistantMessage({ message, menuItems, tableNo, cartItems = [] }) {
   const trimmedMessage = String(message ?? '').trim();
   if (!trimmedMessage) {
     return {
@@ -394,7 +394,7 @@ export async function sendAssistantMessage({ message, menuItems, tableId, cartIt
       const response = await axios.post(
         aiEndpoint,
         {
-          tableId: Number(tableId),
+          tableNo: Number(tableNo),
           message: trimmedMessage,
           cart: cartItems.map((line) => ({
             productId: Number(line.productId),

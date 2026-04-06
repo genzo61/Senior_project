@@ -16,7 +16,12 @@ import {
 } from '../utils/cartUtils';
 import { groupProductsByCategory } from '../utils/menuUtils';
 import { formatPrice } from '../utils/textUtils';
-import { getStoredTableContext, parseTableFromSearchParams, saveTableContext } from '../utils/tableContext';
+import {
+  buildNormalizedTableSearchParams,
+  getStoredTableContext,
+  resolveTableNoFromSearchParams,
+  saveTableContext,
+} from '../utils/tableContext';
 
 const AI_TEASERS = [
   { label: 'Ürün önereyim mi?', prompt: 'Bugün ne önerirsin?' },
@@ -57,7 +62,7 @@ function MenuPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchKey = searchParams.toString();
 
-  const [tableId, setTableId] = useState(null);
+  const [tableNo, setTableNo] = useState(null);
   const [tableLoading, setTableLoading] = useState(true);
   const [tableError, setTableError] = useState('');
 
@@ -117,29 +122,43 @@ function MenuPage() {
     async function resolveTableContext() {
       setTableLoading(true);
       const params = new URLSearchParams(searchKey);
-      const tableFromQuery = parseTableFromSearchParams(params);
+      const { tableNo: tableFromQuery, hasQueryParam, shouldNormalize } = resolveTableNoFromSearchParams(params);
+      if (hasQueryParam && tableFromQuery === null) {
+        if (isMounted) {
+          setTableError('Masa parametresi geçersiz.');
+          setTableLoading(false);
+        }
+        return;
+      }
+
       const stored = getStoredTableContext();
-      const candidateTableId = tableFromQuery ?? stored?.tableId ?? 1;
+      const candidateTableNo = tableFromQuery ?? stored?.tableNo ?? 1;
 
       try {
-        const table = await fetchTableById(candidateTableId);
+        const table = await fetchTableById(candidateTableNo);
 
         if (!table) {
           if (isMounted) {
-            setTableError(`Masa ${candidateTableId} sistemde bulunamadı.`);
+            setTableError(`Masa ${candidateTableNo} sistemde bulunamadı.`);
             setTableLoading(false);
           }
           return;
         }
 
-        saveTableContext({ tableId: candidateTableId, source: tableFromQuery ? 'query' : stored?.tableId ? 'session' : 'default' });
+        saveTableContext({
+          tableNo: candidateTableNo,
+          source: tableFromQuery ? 'query' : stored?.tableNo ? 'session' : 'default',
+        });
 
-        if (!tableFromQuery) {
-          setSearchParams({ table: String(candidateTableId) }, { replace: true });
+        if (shouldNormalize || !params.get('tableNo')) {
+          const normalizedParams = buildNormalizedTableSearchParams(params, candidateTableNo);
+          if (normalizedParams) {
+            setSearchParams(normalizedParams, { replace: true });
+          }
         }
 
         if (isMounted) {
-          setTableId(candidateTableId);
+          setTableNo(candidateTableNo);
           setTableError('');
           setTableLoading(false);
         }
@@ -218,12 +237,12 @@ function MenuPage() {
   };
 
   const handleCheckout = async () => {
-    if (!tableId) {
+    if (!tableNo) {
       setCheckoutError('Masa bilgisi olmadan sipariş gönderilemez.');
       return;
     }
 
-    const payload = buildOrderPayload(tableId, cartItems);
+    const payload = buildOrderPayload(tableNo, cartItems);
     if (!payload.items.length) {
       setCheckoutError('Sepet boş olduğu için sipariş gönderilemedi.');
       return;
@@ -238,10 +257,10 @@ function MenuPage() {
         throw new Error('Sipariş numarası dönmedi');
       }
 
-      navigate(`/order/${order.id}?table=${tableId}`, {
+      navigate(`/order/${order.id}?tableNo=${tableNo}`, {
         state: {
           order,
-          tableId,
+          tableNo,
           cartSnapshot: cartItems,
           orderNote,
         },
@@ -302,7 +321,7 @@ function MenuPage() {
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Robot Kafe Müşteri Ekranı</p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black tracking-wide text-slate-100 sm:text-3xl">Masa {tableId}</h1>
+              <h1 className="text-2xl font-black tracking-wide text-slate-100 sm:text-3xl">Masa {tableNo}</h1>
               <p className="text-sm text-slate-300">Web responsive menü, AI asistan ve sepet yönetimi</p>
             </div>
 
@@ -427,7 +446,7 @@ function MenuPage() {
         <div className="absolute bottom-[6.4rem] left-4 right-4 h-[68vh] sm:left-auto sm:right-6 sm:w-[430px] lg:bottom-6 lg:top-24 lg:h-auto">
           <ChatPanel
             menuItems={products}
-            tableId={tableId}
+            tableNo={tableNo}
             cartItems={cartItems}
             onApplyCartUpdate={handleAiCartUpdate}
             onQuickAddProduct={handleQuickAddProduct}
@@ -467,7 +486,7 @@ function MenuPage() {
         open={cartOpen}
         onClose={() => setCartOpen(false)}
         cartItems={cartItems}
-        tableId={tableId}
+        tableNo={tableNo}
         orderNote={orderNote}
         onOrderNoteChange={setOrderNote}
         onIncrease={(lineId, quantity) => setCartItems((prev) => setCartLineQuantity(prev, lineId, quantity))}

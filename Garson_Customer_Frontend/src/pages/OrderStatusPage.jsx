@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { fetchOrderById } from '../services/customerApi';
 import { getCartTotal } from '../utils/cartUtils';
 import { formatPrice } from '../utils/textUtils';
-import { parseTableFromSearchParams } from '../utils/tableContext';
+import { buildNormalizedTableSearchParams, resolveTableNoFromSearchParams } from '../utils/tableContext';
 
 const STATUS_LABELS = {
   NEW: 'Mutfakta hazırlanıyor',
@@ -15,12 +15,29 @@ const STATUS_LABELS = {
 function OrderStatusPage() {
   const { orderId } = useParams();
   const location = useLocation();
-  const [searchParams] = useState(() => new URLSearchParams(location.search));
-  const tableId = parseTableFromSearchParams(searchParams) ?? location.state?.tableId ?? '-';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { tableNo: tableNoFromQuery, shouldNormalize } = resolveTableNoFromSearchParams(searchParams);
+  const tableNoFromState = Number(location.state?.tableNo ?? location.state?.tableId);
+  const tableNo = Number.isInteger(tableNoFromState) && tableNoFromState > 0 ? tableNoFromState : null;
+  const resolvedTableNo = tableNoFromQuery ?? tableNo ?? '-';
+  const fallbackMenuTableNo = tableNoFromQuery ?? tableNo ?? 1;
 
   const [order, setOrder] = useState(location.state?.order ?? null);
   const [loading, setLoading] = useState(!location.state?.order);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!shouldNormalize || tableNoFromQuery === null) {
+      return;
+    }
+
+    const normalizedSearchParams = buildNormalizedTableSearchParams(searchParams, tableNoFromQuery);
+    if (!normalizedSearchParams) {
+      return;
+    }
+
+    setSearchParams(normalizedSearchParams, { replace: true });
+  }, [searchParams, setSearchParams, shouldNormalize, tableNoFromQuery]);
 
   useEffect(() => {
     let isMounted = true;
@@ -73,7 +90,7 @@ function OrderStatusPage() {
       <div className="rounded-[2rem] border border-cyan-200/25 bg-slate-900/85 p-5 shadow-[0_24px_70px_rgba(2,6,23,0.65)] backdrop-blur sm:p-7">
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Sipariş alındı</p>
         <h1 className="mt-1 text-3xl font-black text-white">Sipariş #{orderId}</h1>
-        <p className="mt-2 text-sm text-slate-300">Masa: {tableId}</p>
+        <p className="mt-2 text-sm text-slate-300">Masa: {resolvedTableNo}</p>
 
         {loading ? <p className="mt-4 text-sm text-slate-400">Durum yükleniyor...</p> : null}
         {error ? <p className="mt-4 rounded-lg bg-rose-950/40 px-3 py-2 text-sm text-rose-200">{error}</p> : null}
@@ -101,7 +118,7 @@ function OrderStatusPage() {
         ) : null}
 
         <Link
-          to={`/menu?table=${tableId}`}
+          to={`/menu?tableNo=${fallbackMenuTableNo}`}
           className="mt-6 inline-flex rounded-xl bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950"
         >
           Yeni sipariş ver

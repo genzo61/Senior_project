@@ -133,7 +133,7 @@ export function getCartTotal(cartItems) {
   return cartItems.reduce((total, line) => total + Number(line.price ?? 0) * Number(line.quantity ?? 0), 0);
 }
 
-export function buildOrderPayload(tableId, cartItems) {
+export function buildOrderPayload(tableNo, cartItems) {
   const groupedItems = new Map();
 
   cartItems.forEach((line) => {
@@ -155,7 +155,7 @@ export function buildOrderPayload(tableId, cartItems) {
   });
 
   return {
-    tableNo: String(tableId),
+    tableNo: String(tableNo),
     items: Array.from(groupedItems.values()).filter((line) => line.quantity > 0),
   };
 }

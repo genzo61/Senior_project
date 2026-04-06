@@ -4,7 +4,7 @@ function CartDrawer({
   open,
   onClose,
   cartItems,
-  tableId,
+  tableNo,
   orderNote,
   onOrderNoteChange,
   onIncrease,
@@ -25,7 +25,7 @@ function CartDrawer({
       <div className="absolute bottom-0 left-0 right-0 max-h-[92vh] rounded-t-3xl border-t border-cyan-300/25 bg-slate-900 p-4 shadow-2xl md:left-auto md:right-6 md:top-6 md:bottom-6 md:w-[440px] md:rounded-3xl md:border md:p-5">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Masa {tableId}</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Masa {tableNo}</p>
             <h2 className="text-xl font-bold text-white">Sipariş Sepeti</h2>
           </div>
           <button
