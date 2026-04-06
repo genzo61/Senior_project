@@ -1,0 +1,16 @@
+{
+  "properties": [
+    {
+      "name": "chat.llm.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enables LLM-backed chat response composer.",
+      "defaultValue": true
+    },
+    {
+      "name": "customer.ai.debug",
+      "type": "java.lang.Boolean",
+      "description": "Enables verbose debug logs for customer AI service.",
+      "defaultValue": false
+    }
+  ]
+}

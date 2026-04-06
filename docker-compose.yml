@@ -26,9 +26,9 @@ services:
       garson-db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://garson-db:5432/garson_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: "123"
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL-jdbc:postgresql://garson-db:5432/garson_db}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD-123}
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL-http://host.docker.internal:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL-llama3.2:3b}
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL-nomic-embed-text}
