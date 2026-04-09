@@ -33,19 +33,19 @@ function ProductCard({ product, onAdd }) {
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent sm:from-slate-950/80 sm:via-slate-950/10" />
-        <span className="absolute bottom-1.5 left-1.5 inline-flex rounded-full border border-cyan-300/30 bg-slate-900/80 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-100 sm:bottom-3 sm:left-3 sm:px-3 sm:py-1 sm:text-[11px]">
+        <span className="absolute bottom-1.5 left-1.5 inline-flex rounded-full border border-cyan-300/30 bg-slate-900/80 px-1.5 py-0.5 text-[10px] font-semibold text-cyan-100 sm:bottom-3 sm:left-3 sm:px-3 sm:py-1 sm:text-[11px]">
           {product.category}
         </span>
-        <span className="absolute bottom-1.5 right-1.5 inline-flex rounded-full border border-emerald-300/30 bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-bold text-emerald-100 sm:bottom-3 sm:right-3 sm:px-3 sm:py-1 sm:text-sm">
+        <span className="absolute bottom-1.5 right-1.5 inline-flex rounded-full border border-emerald-300/30 bg-emerald-400/15 px-1.5 py-0.5 text-[11px] font-bold text-emerald-100 sm:bottom-3 sm:right-3 sm:px-3 sm:py-1 sm:text-sm">
           {formatPrice(product.price)}
         </span>
       </div>
 
       <div className="min-w-0 space-y-2 p-2.5 sm:space-y-3 sm:p-4">
-        <h3 className="overflow-hidden text-[13px] font-bold tracking-wide text-slate-100 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [overflow-wrap:anywhere] sm:text-lg">
+        <h3 className="overflow-hidden text-[14px] font-bold tracking-wide text-slate-100 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [overflow-wrap:anywhere] sm:text-lg">
           {product.name}
         </h3>
-        <p className="overflow-hidden text-[10px] leading-3.5 text-slate-300/90 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [overflow-wrap:anywhere] sm:text-sm sm:leading-relaxed sm:[-webkit-line-clamp:3]">
+        <p className="overflow-hidden text-xs leading-5 text-slate-300/90 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [overflow-wrap:anywhere] sm:text-sm sm:leading-relaxed sm:[-webkit-line-clamp:3]">
           {product.description}
         </p>
 
@@ -64,7 +64,7 @@ function ProductCard({ product, onAdd }) {
           type="button"
           disabled={!product.available}
           onClick={() => onAdd(product)}
-          className={`w-full rounded-lg px-3 py-1.5 text-[11px] font-bold tracking-wide transition sm:rounded-2xl sm:px-4 sm:py-2.5 sm:text-sm ${
+          className={`min-h-11 w-full rounded-lg px-3 py-2 text-xs font-bold tracking-wide transition sm:rounded-2xl sm:px-4 sm:py-2.5 sm:text-sm ${
             product.available ? 'bg-cyan-400 text-slate-950 hover:bg-cyan-300' : 'cursor-not-allowed bg-slate-700 text-slate-400'
           }`}
         >

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 function AccessHelpPage({ notFound = false }) {
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-5xl items-center px-4 py-8 sm:px-8 sm:py-10">
+    <main className="safe-screen-min mx-auto flex w-full max-w-5xl items-center px-4 py-8 sm:px-8 sm:py-10">
       <div className="w-full rounded-[2rem] border border-cyan-200/25 bg-slate-900/85 p-6 shadow-[0_24px_70px_rgba(2,6,23,0.65)] backdrop-blur sm:p-8">
         <p className="mb-2 text-xs uppercase tracking-[0.24em] text-cyan-300">Robot Kafe Web Siparis</p>
         <h1 className="mb-2 text-2xl font-black tracking-wide text-white sm:text-4xl">

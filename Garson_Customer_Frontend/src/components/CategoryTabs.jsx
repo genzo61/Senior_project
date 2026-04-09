@@ -12,7 +12,7 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
             key={category}
             type="button"
             onClick={() => onChange(category)}
-            className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
+            className={`min-h-10 shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
               activeCategory === category
                 ? 'border-cyan-300 bg-cyan-300 text-slate-950'
                 : 'border-slate-600 bg-slate-900/80 text-slate-200 hover:border-cyan-400/60'

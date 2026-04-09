@@ -56,7 +56,7 @@ function QrEntryPage() {
   }, [navigate, token]);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-4xl items-center px-4 py-8 sm:px-5 sm:py-10">
+    <main className="safe-screen-min mx-auto flex w-full max-w-4xl items-center px-4 py-8 sm:px-5 sm:py-10">
       <div className="w-full rounded-3xl border border-cyan-200/25 bg-slate-900/85 p-6 text-center shadow-[0_24px_70px_rgba(2,6,23,0.65)] backdrop-blur sm:p-8">
         {status === 'loading' ? (
           <>

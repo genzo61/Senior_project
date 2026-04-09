@@ -111,7 +111,7 @@ function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAd
   };
 
   return (
-    <section className="flex h-full flex-col rounded-3xl border border-cyan-200/20 bg-slate-950/95 p-3 shadow-[0_25px_70px_rgba(2,8,23,0.75)] backdrop-blur-xl sm:p-4">
+    <section className="flex h-full min-h-0 flex-col rounded-3xl border border-cyan-200/20 bg-slate-950/95 p-3 shadow-[0_25px_70px_rgba(2,8,23,0.75)] backdrop-blur-xl sm:p-4">
       <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-cyan-300">AI Garson</p>
@@ -120,7 +120,7 @@ function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAd
         <button
           type="button"
           onClick={onClose}
-          className="rounded-full border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-cyan-300/60"
+          className="min-h-10 rounded-full border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-cyan-300/60"
         >
           Kapat
         </button>
@@ -132,14 +132,14 @@ function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAd
             key={prompt}
             type="button"
             onClick={() => setInput(prompt)}
-            className="shrink-0 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-cyan-300/70"
+            className="shrink-0 rounded-full border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-cyan-300/70"
           >
             {prompt}
           </button>
         ))}
       </div>
 
-      <div className="mb-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+      <div className="mb-3 min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-y-contain pr-1">
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} onQuickAdd={onQuickAddProduct} />
         ))}
@@ -151,12 +151,12 @@ function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAd
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Örn: bir lahmacun ekle"
-          className="w-full flex-1 rounded-2xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-300/80"
+          className="min-h-11 w-full flex-1 rounded-2xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-base text-slate-100 outline-none focus:border-cyan-300/80 sm:text-sm"
         />
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full rounded-2xl px-4 py-2 text-sm font-semibold sm:w-auto ${
+          className={`min-h-11 w-full rounded-2xl px-4 py-2.5 text-sm font-semibold sm:w-auto ${
             isLoading ? 'cursor-not-allowed bg-slate-700 text-slate-400' : 'bg-cyan-300 text-slate-950 hover:bg-cyan-200'
           }`}
         >

@@ -12,13 +12,14 @@ function LegacyTableRedirect() {
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-[linear-gradient(165deg,#020617,#0b1120_52%,#020617)] text-slate-100">
+      <div className="safe-screen-min bg-[linear-gradient(165deg,#020617,#0b1120_52%,#020617)] text-slate-100">
         <Routes>
           <Route path="/" element={<Navigate to="/menu?tableNo=1" replace />} />
           <Route path="/q/:token" element={<QrEntryPage />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/order/:orderId" element={<OrderStatusPage />} />
           <Route path="/masa/:id" element={<LegacyTableRedirect />} />
+          <Route path="/table/:id" element={<LegacyTableRedirect />} />
           <Route path="/help" element={<AccessHelpPage />} />
           <Route path="*" element={<Navigate to="/menu?tableNo=1" replace />} />
         </Routes>

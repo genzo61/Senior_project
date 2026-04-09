@@ -215,6 +215,22 @@ function MenuPage() {
     return () => clearTimeout(timer);
   }, [inlineMessage]);
 
+  useEffect(() => {
+    if (!chatOpen && !cartOpen) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const previousTouchAction = document.body.style.touchAction;
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouchAction;
+    };
+  }, [chatOpen, cartOpen]);
+
   const handleManualAdd = (product) => {
     setCartItems((prev) => addProductToCart(prev, product, { quantity: 1, specialNote: '', source: 'manual' }));
     setInlineMessage(`${product.name} sepete eklendi.`);
@@ -279,7 +295,7 @@ function MenuPage() {
 
   if (tableLoading) {
     return (
-      <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-5 py-8">
+      <main className="safe-screen-min mx-auto flex w-full max-w-3xl items-center px-4 py-8 sm:px-5">
         <div className="w-full rounded-3xl border border-slate-700 bg-slate-900/90 p-6 text-center">
           <p className="text-sm text-slate-300">Masa bilgisi doğrulanıyor...</p>
         </div>
@@ -289,7 +305,7 @@ function MenuPage() {
 
   if (tableError) {
     return (
-      <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-5 py-8">
+      <main className="safe-screen-min mx-auto flex w-full max-w-3xl items-center px-4 py-8 sm:px-5">
         <div className="w-full rounded-3xl border border-rose-500/40 bg-slate-900/95 p-6 text-center">
           <p className="text-xs uppercase tracking-wider text-rose-300">Geçersiz masa</p>
           <h1 className="mt-1 text-xl font-bold text-white">Sipariş başlatılamadı</h1>
@@ -303,7 +319,7 @@ function MenuPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden overflow-x-hidden pb-36 sm:pb-28">
+    <main className="safe-screen-min relative overflow-x-clip pb-[calc(10.5rem+env(safe-area-inset-bottom))] sm:pb-[calc(8.5rem+env(safe-area-inset-bottom))]">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(165deg,#020617,#0f172a_58%,#020617)]" />
       <div className="aurora-orb aurora-orb--1" />
       <div className="aurora-orb aurora-orb--2" />
@@ -316,7 +332,7 @@ function MenuPage() {
         <RobotDoodle variant="robot-doodle--3" />
         <RobotDoodle variant="robot-doodle--4" />
       </div>
-      <div className="relative mx-auto w-full max-w-7xl px-4 pb-24 pt-5 sm:px-6 lg:px-8">
+      <div className="relative mx-auto w-full max-w-7xl px-3 pb-24 pt-[calc(0.9rem+env(safe-area-inset-top))] sm:px-6 sm:pt-5 lg:px-8">
         <header className="mb-5 rounded-3xl border border-cyan-200/25 bg-slate-900/85 p-4 shadow-[0_18px_60px_rgba(2,6,23,0.65)] backdrop-blur sm:p-5">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Robot Kafe Müşteri Ekranı</p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
@@ -329,14 +345,14 @@ function MenuPage() {
               <button
                 type="button"
                 onClick={() => setChatOpen(true)}
-                className="w-full rounded-2xl border border-cyan-300/40 bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 sm:w-auto"
+                className="min-h-11 w-full rounded-2xl border border-cyan-300/40 bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 sm:w-auto"
               >
                 AI Garsonu aç
               </button>
               <button
                 type="button"
                 onClick={() => setCartOpen(true)}
-                className="w-full rounded-2xl border border-emerald-300/40 bg-emerald-400/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200 sm:w-auto"
+                className="min-h-11 w-full rounded-2xl border border-emerald-300/40 bg-emerald-400/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200 sm:w-auto"
               >
                 Sepet ({cartLineCount})
               </button>
@@ -368,7 +384,7 @@ function MenuPage() {
                   onChange={(category) => setActiveCategory(category)}
                 />
 
-                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-4 2xl:grid-cols-3 [&>*]:min-w-0">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 2xl:grid-cols-3 [&>*]:min-w-0">
                   {filteredProducts.map((product) => (
                     <ProductCard key={product.id} product={product} onAdd={handleManualAdd} />
                   ))}
@@ -427,7 +443,7 @@ function MenuPage() {
       <button
         type="button"
         onClick={() => setChatOpen((prev) => !prev)}
-        className="robot-ai-fab ai-fab-pulse fixed bottom-[7.15rem] right-4 z-50 h-14 w-14 rounded-2xl border border-cyan-200/70 bg-[radial-gradient(circle_at_35%_20%,#67e8f9,#0e7490)] text-sm font-black tracking-widest text-slate-950 transition hover:scale-105 sm:bottom-24 sm:right-6 sm:h-16 sm:w-16"
+        className="robot-ai-fab ai-fab-pulse fixed bottom-[calc(7rem+env(safe-area-inset-bottom))] right-3 z-50 h-14 w-14 rounded-2xl border border-cyan-200/70 bg-[radial-gradient(circle_at_35%_20%,#67e8f9,#0e7490)] text-sm font-black tracking-widest text-slate-950 transition hover:scale-105 sm:bottom-[calc(6.75rem+env(safe-area-inset-bottom))] sm:right-5 sm:h-16 sm:w-16"
         aria-label="AI asistanı aç"
       >
         <RobotFaceIcon />
@@ -443,7 +459,7 @@ function MenuPage() {
           className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm"
           aria-label="AI panelini kapat"
         />
-        <div className="absolute bottom-[7rem] left-3 right-3 h-[70vh] max-h-[600px] sm:left-auto sm:right-6 sm:w-[430px] lg:bottom-6 lg:top-24 lg:h-auto">
+        <div className="absolute bottom-[calc(6.25rem+env(safe-area-inset-bottom))] left-2 right-2 top-[calc(0.5rem+env(safe-area-inset-top))] sm:bottom-[calc(6.75rem+env(safe-area-inset-bottom))] sm:left-auto sm:right-5 sm:top-auto sm:h-[min(72dvh,620px)] sm:w-[430px] lg:bottom-6 lg:top-24 lg:h-auto">
           <ChatPanel
             menuItems={products}
             tableNo={tableNo}
@@ -456,7 +472,7 @@ function MenuPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950/95 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] pt-3 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs text-slate-400">Sepet toplamı</p>
@@ -466,7 +482,7 @@ function MenuPage() {
             <button
               type="button"
               onClick={() => setChatOpen(true)}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-cyan-300/45 bg-cyan-400/15 px-3 py-2 text-sm font-semibold text-cyan-100 sm:flex-none"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-cyan-300/45 bg-cyan-400/15 px-3 py-2 text-sm font-semibold text-cyan-100 sm:flex-none"
             >
               <RobotFaceIcon compact />
               <span>AI</span>
@@ -474,7 +490,7 @@ function MenuPage() {
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="flex-1 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 sm:flex-none"
+              className="min-h-11 flex-1 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 sm:flex-none"
             >
               Sepeti aç
             </button>

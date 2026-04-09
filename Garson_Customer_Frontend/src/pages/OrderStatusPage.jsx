@@ -86,7 +86,7 @@ function OrderStatusPage() {
   }, [order]);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-6xl px-4 py-6 sm:px-5 sm:py-8">
+    <main className="safe-screen-min mx-auto w-full max-w-6xl px-4 py-6 sm:px-5 sm:py-8">
       <div className="rounded-[2rem] border border-cyan-200/25 bg-slate-900/85 p-5 shadow-[0_24px_70px_rgba(2,6,23,0.65)] backdrop-blur sm:p-7">
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Sipariş alındı</p>
         <h1 className="mt-1 text-2xl font-black text-white sm:text-3xl">Sipariş #{orderId}</h1>
