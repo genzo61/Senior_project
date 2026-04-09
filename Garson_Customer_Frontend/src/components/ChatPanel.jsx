@@ -111,7 +111,7 @@ function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAd
   };
 
   return (
-    <section className="flex h-full min-h-0 flex-col rounded-3xl border border-cyan-200/20 bg-slate-950/95 p-3 shadow-[0_25px_70px_rgba(2,8,23,0.75)] backdrop-blur-xl sm:p-4">
+    <section className="flex h-full min-h-0 flex-col border-y border-cyan-200/20 bg-slate-950/95 p-3 backdrop-blur-xl sm:rounded-3xl sm:border sm:p-4 sm:shadow-[0_25px_70px_rgba(2,8,23,0.75)]">
       <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-cyan-300">AI Garson</p>

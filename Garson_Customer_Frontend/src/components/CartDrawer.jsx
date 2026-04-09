@@ -22,7 +22,7 @@ function CartDrawer({
 
   return (
     <div className="fixed inset-0 z-[70] bg-slate-950/70 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <div className="absolute bottom-0 left-0 right-0 max-h-[calc(100dvh-0.5rem-env(safe-area-inset-top))] overflow-y-auto overscroll-y-contain rounded-t-3xl border-t border-cyan-300/25 bg-slate-900 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl md:bottom-6 md:left-auto md:right-6 md:top-[max(1rem,env(safe-area-inset-top))] md:w-[440px] md:rounded-3xl md:border md:p-5 md:pb-5">
+      <div className="absolute bottom-0 left-0 right-0 max-h-[calc(100dvh-0.5rem-env(safe-area-inset-top))] overflow-y-auto overscroll-y-contain border-t border-cyan-300/25 bg-slate-900 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl md:bottom-6 md:left-auto md:right-6 md:top-[max(1rem,env(safe-area-inset-top))] md:w-[440px] md:rounded-3xl md:border md:p-5 md:pb-5">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Masa {tableNo}</p>

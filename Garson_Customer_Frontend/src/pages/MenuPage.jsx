@@ -295,8 +295,8 @@ function MenuPage() {
 
   if (tableLoading) {
     return (
-      <main className="safe-screen-min mx-auto flex w-full max-w-3xl items-center px-4 py-8 sm:px-5">
-        <div className="w-full rounded-3xl border border-slate-700 bg-slate-900/90 p-6 text-center">
+      <main className="safe-screen-min flex w-full items-center py-8">
+        <div className="w-full border-y border-slate-700 bg-slate-900/90 px-4 py-6 text-center sm:mx-auto sm:max-w-3xl sm:rounded-3xl sm:border sm:px-6">
           <p className="text-sm text-slate-300">Masa bilgisi doğrulanıyor...</p>
         </div>
       </main>
@@ -305,8 +305,8 @@ function MenuPage() {
 
   if (tableError) {
     return (
-      <main className="safe-screen-min mx-auto flex w-full max-w-3xl items-center px-4 py-8 sm:px-5">
-        <div className="w-full rounded-3xl border border-rose-500/40 bg-slate-900/95 p-6 text-center">
+      <main className="safe-screen-min flex w-full items-center py-8">
+        <div className="w-full border-y border-rose-500/40 bg-slate-900/95 px-4 py-6 text-center sm:mx-auto sm:max-w-3xl sm:rounded-3xl sm:border sm:px-6">
           <p className="text-xs uppercase tracking-wider text-rose-300">Geçersiz masa</p>
           <h1 className="mt-1 text-xl font-bold text-white">Sipariş başlatılamadı</h1>
           <p className="mt-2 text-sm text-slate-300">{tableError}</p>
@@ -332,27 +332,27 @@ function MenuPage() {
         <RobotDoodle variant="robot-doodle--3" />
         <RobotDoodle variant="robot-doodle--4" />
       </div>
-      <div className="relative mx-auto w-full max-w-7xl px-3 pb-24 pt-[calc(0.9rem+env(safe-area-inset-top))] sm:px-6 sm:pt-5 lg:px-8">
-        <header className="mb-5 rounded-3xl border border-cyan-200/25 bg-slate-900/85 p-4 shadow-[0_18px_60px_rgba(2,6,23,0.65)] backdrop-blur sm:p-5">
+      <div className="relative w-full max-w-none pb-24 pt-[calc(0.9rem+env(safe-area-inset-top))] md:mx-auto md:max-w-7xl md:px-6 md:pt-5 lg:px-8">
+        <header className="mb-4 border-y border-cyan-200/25 bg-slate-900/85 px-3 py-4 backdrop-blur sm:mb-5 sm:rounded-3xl sm:border sm:p-5 sm:shadow-[0_18px_60px_rgba(2,6,23,0.65)]">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Robot Kafe Müşteri Ekranı</p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl font-black tracking-wide text-slate-100 sm:text-3xl">Masa {tableNo}</h1>
-              <p className="text-xs text-slate-300 sm:text-sm">Web responsive menü, AI asistan ve sepet yönetimi</p>
+              <h1 className="text-2xl font-black tracking-wide text-slate-100 sm:text-3xl">Masa {tableNo}</h1>
+              <p className="text-sm text-slate-300">Web responsive menü, AI asistan ve sepet yönetimi</p>
             </div>
 
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               <button
                 type="button"
                 onClick={() => setChatOpen(true)}
-                className="min-h-11 w-full rounded-2xl border border-cyan-300/40 bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 sm:w-auto"
+                className="min-h-12 w-full rounded-2xl border border-cyan-300/40 bg-cyan-400/15 px-4 py-2.5 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 sm:w-auto"
               >
                 AI Garsonu aç
               </button>
               <button
                 type="button"
                 onClick={() => setCartOpen(true)}
-                className="min-h-11 w-full rounded-2xl border border-emerald-300/40 bg-emerald-400/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200 sm:w-auto"
+                className="min-h-12 w-full rounded-2xl border border-emerald-300/40 bg-emerald-400/15 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200 sm:w-auto"
               >
                 Sepet ({cartLineCount})
               </button>
@@ -361,12 +361,12 @@ function MenuPage() {
         </header>
 
         {inlineMessage ? (
-          <div className="mb-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-100">
+          <div className="mx-3 mb-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-100 md:mx-0">
             {inlineMessage}
           </div>
         ) : null}
 
-        <section className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <section className="grid gap-4 px-3 sm:gap-6 md:px-0 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div>
             {productsLoading ? <p className="text-sm text-slate-300">Menü yükleniyor...</p> : null}
             {productsError ? (
@@ -459,7 +459,7 @@ function MenuPage() {
           className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm"
           aria-label="AI panelini kapat"
         />
-        <div className="absolute bottom-[calc(6.25rem+env(safe-area-inset-bottom))] left-2 right-2 top-[calc(0.5rem+env(safe-area-inset-top))] sm:bottom-[calc(6.75rem+env(safe-area-inset-bottom))] sm:left-auto sm:right-5 sm:top-auto sm:h-[min(72dvh,620px)] sm:w-[430px] lg:bottom-6 lg:top-24 lg:h-auto">
+        <div className="absolute bottom-[calc(6.25rem+env(safe-area-inset-bottom))] left-0 right-0 top-[env(safe-area-inset-top)] sm:bottom-[calc(6.75rem+env(safe-area-inset-bottom))] sm:left-auto sm:right-5 sm:top-auto sm:h-[min(72dvh,620px)] sm:w-[430px] lg:bottom-6 lg:top-24 lg:h-auto">
           <ChatPanel
             menuItems={products}
             tableNo={tableNo}
@@ -473,7 +473,7 @@ function MenuPage() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950/95 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] pt-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex w-full max-w-none flex-col gap-3 md:max-w-7xl sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs text-slate-400">Sepet toplamı</p>
             <p className="text-sm font-bold text-emerald-300">{formatPrice(cartTotal)}</p>
@@ -482,7 +482,7 @@ function MenuPage() {
             <button
               type="button"
               onClick={() => setChatOpen(true)}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-cyan-300/45 bg-cyan-400/15 px-3 py-2 text-sm font-semibold text-cyan-100 sm:flex-none"
+              className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-cyan-300/45 bg-cyan-400/15 px-3 py-2.5 text-sm font-semibold text-cyan-100 sm:flex-none"
             >
               <RobotFaceIcon compact />
               <span>AI</span>
@@ -490,7 +490,7 @@ function MenuPage() {
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="min-h-11 flex-1 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 sm:flex-none"
+              className="min-h-12 flex-1 rounded-xl bg-cyan-300 px-4 py-2.5 text-sm font-semibold text-slate-950 sm:flex-none"
             >
               Sepeti aç
             </button>
