@@ -78,7 +78,7 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
-        className="no-scrollbar -mx-2 mb-3 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-2 pb-2 scroll-smooth select-none [overscroll-behavior-x:contain] [touch-action:pan-x] sm:mx-0 sm:mb-4 sm:gap-2 sm:px-0"
+        className="no-scrollbar -mx-2 mb-3 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-2 pb-2 scroll-smooth select-none cursor-grab active:cursor-grabbing [overscroll-behavior-x:contain] [touch-action:pan-x] [-webkit-overflow-scrolling:touch] sm:mx-0 sm:mb-4 sm:gap-2 sm:px-0"
       >
         {categories.map((category) => (
           <button
