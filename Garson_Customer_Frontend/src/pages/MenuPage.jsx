@@ -368,7 +368,7 @@ function MenuPage() {
                   onChange={(category) => setActiveCategory(category)}
                 />
 
-                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-4 2xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-4 2xl:grid-cols-3 [&>*]:min-w-0">
                   {filteredProducts.map((product) => (
                     <ProductCard key={product.id} product={product} onAdd={handleManualAdd} />
                   ))}

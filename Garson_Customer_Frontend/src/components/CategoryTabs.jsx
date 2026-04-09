@@ -2,10 +2,6 @@ import { useRef } from 'react';
 
 function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = {} }) {
   const scrollRef = useRef(null);
-  const isPointerDownRef = useRef(false);
-  const dragStartXRef = useRef(0);
-  const dragStartScrollLeftRef = useRef(0);
-  const draggedRef = useRef(false);
 
   if (!categories.length) {
     return null;
@@ -21,51 +17,8 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
     }
   };
 
-  const handleCategoryClick = (event, category) => {
-    if (draggedRef.current) {
-      event.preventDefault();
-      return;
-    }
+  const handleCategoryClick = (category) => {
     onChange(category);
-  };
-
-  const handlePointerDown = (event) => {
-    const container = scrollRef.current;
-    if (!container) return;
-
-    isPointerDownRef.current = true;
-    draggedRef.current = false;
-    dragStartXRef.current = event.clientX;
-    dragStartScrollLeftRef.current = container.scrollLeft;
-    container.setPointerCapture?.(event.pointerId);
-  };
-
-  const handlePointerMove = (event) => {
-    if (!isPointerDownRef.current) return;
-    const container = scrollRef.current;
-    if (!container) return;
-
-    const deltaX = event.clientX - dragStartXRef.current;
-    if (Math.abs(deltaX) > 6) {
-      draggedRef.current = true;
-    }
-
-    container.scrollLeft = dragStartScrollLeftRef.current - deltaX;
-  };
-
-  const handlePointerUp = (event) => {
-    const container = scrollRef.current;
-    isPointerDownRef.current = false;
-    container?.releasePointerCapture?.(event.pointerId);
-
-    setTimeout(() => {
-      draggedRef.current = false;
-    }, 0);
-  };
-
-  const handlePointerCancel = () => {
-    isPointerDownRef.current = false;
-    draggedRef.current = false;
   };
 
   return (
@@ -74,17 +27,13 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
       <div
         ref={scrollRef}
         onWheel={handleWheel}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerCancel}
-        className="no-scrollbar -mx-2 mb-3 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-2 pb-2 scroll-smooth select-none cursor-grab active:cursor-grabbing [overscroll-behavior-x:contain] [touch-action:pan-x] [-webkit-overflow-scrolling:touch] sm:mx-0 sm:mb-4 sm:gap-2 sm:px-0"
+        className="no-scrollbar -mx-2 mb-3 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-2 pb-2 scroll-smooth [overscroll-behavior-x:contain] [touch-action:pan-x] [-webkit-overflow-scrolling:touch] sm:mx-0 sm:mb-4 sm:gap-2 sm:px-0"
       >
         {categories.map((category) => (
           <button
             key={category}
             type="button"
-            onClick={(event) => handleCategoryClick(event, category)}
+            onClick={() => handleCategoryClick(category)}
             className={`snap-start whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
               activeCategory === category
                 ? 'border-cyan-300 bg-cyan-300 text-slate-950'
