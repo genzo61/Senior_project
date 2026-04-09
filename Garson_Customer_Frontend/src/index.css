@@ -33,6 +33,17 @@
     background-attachment: fixed;
   }
 
+  html,
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
   h1,
   h2,
   h3 {
@@ -374,9 +385,9 @@
     scrollbar-width: none;
   }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {
