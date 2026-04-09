@@ -333,7 +333,7 @@ function MenuPage() {
         <RobotDoodle variant="robot-doodle--4" />
       </div>
       <div className="relative w-full max-w-none pb-24 pt-[calc(0.9rem+env(safe-area-inset-top))] md:mx-auto md:max-w-7xl md:px-6 md:pt-5 lg:px-8">
-        <header className="mb-4 border-y border-cyan-200/25 bg-slate-900/85 px-3 py-4 backdrop-blur sm:mb-5 sm:rounded-3xl sm:border sm:p-5 sm:shadow-[0_18px_60px_rgba(2,6,23,0.65)]">
+        <header className="mb-4 border-y border-cyan-200/25 bg-slate-900/85 px-2 py-4 backdrop-blur sm:mb-5 sm:rounded-3xl sm:border sm:p-5 sm:shadow-[0_18px_60px_rgba(2,6,23,0.65)]">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Robot Kafe Müşteri Ekranı</p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -361,12 +361,12 @@ function MenuPage() {
         </header>
 
         {inlineMessage ? (
-          <div className="mx-3 mb-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-100 md:mx-0">
+          <div className="mb-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-100">
             {inlineMessage}
           </div>
         ) : null}
 
-        <section className="grid gap-4 px-3 sm:gap-6 md:px-0 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <section className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div>
             {productsLoading ? <p className="text-sm text-slate-300">Menü yükleniyor...</p> : null}
             {productsError ? (
