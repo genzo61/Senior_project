@@ -2,6 +2,9 @@ import { useRef } from 'react';
 
 function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = {} }) {
   const scrollRef = useRef(null);
+  const touchStartXRef = useRef(0);
+  const touchStartScrollLeftRef = useRef(0);
+  const isTouchDraggingRef = useRef(false);
 
   if (!categories.length) {
     return null;
@@ -17,23 +20,60 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
     }
   };
 
-  const handleCategoryClick = (category) => {
+  const handleCategoryClick = (event, category) => {
+    if (isTouchDraggingRef.current) {
+      event.preventDefault();
+      return;
+    }
     onChange(category);
+  };
+
+  const handleTouchStart = (event) => {
+    const container = scrollRef.current;
+    if (!container || event.touches.length !== 1) return;
+
+    touchStartXRef.current = event.touches[0].clientX;
+    touchStartScrollLeftRef.current = container.scrollLeft;
+    isTouchDraggingRef.current = false;
+  };
+
+  const handleTouchMove = (event) => {
+    const container = scrollRef.current;
+    if (!container || event.touches.length !== 1) return;
+
+    const deltaX = event.touches[0].clientX - touchStartXRef.current;
+    if (Math.abs(deltaX) > 5) {
+      isTouchDraggingRef.current = true;
+    }
+
+    container.scrollLeft = touchStartScrollLeftRef.current - deltaX;
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTimeout(() => {
+      isTouchDraggingRef.current = false;
+    }, 0);
   };
 
   return (
     <div className="relative">
-      <p className="mb-1 px-2 text-[10px] uppercase tracking-[0.16em] text-slate-500 sm:hidden">Kategorileri kaydır</p>
+      <p className="mb-1 text-[10px] uppercase tracking-[0.16em] text-slate-500 sm:hidden">Kategorileri kaydir</p>
       <div
         ref={scrollRef}
         onWheel={handleWheel}
-        className="no-scrollbar -mx-2 mb-3 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-2 pb-2 scroll-smooth [overscroll-behavior-x:contain] [touch-action:pan-x] [-webkit-overflow-scrolling:touch] sm:mx-0 sm:mb-4 sm:gap-2 sm:px-0"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="no-scrollbar mb-3 flex snap-x snap-mandatory gap-1.5 overflow-x-auto pb-2 pr-1 scroll-smooth [overscroll-behavior-x:contain] [touch-action:pan-x] [-webkit-overflow-scrolling:touch] sm:mb-4 sm:gap-2 sm:pr-0"
       >
         {categories.map((category) => (
           <button
             key={category}
             type="button"
-            onClick={() => handleCategoryClick(category)}
+            onClick={(event) => handleCategoryClick(event, category)}
             className={`snap-start whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
               activeCategory === category
                 ? 'border-cyan-300 bg-cyan-300 text-slate-950'
@@ -47,8 +87,6 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
           </button>
         ))}
       </div>
-      <div className="pointer-events-none absolute bottom-2 left-0 top-0 w-6 bg-gradient-to-r from-slate-950/85 to-transparent sm:hidden" />
-      <div className="pointer-events-none absolute bottom-2 right-0 top-0 w-6 bg-gradient-to-l from-slate-950/85 to-transparent sm:hidden" />
     </div>
   );
 }
