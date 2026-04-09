@@ -374,8 +374,39 @@
     scrollbar-width: none;
   }
 
-  .no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+}
+
+@media (max-width: 640px) {
+  .aurora-orb--2,
+  .aurora-orb--3,
+  .robot-doodle--2,
+  .robot-doodle--4 {
     display: none;
+  }
+
+  .robot-grid-overlay {
+    background-size: 32px 32px;
+    opacity: 0.16;
+  }
+
+  .robot-doodles {
+    opacity: 0.55;
+  }
+}
+
+@media (max-width: 420px) {
+  .robot-scanline {
+    display: none;
+  }
+
+  .aurora-orb--1 {
+    width: 14rem;
+    height: 14rem;
+    left: -6rem;
+    top: -4rem;
   }
 }
 

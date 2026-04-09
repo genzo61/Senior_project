@@ -111,7 +111,7 @@ function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAd
   };
 
   return (
-    <section className="flex h-full flex-col rounded-3xl border border-cyan-200/20 bg-slate-950/95 p-3 shadow-[0_25px_70px_rgba(2,8,23,0.75)] backdrop-blur-xl">
+    <section className="flex h-full flex-col rounded-3xl border border-cyan-200/20 bg-slate-950/95 p-3 shadow-[0_25px_70px_rgba(2,8,23,0.75)] backdrop-blur-xl sm:p-4">
       <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-cyan-300">AI Garson</p>
@@ -126,37 +126,37 @@ function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAd
         </button>
       </div>
 
-      <div className="mb-3 flex flex-wrap gap-2">
+      <div className="no-scrollbar mb-3 flex gap-2 overflow-x-auto pb-1">
         {QUICK_PROMPTS.map((prompt) => (
           <button
             key={prompt}
             type="button"
             onClick={() => setInput(prompt)}
-            className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-cyan-300/70"
+            className="shrink-0 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-cyan-300/70"
           >
             {prompt}
           </button>
         ))}
       </div>
 
-      <div className="mb-3 flex-1 space-y-2 overflow-y-auto pr-1">
+      <div className="mb-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} onQuickAdd={onQuickAddProduct} />
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="flex gap-2 border-t border-slate-800 pt-3">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 border-t border-slate-800 pt-3 sm:flex-row">
         <input
           type="text"
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Örn: bir lahmacun ekle"
-          className="flex-1 rounded-2xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-300/80"
+          className="w-full flex-1 rounded-2xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-300/80"
         />
         <button
           type="submit"
           disabled={isLoading}
-          className={`rounded-2xl px-4 py-2 text-sm font-semibold ${
+          className={`w-full rounded-2xl px-4 py-2 text-sm font-semibold sm:w-auto ${
             isLoading ? 'cursor-not-allowed bg-slate-700 text-slate-400' : 'bg-cyan-300 text-slate-950 hover:bg-cyan-200'
           }`}
         >

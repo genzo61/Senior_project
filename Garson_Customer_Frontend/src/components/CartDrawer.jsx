@@ -22,7 +22,7 @@ function CartDrawer({
 
   return (
     <div className="fixed inset-0 z-[70] bg-slate-950/70 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <div className="absolute bottom-0 left-0 right-0 max-h-[92vh] rounded-t-3xl border-t border-cyan-300/25 bg-slate-900 p-4 shadow-2xl md:left-auto md:right-6 md:top-6 md:bottom-6 md:w-[440px] md:rounded-3xl md:border md:p-5">
+      <div className="absolute bottom-0 left-0 right-0 max-h-[92vh] overflow-y-auto rounded-t-3xl border-t border-cyan-300/25 bg-slate-900 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl md:bottom-6 md:left-auto md:right-6 md:top-6 md:w-[440px] md:rounded-3xl md:border md:p-5 md:pb-5">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Masa {tableNo}</p>
@@ -37,7 +37,7 @@ function CartDrawer({
           </button>
         </div>
 
-        <div className="mb-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1 md:max-h-[52vh]">
+        <div className="mb-4 max-h-[min(42vh,22rem)] space-y-3 overflow-y-auto pr-1 md:max-h-[52vh]">
           {cartItems.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-700 p-4 text-center text-sm text-slate-400">
               Sepetiniz boş.
@@ -109,7 +109,7 @@ function CartDrawer({
           </p>
         ) : null}
 
-        <div className="flex items-center justify-between border-t border-slate-800 pt-3">
+        <div className="flex flex-col gap-3 border-t border-slate-800 pt-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs text-slate-400">Toplam</p>
             <p className="text-lg font-bold text-emerald-300">{formatPrice(total)}</p>
@@ -118,7 +118,7 @@ function CartDrawer({
             type="button"
             disabled={!cartItems.length || isSubmitting}
             onClick={onCheckout}
-            className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
+            className={`w-full rounded-xl px-5 py-3 text-sm font-bold transition sm:w-auto ${
               !cartItems.length || isSubmitting
                 ? 'cursor-not-allowed bg-slate-700 text-slate-400'
                 : 'bg-cyan-300 text-slate-950 hover:bg-cyan-200'

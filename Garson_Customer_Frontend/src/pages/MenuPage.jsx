@@ -303,7 +303,7 @@ function MenuPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden overflow-x-hidden pb-28">
+    <main className="relative min-h-screen overflow-hidden overflow-x-hidden pb-36 sm:pb-28">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(165deg,#020617,#0f172a_58%,#020617)]" />
       <div className="aurora-orb aurora-orb--1" />
       <div className="aurora-orb aurora-orb--2" />
@@ -317,26 +317,26 @@ function MenuPage() {
         <RobotDoodle variant="robot-doodle--4" />
       </div>
       <div className="relative mx-auto w-full max-w-7xl px-4 pb-24 pt-5 sm:px-6 lg:px-8">
-        <header className="mb-5 rounded-3xl border border-cyan-200/25 bg-slate-900/85 p-4 shadow-[0_18px_60px_rgba(2,6,23,0.65)] backdrop-blur">
+        <header className="mb-5 rounded-3xl border border-cyan-200/25 bg-slate-900/85 p-4 shadow-[0_18px_60px_rgba(2,6,23,0.65)] backdrop-blur sm:p-5">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Robot Kafe Müşteri Ekranı</p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black tracking-wide text-slate-100 sm:text-3xl">Masa {tableNo}</h1>
-              <p className="text-sm text-slate-300">Web responsive menü, AI asistan ve sepet yönetimi</p>
+              <h1 className="text-xl font-black tracking-wide text-slate-100 sm:text-3xl">Masa {tableNo}</h1>
+              <p className="text-xs text-slate-300 sm:text-sm">Web responsive menü, AI asistan ve sepet yönetimi</p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               <button
                 type="button"
                 onClick={() => setChatOpen(true)}
-                className="rounded-2xl border border-cyan-300/40 bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200"
+                className="w-full rounded-2xl border border-cyan-300/40 bg-cyan-400/15 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 sm:w-auto"
               >
                 AI Garsonu aç
               </button>
               <button
                 type="button"
                 onClick={() => setCartOpen(true)}
-                className="rounded-2xl border border-emerald-300/40 bg-emerald-400/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200"
+                className="w-full rounded-2xl border border-emerald-300/40 bg-emerald-400/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200 sm:w-auto"
               >
                 Sepet ({cartLineCount})
               </button>
@@ -410,7 +410,7 @@ function MenuPage() {
       </div>
 
       {!chatOpen ? (
-        <div className="fixed bottom-40 right-4 z-50 flex w-[220px] flex-col gap-2 sm:right-6">
+        <div className="fixed bottom-44 right-6 z-50 hidden w-[220px] flex-col gap-2 sm:flex">
           {activeTeasers.map((item) => (
             <button
               key={`${item.label}-${item.prompt}`}
@@ -427,7 +427,7 @@ function MenuPage() {
       <button
         type="button"
         onClick={() => setChatOpen((prev) => !prev)}
-        className="robot-ai-fab ai-fab-pulse fixed bottom-24 right-4 z-50 h-16 w-16 rounded-2xl border border-cyan-200/70 bg-[radial-gradient(circle_at_35%_20%,#67e8f9,#0e7490)] text-sm font-black tracking-widest text-slate-950 transition hover:scale-105 sm:right-6"
+        className="robot-ai-fab ai-fab-pulse fixed bottom-[7.15rem] right-4 z-50 h-14 w-14 rounded-2xl border border-cyan-200/70 bg-[radial-gradient(circle_at_35%_20%,#67e8f9,#0e7490)] text-sm font-black tracking-widest text-slate-950 transition hover:scale-105 sm:bottom-24 sm:right-6 sm:h-16 sm:w-16"
         aria-label="AI asistanı aç"
       >
         <RobotFaceIcon />
@@ -443,7 +443,7 @@ function MenuPage() {
           className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm"
           aria-label="AI panelini kapat"
         />
-        <div className="absolute bottom-[6.4rem] left-4 right-4 h-[68vh] sm:left-auto sm:right-6 sm:w-[430px] lg:bottom-6 lg:top-24 lg:h-auto">
+        <div className="absolute bottom-[7rem] left-3 right-3 h-[70vh] max-h-[600px] sm:left-auto sm:right-6 sm:w-[430px] lg:bottom-6 lg:top-24 lg:h-auto">
           <ChatPanel
             menuItems={products}
             tableNo={tableNo}
@@ -456,17 +456,17 @@ function MenuPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950/95 px-4 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800 bg-slate-950/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs text-slate-400">Sepet toplamı</p>
             <p className="text-sm font-bold text-emerald-300">{formatPrice(cartTotal)}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex w-full gap-2 sm:w-auto">
             <button
               type="button"
               onClick={() => setChatOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/45 bg-cyan-400/15 px-3 py-2 text-sm font-semibold text-cyan-100"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-cyan-300/45 bg-cyan-400/15 px-3 py-2 text-sm font-semibold text-cyan-100 sm:flex-none"
             >
               <RobotFaceIcon compact />
               <span>AI</span>
@@ -474,7 +474,7 @@ function MenuPage() {
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="rounded-xl bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950"
+              className="flex-1 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 sm:flex-none"
             >
               Sepeti aç
             </button>
