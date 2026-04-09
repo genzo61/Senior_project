@@ -4,9 +4,9 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
   }
 
   return (
-    <div className="mb-3 sm:mb-4">
+    <div className="mb-3 min-w-0 sm:mb-4">
       <p className="mb-1 text-[11px] uppercase tracking-[0.16em] text-slate-500 sm:hidden">Kategorileri kaydir</p>
-      <div className="no-scrollbar flex gap-2 overflow-x-auto pb-2 [overscroll-behavior-x:contain] [touch-action:pan-x] [-webkit-overflow-scrolling:touch]">
+      <div className="flex flex-wrap gap-2 pb-2 sm:no-scrollbar sm:flex-nowrap sm:overflow-x-auto sm:overflow-y-hidden sm:pb-3 [overscroll-behavior-x:contain] [touch-action:pan-x] [-webkit-overflow-scrolling:touch]">
         {categories.map((category) => (
           <button
             key={category}
@@ -16,7 +16,7 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
               activeCategory === category
                 ? 'border-cyan-300 bg-cyan-300 text-slate-950'
                 : 'border-slate-600 bg-slate-900/80 text-slate-200 hover:border-cyan-400/60'
-            } min-w-[116px] text-center sm:min-w-0`}
+            } max-w-full min-w-0 text-center sm:min-w-[116px]`}
           >
             <span>{category}</span>
             <span className="ml-1.5 rounded-full bg-slate-950/25 px-1.5 py-0.5 text-xs sm:ml-2 sm:px-2">

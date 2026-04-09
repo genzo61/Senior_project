@@ -319,7 +319,7 @@ function MenuPage() {
   }
 
   return (
-    <main className="safe-screen-min relative overflow-x-clip pb-[calc(10.5rem+env(safe-area-inset-bottom))] sm:pb-[calc(8.5rem+env(safe-area-inset-bottom))]">
+    <main className="safe-screen-min relative overflow-x-clip pb-[calc(13rem+env(safe-area-inset-bottom))] sm:pb-[calc(9rem+env(safe-area-inset-bottom))]">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(165deg,#020617,#0f172a_58%,#020617)]" />
       <div className="aurora-orb aurora-orb--1" />
       <div className="aurora-orb aurora-orb--2" />
@@ -366,8 +366,8 @@ function MenuPage() {
           </div>
         ) : null}
 
-        <section className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
-          <div>
+        <section className="grid min-w-0 gap-4 pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] sm:gap-6 md:px-0 xl:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="min-w-0">
             {productsLoading ? <p className="text-sm text-slate-300">Menü yükleniyor...</p> : null}
             {productsError ? (
               <p className="rounded-xl border border-rose-500/40 bg-rose-950/40 px-3 py-2 text-sm text-rose-200">
@@ -384,7 +384,7 @@ function MenuPage() {
                   onChange={(category) => setActiveCategory(category)}
                 />
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 2xl:grid-cols-3 [&>*]:min-w-0">
+                <div className="grid grid-cols-1 gap-3 pb-2 sm:grid-cols-2 sm:gap-4 2xl:grid-cols-3 [&>*]:min-w-0">
                   {filteredProducts.map((product) => (
                     <ProductCard key={product.id} product={product} onAdd={handleManualAdd} />
                   ))}
@@ -443,7 +443,7 @@ function MenuPage() {
       <button
         type="button"
         onClick={() => setChatOpen((prev) => !prev)}
-        className="robot-ai-fab ai-fab-pulse fixed bottom-[calc(7rem+env(safe-area-inset-bottom))] right-3 z-50 h-14 w-14 rounded-2xl border border-cyan-200/70 bg-[radial-gradient(circle_at_35%_20%,#67e8f9,#0e7490)] text-sm font-black tracking-widest text-slate-950 transition hover:scale-105 sm:bottom-[calc(6.75rem+env(safe-area-inset-bottom))] sm:right-5 sm:h-16 sm:w-16"
+        className="robot-ai-fab ai-fab-pulse fixed bottom-[calc(7.25rem+env(safe-area-inset-bottom))] right-4 z-50 hidden h-14 w-14 rounded-2xl border border-cyan-200/70 bg-[radial-gradient(circle_at_35%_20%,#67e8f9,#0e7490)] text-sm font-black tracking-widest text-slate-950 transition hover:scale-105 sm:grid sm:bottom-[calc(6.75rem+env(safe-area-inset-bottom))] sm:right-5 sm:h-16 sm:w-16"
         aria-label="AI asistanı aç"
       >
         <RobotFaceIcon />
