@@ -16,8 +16,8 @@ function ProductCard({ product, onAdd }) {
   );
 
   return (
-    <article className="group overflow-hidden rounded-3xl border border-cyan-200/20 bg-slate-900/80 shadow-[0_15px_45px_rgba(2,12,27,0.55)] backdrop-blur">
-      <div className="relative h-44 overflow-hidden sm:h-48">
+    <article className="group overflow-hidden rounded-2xl border border-cyan-200/20 bg-slate-900/80 shadow-[0_12px_30px_rgba(2,12,27,0.45)] backdrop-blur sm:rounded-3xl sm:shadow-[0_15px_45px_rgba(2,12,27,0.55)]">
+      <div className="relative h-32 overflow-hidden sm:h-48">
         {!imageError ? (
           <img
             src={product.imageUrl}
@@ -27,29 +27,29 @@ function ProductCard({ product, onAdd }) {
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,#38bdf8_0%,#0f172a_68%)] text-4xl font-black tracking-widest text-cyan-100">
+          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,#38bdf8_0%,#0f172a_68%)] text-2xl font-black tracking-widest text-cyan-100 sm:text-4xl">
             {fallbackCode}
           </div>
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
-        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
-          <span className="rounded-full border border-cyan-300/30 bg-slate-900/80 px-3 py-1 text-[11px] font-semibold text-cyan-100">
+        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-1.5 sm:bottom-3 sm:left-3 sm:right-3 sm:gap-2">
+          <span className="rounded-full border border-cyan-300/30 bg-slate-900/80 px-2 py-0.5 text-[10px] font-semibold text-cyan-100 sm:px-3 sm:py-1 sm:text-[11px]">
             {product.category}
           </span>
-          <span className="rounded-full border border-emerald-300/30 bg-emerald-400/15 px-3 py-1 text-sm font-bold text-emerald-100">
+          <span className="rounded-full border border-emerald-300/30 bg-emerald-400/15 px-2 py-0.5 text-xs font-bold text-emerald-100 sm:px-3 sm:py-1 sm:text-sm">
             {formatPrice(product.price)}
           </span>
         </div>
       </div>
 
-      <div className="space-y-3 p-4">
+      <div className="space-y-2 p-3 sm:space-y-3 sm:p-4">
         <div>
-          <h3 className="text-lg font-bold tracking-wide text-slate-100">{product.name}</h3>
-          <p className="mt-1 text-sm leading-relaxed text-slate-300/90">{product.description}</p>
+          <h3 className="text-sm font-bold tracking-wide text-slate-100 sm:text-lg">{product.name}</h3>
+          <p className="mt-1 text-[11px] leading-4 text-slate-300/90 sm:text-sm sm:leading-relaxed">{product.description}</p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="hidden flex-wrap gap-2 sm:flex">
           {product.tags.slice(0, 3).map((tag) => (
             <span
               key={`${product.id}-${tag}`}
@@ -64,7 +64,7 @@ function ProductCard({ product, onAdd }) {
           type="button"
           disabled={!product.available}
           onClick={() => onAdd(product)}
-          className={`w-full rounded-2xl px-4 py-2.5 text-sm font-bold tracking-wide transition ${
+          className={`w-full rounded-xl px-3 py-2 text-xs font-bold tracking-wide transition sm:rounded-2xl sm:px-4 sm:py-2.5 sm:text-sm ${
             product.available
               ? 'bg-cyan-400 text-slate-950 hover:bg-cyan-300'
               : 'cursor-not-allowed bg-slate-700 text-slate-400'
