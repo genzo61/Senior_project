@@ -2,6 +2,10 @@ import { useRef } from 'react';
 
 function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = {} }) {
   const scrollRef = useRef(null);
+  const isPointerDownRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollLeftRef = useRef(0);
+  const draggedRef = useRef(false);
 
   if (!categories.length) {
     return null;
@@ -18,12 +22,50 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
   };
 
   const handleCategoryClick = (event, category) => {
+    if (draggedRef.current) {
+      event.preventDefault();
+      return;
+    }
     onChange(category);
-    event.currentTarget.scrollIntoView({
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'nearest',
-    });
+  };
+
+  const handlePointerDown = (event) => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    isPointerDownRef.current = true;
+    draggedRef.current = false;
+    dragStartXRef.current = event.clientX;
+    dragStartScrollLeftRef.current = container.scrollLeft;
+    container.setPointerCapture?.(event.pointerId);
+  };
+
+  const handlePointerMove = (event) => {
+    if (!isPointerDownRef.current) return;
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const deltaX = event.clientX - dragStartXRef.current;
+    if (Math.abs(deltaX) > 6) {
+      draggedRef.current = true;
+    }
+
+    container.scrollLeft = dragStartScrollLeftRef.current - deltaX;
+  };
+
+  const handlePointerUp = (event) => {
+    const container = scrollRef.current;
+    isPointerDownRef.current = false;
+    container?.releasePointerCapture?.(event.pointerId);
+
+    setTimeout(() => {
+      draggedRef.current = false;
+    }, 0);
+  };
+
+  const handlePointerCancel = () => {
+    isPointerDownRef.current = false;
+    draggedRef.current = false;
   };
 
   return (
@@ -32,7 +74,11 @@ function CategoryTabs({ categories, activeCategory, onChange, groupedProducts = 
       <div
         ref={scrollRef}
         onWheel={handleWheel}
-        className="no-scrollbar -mx-2 mb-3 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-2 pb-2 scroll-smooth [overscroll-behavior-x:contain] [touch-action:pan-x] sm:mx-0 sm:mb-4 sm:gap-2 sm:px-0"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+        className="no-scrollbar -mx-2 mb-3 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-2 pb-2 scroll-smooth select-none [overscroll-behavior-x:contain] [touch-action:pan-x] sm:mx-0 sm:mb-4 sm:gap-2 sm:px-0"
       >
         {categories.map((category) => (
           <button
