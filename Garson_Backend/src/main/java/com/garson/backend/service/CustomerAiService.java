@@ -86,8 +86,14 @@ public class CustomerAiService {
             "tavuk",
             "vegan",
             "kahvalti",
-            "corba",
-            "icecek",
+            "çorba",
+            "içecek",
+            "salata",
+            "burger",
+            "pizza",
+            "kebap",
+            "atıştırmalık",
+            "makarna",
             "kategori");
     private static final List<String> SMALL_TALK_KEYWORDS = List.of("merhaba", "selam", "nasilsin", "orada misin", "konusalim");
     private static final List<String> THANKS_KEYWORDS = List.of("tesekkur", "sagol", "eyvallah");
@@ -1073,6 +1079,9 @@ public class CustomerAiService {
         }
         if (containsAny(normalizedMessage, List.of("kebap", "lahmacun", "doner", "kofte", "sis"))) {
             return "Kebap";
+        }
+        if (containsAny(normalizedMessage, List.of("makarna", "penne", "fettuccine", "alfredo", "arabiata", "napoliten"))) {
+            return "Makarna";
         }
         return "";
     }

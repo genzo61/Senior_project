@@ -21,7 +21,8 @@ public class ChatIntentClassifier {
     private static final List<String> PRODUCT_INFO_KEYS = List.of(
             "icinde ne var", "icerik", "malzeme", "alerjen", "kalori", "aciklama", "fiyati ne");
     private static final List<String> MENU_KEYS = List.of(
-            "menu", "neler var", "ne var", "kategori", "icecek", "tatli", "corba");
+            "menu", "neler var", "ne var", "kategori", "içecek", "tatlı", "çorba",
+            "salata", "burger", "pizza", "kebap", "atıştırmalık", "kahvaltı", "makarna");
     private static final List<String> ORDER_ACTION_KEYS = List.of(
             "ekle", "getir", "ver", "istiyorum", "alabilir miyim", "olsun", "gonder");
     private static final List<String> SMALL_TALK_KEYS = List.of(

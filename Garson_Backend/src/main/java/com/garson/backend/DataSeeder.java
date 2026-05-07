@@ -52,12 +52,24 @@ public class DataSeeder {
                         "popular,sicak servis"),
                 new SeedProduct("Tavuk Burger", 230.0, 40, "Burger", "Citir tavuk fileto ile hazirlanan hafif burger.",
                         "tavuk,popular,sicak servis"),
+                new SeedProduct("Double Cheeseburger", 335.0, 28, "Burger", "Cift kat et ve cheddar ile daha doyurucu burger secenegi.",
+                        "popular,sicak servis"),
+                new SeedProduct("BBQ Burger", 305.0, 26, "Burger", "Barbeku sos, karamelize sogan ve izgara et ile hazirlanir.",
+                        "popular,sicak servis"),
+                new SeedProduct("Mantarli Burger", 295.0, 24, "Burger", "Sotelenmis mantar ve ozel sos ile servis edilen burger.",
+                        "sicak servis"),
                 new SeedProduct("Pizza", 320.0, 20, "Pizza", "Ince hamur uzerinde gunluk malzemeler ile hazirlanir.",
                         "popular,sicak servis"),
                 new SeedProduct("Margherita Pizza", 290.0, 24, "Pizza", "Domates sos, mozzarella ve feslegenli klasik pizza.",
                         "sicak servis"),
                 new SeedProduct("Karisik Pizza", 345.0, 18, "Pizza", "Et, sebze ve peynir dengesiyle firindan cikar.",
                         "popular,sicak servis"),
+                new SeedProduct("Pepperoni Pizza", 340.0, 22, "Pizza", "Bol pepperoni dilimleriyle firindan sicak servis edilir.",
+                        "popular,sicak servis"),
+                new SeedProduct("Dört Peynir Pizza", 330.0, 20, "Pizza", "Mozzarella, cheddar, parmesan ve beyaz peynir ile hazirlanir.",
+                        "sicak servis"),
+                new SeedProduct("Vejetaryen Pizza", 310.0, 18, "Pizza", "Mantar, biber, misir ve zeytin ile hafif pizza secenegi.",
+                        "vegan,sicak servis"),
                 new SeedProduct("Lahmacun", 75.0, 100, "Kebap", "Ince hamur uzerinde baharatli ic harc ile firinlanir.",
                         "popular,sicak servis"),
                 new SeedProduct("Adana Kebap", 290.0, 30, "Kebap", "Acili secenekleriyle izgara kozmopoliti.",
@@ -66,22 +78,50 @@ public class DataSeeder {
                         "tavuk,sicak servis"),
                 new SeedProduct("Izgara Kofte", 280.0, 34, "Kebap", "Klasik izgara kofte tabagi.",
                         "sicak servis"),
-                new SeedProduct("Mercimek Corbasi", 95.0, 60, "Corba", "Gunun sicak baslangici icin mercimek corbasi.",
-                        "acisiz,sicak servis"),
-                new SeedProduct("Ezogelin Corbasi", 100.0, 50, "Corba", "Baharatli ve limonla servis edilen corba.",
+                new SeedProduct("Urfa Kebap", 290.0, 28, "Kebap", "Daha yumusak baharat profiline sahip klasik kebap secenegi.",
                         "sicak servis"),
+                new SeedProduct("Tavuk Döner", 220.0, 40, "Kebap", "Pilav veya ekmek yaninda servis edilen tavuk doner.",
+                        "tavuk,popular,sicak servis"),
+                new SeedProduct("İskender Kebap", 330.0, 20, "Kebap", "Tereyagli sos, pide ve yogurt esliginde servis edilir.",
+                        "popular,sicak servis"),
+                new SeedProduct("Mercimek Çorbasi", 95.0, 60, "Corba", "Gunun sicak baslangici icin mercimek corbasi.",
+                        "acisiz,sicak servis"),
+                new SeedProduct("Ezogelin Çorbasi", 100.0, 50, "Corba", "Baharatli ve limonla servis edilen corba.",
+                        "sicak servis"),
+                new SeedProduct("Domates Çorbasi", 92.0, 48, "Corba", "Kremali dokusuyla sicak servis edilen klasik domates corbasi.",
+                        "acisiz,sicak servis"),
+                new SeedProduct("Tavuk Suyu Çorbasi", 105.0, 42, "Corba", "Tel sehriye ile hazirlanan hafif ve sicak corba secenegi.",
+                        "acisiz,sicak servis,tavuk"),
                 new SeedProduct("Patates Kizartmasi", 60.0, 150, "Atistirmalik", "Citir patates kizartmasi.",
                         "popular"),
                 new SeedProduct("Sogan Halkasi", 70.0, 80, "Atistirmalik", "Citir kaplamali sogan halkasi.",
+                        "atistirmalik"),
+                new SeedProduct("Mozzarella Sticks", 95.0, 65, "Atistirmalik", "Akiskan peynir dolgulu citir atistirmalik.",
+                        "popular"),
+                new SeedProduct("Tavuk Nugget", 110.0, 70, "Atistirmalik", "Citir pane kaplamali tavuk nugget tabagi.",
+                        "tavuk,popular"),
+                new SeedProduct("Sigara Boregi", 85.0, 75, "Atistirmalik", "Peynir dolgulu ince yufka boregi.",
                         "atistirmalik"),
                 new SeedProduct("Coban Salata", 55.0, 80, "Salata", "Mevsim sebzeleri ile hazirlanmis ferah salata.",
                         "acisiz,vegan"),
                 new SeedProduct("Sezar Salata", 135.0, 45, "Salata", "Kivircik, kruton ve parmesanla servis edilir.",
                         "acisiz"),
+                new SeedProduct("Akdeniz Salata", 120.0, 52, "Salata", "Beyaz peynir, zeytin ve roka ile zenginlestirilmis salata.",
+                        "acisiz"),
+                new SeedProduct("Gavurdağı Salata", 125.0, 46, "Salata", "Nar eksili ve cevizli guney usulu salata.",
+                        "acisiz,vegan"),
+                new SeedProduct("Ton Balıklı Salata", 165.0, 34, "Salata", "Ton baligi ve yesilliklerle hazirlanan yuksek proteinli salata.",
+                        "acisiz"),
                 new SeedProduct("Menemen", 135.0, 40, "Kahvaltilik", "Domates, biber ve yumurtali sicak kahvalti secenegi.",
                         "popular,sicak servis"),
                 new SeedProduct("Kasarli Tost", 90.0, 55, "Kahvaltilik", "Kasar peynirli tost.",
                         "acisiz"),
+                new SeedProduct("Sucuklu Yumurta", 145.0, 38, "Kahvaltilik", "Tavada sucuk ve yumurta ile hazirlanan kahvaltilik.",
+                        "popular,sicak servis"),
+                new SeedProduct("Serpme Kahvalti", 420.0, 18, "Kahvaltilik", "Peynir, recel, yumurta ve sicak urunlerle zengin kahvalti tabagi.",
+                        "popular"),
+                new SeedProduct("Pankek", 115.0, 30, "Kahvaltilik", "Bal, cikolata veya meyve ile servis edilen yumusak pankek.",
+                        "popular"),
                 new SeedProduct("Tiramisu", 110.0, 40, "Tatli", "Maskarpone kremasi ile katmanli italyan tatlisi.",
                         "sutlu tatli,popular"),
                 new SeedProduct("Sutlac", 70.0, 50, "Tatli", "Firinlanmis sutlu tatli secenegi.",
@@ -90,12 +130,33 @@ public class DataSeeder {
                         "sutlu tatli"),
                 new SeedProduct("Brownie", 105.0, 42, "Tatli", "Yumusak dokulu cikolatali brownie.",
                         "tatli"),
+                new SeedProduct("Künefe", 130.0, 30, "Tatli", "Antep peyniri ile sicak servis edilen serbetli tatli.",
+                        "popular,sicak servis"),
+                new SeedProduct("Baklava", 140.0, 36, "Tatli", "Kat kat hamur ve Antep fistikli klasik baklava.",
+                        "popular"),
+                new SeedProduct("Profiterol", 115.0, 28, "Tatli", "Cikolata soslu ve krema dolgulu hafif tatli secenegi.",
+                        "sutlu tatli"),
+                new SeedProduct("San Sebastian Cheesecake", 150.0, 24, "Tatli", "Yanik yuzeyli kremsi cheesecake dilimi.",
+                        "sutlu tatli,popular"),
                 new SeedProduct("Kola", 50.0, 200, "Icecek", "Soguk servis edilir.", "acisiz,popular"),
                 new SeedProduct("Ayran", 30.0, 150, "Icecek", "Geleneksel soguk ayran.", "acisiz,popular"),
                 new SeedProduct("Su", 15.0, 500, "Icecek", "Sise su.", "acisiz"),
-                new SeedProduct("Cay", 25.0, 300, "Icecek", "Ince belli bardakta sicak cay.", "acisiz,sicak servis"),
+                new SeedProduct("Çay", 25.0, 300, "Icecek", "Ince belli bardakta sicak cay.", "acisiz,sicak servis"),
                 new SeedProduct("Kahve", 80.0, 100, "Icecek", "Demleme kahve secenegi.", "acisiz,sicak servis"),
-                new SeedProduct("Limonata", 55.0, 90, "Icecek", "Taze limonla hazirlanmis ferah icecek.", "acisiz"));
+                new SeedProduct("Limonata", 55.0, 90, "Icecek", "Taze limonla hazirlanmis ferah icecek.", "acisiz"),
+                new SeedProduct("Soda", 20.0, 180, "Icecek", "Serinletici sade maden suyu.", "acisiz"),
+                new SeedProduct("Şalgam", 35.0, 95, "Icecek", "Adana usulu geleneksel salgam icecegi.", "acisiz"),
+                new SeedProduct("Türk Kahvesi", 65.0, 120, "Icecek", "Kopuklu ve bol aromali Turk kahvesi.", "acisiz,sicak servis"),
+                new SeedProduct("Portakal Suyu", 60.0, 85, "Icecek", "Taze sikim portakal suyu.", "acisiz"),
+                new SeedProduct("Frappe", 95.0, 70, "Icecek", "Soguk kahve bazli ferah icecek.", "acisiz"),
+                new SeedProduct("Napoliten Makarna", 185.0, 32, "Makarna", "Domates soslu ve feslegenli klasik makarna.",
+                        "popular,sicak servis"),
+                new SeedProduct("Penne Arabiata", 195.0, 28, "Makarna", "Domates sos ve hafif aci notalarla servis edilen penne.",
+                        "sicak servis"),
+                new SeedProduct("Fettuccine Alfredo", 215.0, 26, "Makarna", "Kremali parmesan sos ile hazirlanan fettuccine.",
+                        "popular,sicak servis"),
+                new SeedProduct("Mantarli Kremali Makarna", 225.0, 22, "Makarna", "Sotelenmis mantar ve kremali sos ile servis edilir.",
+                        "sicak servis"));
     }
 
     private boolean applyDefaultMetadataIfMissing(Product product, SeedProduct seed) {
@@ -177,6 +238,9 @@ public class DataSeeder {
         if (containsAny(normalizedName, "lahmacun", "kebap", "doner", "kofte", "sis")) {
             return "Kebap";
         }
+        if (containsAny(normalizedName, "makarna", "penne", "fettuccine", "alfredo", "arabiata", "napoliten")) {
+            return "Makarna";
+        }
         return "Ana Yemek";
     }
 
@@ -193,6 +257,9 @@ public class DataSeeder {
         if ("Kahvaltilik".equals(category)) {
             return name + " kahvalti saati icin populer seceneklerden biridir.";
         }
+        if ("Makarna".equals(category)) {
+            return name + " gunluk soslarla hazirlanip sicak servis edilir.";
+        }
         return name + " mutfagin mevcut menusu icinde servis edilir.";
     }
 
@@ -207,7 +274,7 @@ public class DataSeeder {
         if (containsAny(normalizedName, "tavuk")) {
             tags.append(",tavuk");
         }
-        if (containsAny(normalizedName, "corba", "kebap", "pizza", "lahmacun")) {
+        if (containsAny(normalizedName, "corba", "kebap", "pizza", "lahmacun", "makarna", "penne", "fettuccine")) {
             tags.append(",sicak servis");
         }
         return tags.toString();
