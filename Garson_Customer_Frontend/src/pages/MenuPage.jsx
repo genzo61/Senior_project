@@ -29,6 +29,47 @@ const AI_TEASERS = [
   { label: 'Sohbet edip seçelim mi?', prompt: 'Konuşalım ve seçelim' },
 ];
 
+const TOAST_DURATION_MS = 2600;
+
+function formatCartToastLabel(item, menuMap) {
+  const productId = Number(item?.product_id ?? item?.productId);
+  const fallbackName = menuMap.get(productId)?.name ?? 'Urun';
+  const name = item?.product_name ?? item?.productName ?? fallbackName;
+  const quantity = Math.max(1, Number(item?.quantity ?? 1));
+
+  return quantity > 1 ? `${quantity} x ${name}` : name;
+}
+
+function buildCartUpdateToast(items, menuMap) {
+  const safeItems = Array.isArray(items) ? items : [];
+  const addedItems = safeItems.filter((item) => item?.operation !== 'remove');
+  const removedItems = safeItems.filter((item) => item?.operation === 'remove');
+
+  if (addedItems.length > 0 && removedItems.length === 0) {
+    const totalQuantity = addedItems.reduce((sum, item) => sum + Math.max(1, Number(item?.quantity ?? 1)), 0);
+    return {
+      tone: 'success',
+      title: totalQuantity > 1 ? `${totalQuantity} urun sepete eklendi.` : 'Urun sepete eklendi.',
+      detail: addedItems.map((item) => formatCartToastLabel(item, menuMap)).join(', '),
+    };
+  }
+
+  if (removedItems.length > 0 && addedItems.length === 0) {
+    const detail = removedItems.map((item) => formatCartToastLabel(item, menuMap)).join(', ');
+    return {
+      tone: 'info',
+      title: 'Sepet guncellendi.',
+      detail: detail ? `${detail} sepetten cikarildi.` : 'Urun sepetten cikarildi.',
+    };
+  }
+
+  return {
+    tone: 'info',
+    title: 'Sepet guncellendi.',
+    detail: 'AI sepet taslagini yeniledi.',
+  };
+}
+
 function RobotDoodle({ variant }) {
   return (
     <div className={`robot-doodle ${variant}`}>
@@ -81,7 +122,7 @@ function MenuPage() {
   const [checkoutError, setCheckoutError] = useState('');
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
 
-  const [inlineMessage, setInlineMessage] = useState('');
+  const [cartToast, setCartToast] = useState(null);
 
   const menuMap = useMemo(() => new Map(products.map((product) => [product.id, product])), [products]);
   const groupedProducts = useMemo(() => groupProductsByCategory(products), [products]);
@@ -207,13 +248,13 @@ function MenuPage() {
   }, []);
 
   useEffect(() => {
-    if (!inlineMessage) {
+    if (!cartToast?.id) {
       return undefined;
     }
 
-    const timer = setTimeout(() => setInlineMessage(''), 2500);
+    const timer = setTimeout(() => setCartToast(null), TOAST_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [inlineMessage]);
+  }, [cartToast]);
 
   useEffect(() => {
     if (!chatOpen && !cartOpen) {
@@ -231,25 +272,35 @@ function MenuPage() {
     };
   }, [chatOpen, cartOpen]);
 
+  const showCartToast = (title, detail = '', tone = 'success') => {
+    setCartToast({
+      id: Date.now(),
+      title,
+      detail,
+      tone,
+    });
+  };
+
   const handleManualAdd = (product) => {
     setCartItems((prev) => addProductToCart(prev, product, { quantity: 1, specialNote: '', source: 'manual' }));
-    setInlineMessage(`${product.name} sepete eklendi.`);
+    showCartToast('Sepete eklendi.', product.name);
   };
 
   const handleQuickAddProduct = (productCandidate) => {
     const matched = menuMap.get(Number(productCandidate?.id));
     if (!matched) {
-      setInlineMessage('Önerilen ürün menüde bulunamadı.');
+      showCartToast('Urun bulunamadi.', 'Onerilen urun menude bulunamadi.', 'info');
       return;
     }
 
     setCartItems((prev) => addProductToCart(prev, matched, { quantity: 1, specialNote: '', source: 'ai' }));
-    setInlineMessage(`${matched.name} sepete eklendi.`);
+    showCartToast('Sepete eklendi.', matched.name);
   };
 
   const handleAiCartUpdate = (items) => {
     setCartItems((prev) => applyStructuredCartItems(prev, items, menuMap));
-    setInlineMessage('AI sepet taslağı güncellendi.');
+    const toast = buildCartUpdateToast(items, menuMap);
+    showCartToast(toast.title, toast.detail, toast.tone);
   };
 
   const handleCheckout = async () => {
@@ -360,9 +411,20 @@ function MenuPage() {
           </div>
         </header>
 
-        {inlineMessage ? (
-          <div className="mb-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-100">
-            {inlineMessage}
+        {cartToast ? (
+          <div className="pointer-events-none fixed left-1/2 top-[calc(1rem+env(safe-area-inset-top))] z-[80] w-[min(calc(100%-1.5rem),26rem)] -translate-x-1/2">
+            <div
+              role="status"
+              aria-live="polite"
+              className={`rounded-2xl border px-4 py-3 shadow-[0_18px_55px_rgba(2,6,23,0.55)] backdrop-blur-xl ${
+                cartToast.tone === 'success'
+                  ? 'border-emerald-300/45 bg-emerald-500/15 text-emerald-50'
+                  : 'border-cyan-300/40 bg-slate-900/90 text-cyan-50'
+              }`}
+            >
+              <p className="text-sm font-bold">{cartToast.title}</p>
+              {cartToast.detail ? <p className="mt-1 text-xs text-current/80">{cartToast.detail}</p> : null}
+            </div>
           </div>
         ) : null}
 
