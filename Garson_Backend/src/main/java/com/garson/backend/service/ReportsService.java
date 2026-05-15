@@ -17,6 +17,7 @@ import com.garson.backend.repository.OrderRepository;
 import com.garson.backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,6 +36,7 @@ import java.util.OptionalDouble;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReportsService {
 
     private static final int TOP_LIMIT = 3;
@@ -110,7 +112,7 @@ public class ReportsService {
         LocalDate startDate = endDate.minusDays(safeDays - 1L);
 
         Map<String, Long> soldCounts = calculateProductCounts(
-                orderRepository.findAll().stream()
+                orderRepository.findAllWithItems().stream()
                         .filter(order -> isBetweenDates(resolveOrderDate(order), startDate, endDate))
                         .filter(this::isStockConsumingOrder)
                         .toList());
@@ -139,7 +141,7 @@ public class ReportsService {
     }
 
     private List<Order> findOrdersByDate(LocalDate date) {
-        return orderRepository.findAll().stream()
+        return orderRepository.findAllWithItems().stream()
                 .filter(order -> date.equals(resolveOrderDate(order)))
                 .toList();
     }

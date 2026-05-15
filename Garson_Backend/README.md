@@ -47,6 +47,17 @@ This backend supports the new QR-based customer web flow while keeping admin/kit
 - `TELEGRAM_MAX_RETRIES` (default: `2`)
 - `TELEGRAM_RETRY_BACKOFF_MS` (default: `750`)
 
+## Automation test schedule
+
+For test runs you can set the automation jobs to repeat every 15 minutes with staggered offsets:
+
+- `DAILY_SUMMARY_CRON="0 0/15 * * * *"`
+- `SALES_ANALYSIS_CRON="0 5/15 * * * *"`
+- `CUSTOMER_ENGAGEMENT_CRON="0 10/15 * * * *"`
+- `RESTOCK_SUGGESTION_CRON="0 14/15 * * * *"`
+
+This keeps the reports spread out instead of firing all four at the same second.
+
 ## Local run
 
 1. Ensure PostgreSQL is running and `application.properties` DB values are valid.
