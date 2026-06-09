@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { sendAssistantMessage } from '../services/aiService';
-import { formatPrice } from '../utils/textUtils';
+import { formatPrice, normalizeText } from '../utils/textUtils';
 
 const QUICK_PROMPTS = ['Bugün ne önerirsin?', 'Hafif bir menü öner', '2 kola sepete ekle'];
 
@@ -54,6 +54,10 @@ function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAd
   }, [prefillDraft]);
 
   const menuMap = useMemo(() => new Map(menuItems.map((item) => [item.id, item])), [menuItems]);
+  const menuNameMap = useMemo(
+    () => new Map(menuItems.map((item) => [normalizeText(item.name), item])),
+    [menuItems],
+  );
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -90,7 +94,19 @@ function ChatPanel({ menuItems, tableNo, cartItems, onApplyCartUpdate, onQuickAd
         role: 'assistant',
         text: response.assistant_message,
         suggestedProducts: (response.suggested_products ?? [])
-          .map((row) => menuMap.get(Number(row.id)) ?? row)
+          .map((row) => {
+            const byId = menuMap.get(Number(row.id));
+            if (byId) {
+              return byId;
+            }
+
+            const byName = menuNameMap.get(normalizeText(row.name));
+            if (byName) {
+              return byName;
+            }
+
+            return row;
+          })
           .filter(Boolean),
       };
 

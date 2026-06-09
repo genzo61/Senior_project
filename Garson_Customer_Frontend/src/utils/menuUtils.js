@@ -1,16 +1,31 @@
 import { includesPhrase, normalizeText } from './textUtils';
 
+const CATEGORY_LABELS = {
+  drinks: '\u0130\u00e7ecekler',
+  desserts: 'Tatl\u0131lar',
+  soups: '\u00c7orbalar',
+  breakfast: 'Kahvalt\u0131l\u0131klar',
+  salads: 'Salatalar',
+  snacks: 'At\u0131\u015ft\u0131rmal\u0131klar',
+  burgers: 'Hamburgerler',
+  pizzas: 'Pizzalar',
+  kebabs: 'Kebablar',
+  pastas: 'Makarnalar',
+  mains: 'Ana Yemekler',
+  other: 'Di\u011fer',
+};
+
 const CATEGORY_RULES = [
-  { category: 'İçecekler', keys: ['kola', 'ayran', 'su', 'cay', 'kahve', 'icecek', 'limonata', 'soda', 'salgam', 'frappe', 'portakal suyu'] },
-  { category: 'Tatlılar', keys: ['tatli', 'sutlac', 'tiramisu', 'pasta', 'brownie', 'cheesecake', 'waffle', 'kunefe', 'baklava', 'profiterol'] },
-  { category: 'Çorbalar', keys: ['corba', 'mercimek', 'ezogelin', 'domates', 'tavuk suyu'] },
-  { category: 'Kahvaltılıklar', keys: ['omlet', 'menemen', 'simit', 'tost', 'kahvalti', 'pankek', 'sucuklu yumurta', 'serpme'] },
-  { category: 'Salatalar', keys: ['salata', 'sezar', 'gavurdagi', 'yesillik', 'akdeniz', 'ton balikli'] },
-  { category: 'Atıştırmalıklar', keys: ['patates', 'atistirmalik', 'nugget', 'sogan halkasi', 'mozzarella', 'sigara boregi'] },
-  { category: 'Hamburgerler', keys: ['hamburger', 'burger', 'cheeseburger', 'bbq burger', 'mantarli burger'] },
-  { category: 'Pizzalar', keys: ['pizza', 'margherita', 'pepperoni', 'dort peynir', 'vejetaryen pizza'] },
-  { category: 'Kebablar', keys: ['lahmacun', 'doner', 'kebap', 'adana', 'sis', 'kofte', 'urfa', 'iskender'] },
-  { category: 'Makarnalar', keys: ['makarna', 'penne', 'spagetti', 'alfredo', 'arabiata', 'napoliten', 'fettuccine', 'kremali'] },
+  { category: CATEGORY_LABELS.drinks, keys: ['kola', 'ayran', 'su', 'cay', 'kahve', 'icecek', 'limonata', 'soda', 'salgam', 'frappe', 'portakal suyu'] },
+  { category: CATEGORY_LABELS.desserts, keys: ['tatli', 'sutlac', 'tiramisu', 'pasta', 'brownie', 'cheesecake', 'waffle', 'kunefe', 'baklava', 'profiterol'] },
+  { category: CATEGORY_LABELS.soups, keys: ['corba', 'mercimek', 'ezogelin', 'domates', 'tavuk suyu'] },
+  { category: CATEGORY_LABELS.breakfast, keys: ['omlet', 'menemen', 'simit', 'tost', 'kahvalti', 'pankek', 'sucuklu yumurta', 'serpme'] },
+  { category: CATEGORY_LABELS.salads, keys: ['salata', 'sezar', 'gavurdagi', 'yesillik', 'akdeniz', 'ton balikli', 'coban'] },
+  { category: CATEGORY_LABELS.snacks, keys: ['patates', 'atistirmalik', 'nugget', 'sogan halkasi', 'mozzarella', 'sigara boregi'] },
+  { category: CATEGORY_LABELS.burgers, keys: ['hamburger', 'burger', 'cheeseburger', 'bbq burger', 'mantarli burger'] },
+  { category: CATEGORY_LABELS.pizzas, keys: ['pizza', 'margherita', 'pepperoni', 'dort peynir', 'vejetaryen pizza'] },
+  { category: CATEGORY_LABELS.kebabs, keys: ['lahmacun', 'doner', 'kebap', 'adana', 'sis', 'kofte', 'urfa', 'iskender'] },
+  { category: CATEGORY_LABELS.pastas, keys: ['makarna', 'penne', 'spagetti', 'alfredo', 'arabiata', 'napoliten', 'fettuccine', 'kremali'] },
 ];
 
 const TAG_RULES = [
@@ -28,43 +43,45 @@ const LOCAL_IMAGE_MODULES = import.meta.glob('../../../images/**/*.{png,jpg,jpeg
 });
 
 const CATEGORY_LABEL_MAP = {
-  icecek: 'İçecekler',
-  icecekler: 'İçecekler',
-  tatli: 'Tatlılar',
-  tatlilar: 'Tatlılar',
-  corba: 'Çorbalar',
-  corbalar: 'Çorbalar',
-  kahvaltilik: 'Kahvaltılıklar',
-  kahvaltiliklar: 'Kahvaltılıklar',
-  salata: 'Salatalar',
-  salatalar: 'Salatalar',
-  atistirmalik: 'Atıştırmalıklar',
-  atistirmaliklar: 'Atıştırmalıklar',
-  burger: 'Hamburgerler',
-  hamburger: 'Hamburgerler',
-  hamburgerler: 'Hamburgerler',
-  pizza: 'Pizzalar',
-  pizzalar: 'Pizzalar',
-  kebap: 'Kebablar',
-  kebab: 'Kebablar',
-  kebablar: 'Kebablar',
-  makarna: 'Makarnalar',
-  makarnalar: 'Makarnalar',
-  'ana yemek': 'Ana Yemekler',
-  'ana yemekler': 'Ana Yemekler',
+  icecek: CATEGORY_LABELS.drinks,
+  icecekler: CATEGORY_LABELS.drinks,
+  'i cecek': CATEGORY_LABELS.drinks,
+  'i cecekler': CATEGORY_LABELS.drinks,
+  tatli: CATEGORY_LABELS.desserts,
+  tatlilar: CATEGORY_LABELS.desserts,
+  corba: CATEGORY_LABELS.soups,
+  corbalar: CATEGORY_LABELS.soups,
+  kahvaltilik: CATEGORY_LABELS.breakfast,
+  kahvaltiliklar: CATEGORY_LABELS.breakfast,
+  salata: CATEGORY_LABELS.salads,
+  salatalar: CATEGORY_LABELS.salads,
+  atistirmalik: CATEGORY_LABELS.snacks,
+  atistirmaliklar: CATEGORY_LABELS.snacks,
+  burger: CATEGORY_LABELS.burgers,
+  hamburger: CATEGORY_LABELS.burgers,
+  hamburgerler: CATEGORY_LABELS.burgers,
+  pizza: CATEGORY_LABELS.pizzas,
+  pizzalar: CATEGORY_LABELS.pizzas,
+  kebap: CATEGORY_LABELS.kebabs,
+  kebab: CATEGORY_LABELS.kebabs,
+  kebablar: CATEGORY_LABELS.kebabs,
+  makarna: CATEGORY_LABELS.pastas,
+  makarnalar: CATEGORY_LABELS.pastas,
+  'ana yemek': CATEGORY_LABELS.mains,
+  'ana yemekler': CATEGORY_LABELS.mains,
 };
 
 const CATEGORY_ORDER = [
-  'Kahvaltılıklar',
-  'Atıştırmalıklar',
-  'Hamburgerler',
-  'Pizzalar',
-  'Kebablar',
-  'Makarnalar',
-  'Salatalar',
-  'Tatlılar',
-  'İçecekler',
-  'Ana Yemekler',
+  CATEGORY_LABELS.breakfast,
+  CATEGORY_LABELS.drinks,
+  CATEGORY_LABELS.snacks,
+  CATEGORY_LABELS.burgers,
+  CATEGORY_LABELS.pizzas,
+  CATEGORY_LABELS.kebabs,
+  CATEGORY_LABELS.pastas,
+  CATEGORY_LABELS.salads,
+  CATEGORY_LABELS.desserts,
+  CATEGORY_LABELS.mains,
 ];
 
 const LOCAL_IMAGE_ENTRIES = Object.entries(LOCAL_IMAGE_MODULES)
@@ -87,7 +104,7 @@ const LOCAL_IMAGE_ENTRIES = Object.entries(LOCAL_IMAGE_MODULES)
 
 function repairText(input) {
   const text = String(input ?? '');
-  if (!/[ÃÅÄ]/.test(text)) {
+  if (!/[\u00c3\u00c4\u00c5]/.test(text)) {
     return text;
   }
 
@@ -101,7 +118,7 @@ function repairText(input) {
 }
 
 function normalizeAssetText(input) {
-  return normalizeText(repairText(input));
+  return normalizeText(repairText(input).replace(/\u0307/g, ''));
 }
 
 function buildNameCandidates(name) {
@@ -124,12 +141,16 @@ function buildNameCandidates(name) {
     candidates.add('sade soda');
   }
 
+  if (normalizedName === 'kahve') {
+    candidates.add('turk kahvesi');
+  }
+
   if (normalizedName.endsWith(' cheesecake')) {
     candidates.add(normalizedName.replace(/ cheesecake$/, ''));
   }
 
   if (normalizedName.includes(' doner')) {
-    candidates.add(normalizedName.replaceAll(' doner', ' döner'));
+    candidates.add(normalizedName.replaceAll(' doner', ' doneri'));
   }
 
   return Array.from(candidates).filter(Boolean);
@@ -138,26 +159,41 @@ function buildNameCandidates(name) {
 function findImageEntry(name, category) {
   const normalizedCategory = normalizeAssetText(category);
   const categoryEntries = LOCAL_IMAGE_ENTRIES.filter((entry) => entry.normalizedCategory === normalizedCategory);
-
-  if (!categoryEntries.length) {
-    return null;
-  }
+  const searchableEntries = categoryEntries.length ? categoryEntries : LOCAL_IMAGE_ENTRIES;
 
   const nameCandidates = buildNameCandidates(name);
 
   for (const candidate of nameCandidates) {
-    const exactMatch = categoryEntries.find((entry) => entry.normalizedName === candidate);
+    const exactMatch = searchableEntries.find((entry) => entry.normalizedName === candidate);
     if (exactMatch) {
       return exactMatch;
     }
   }
 
   for (const candidate of nameCandidates) {
-    const partialMatch = categoryEntries.find(
+    const partialMatch = searchableEntries.find(
       (entry) => entry.normalizedName.includes(candidate) || candidate.includes(entry.normalizedName),
     );
     if (partialMatch) {
       return partialMatch;
+    }
+  }
+
+  if (searchableEntries !== LOCAL_IMAGE_ENTRIES) {
+    for (const candidate of nameCandidates) {
+      const globalExactMatch = LOCAL_IMAGE_ENTRIES.find((entry) => entry.normalizedName === candidate);
+      if (globalExactMatch) {
+        return globalExactMatch;
+      }
+    }
+
+    for (const candidate of nameCandidates) {
+      const globalPartialMatch = LOCAL_IMAGE_ENTRIES.find(
+        (entry) => entry.normalizedName.includes(candidate) || candidate.includes(entry.normalizedName),
+      );
+      if (globalPartialMatch) {
+        return globalPartialMatch;
+      }
     }
   }
 
@@ -182,14 +218,14 @@ function inferCategory(name) {
     }
   }
 
-  return 'Ana Yemekler';
+  return CATEGORY_LABELS.mains;
 }
 
 function inferTags(name, stock) {
   const normalizedName = normalizeAssetText(name);
-  const tags = TAG_RULES.filter((rule) => rule.keys.some((key) => includesPhrase(normalizedName, key))).map(
-    (rule) => rule.tag,
-  );
+  const tags = TAG_RULES
+    .filter((rule) => rule.keys.some((key) => includesPhrase(normalizedName, key)))
+    .map((rule) => rule.tag);
 
   if (Number(stock ?? 0) <= 0) {
     tags.push('stok yok');
@@ -199,34 +235,33 @@ function inferTags(name, stock) {
 }
 
 function inferDescription(name, category) {
-  if (category === 'İçecekler') {
-    return `${name} siparişinize serin bir eşlikçi olur.`;
+  if (category === CATEGORY_LABELS.drinks) {
+    return `${name} siparisinize serin bir eslikci olur.`;
   }
 
-  if (category === 'Tatlılar') {
-    return `${name} yemek sonrası tatlı tercihi için uygundur.`;
+  if (category === CATEGORY_LABELS.desserts) {
+    return `${name} yemek sonrasi tatli tercihi icin uygundur.`;
   }
 
-  if (category === 'Kahvaltılıklar') {
-    return `${name} kahvaltı ve brunch için popüler seçenekler arasındadır.`;
+  if (category === CATEGORY_LABELS.breakfast) {
+    return `${name} kahvalti ve brunch icin populer secenekler arasindadir.`;
   }
 
-  if (category === 'Makarnalar') {
-    return `${name} taze soslarla sıcak servis edilen makarna seçeneğidir.`;
+  if (category === CATEGORY_LABELS.pastas) {
+    return `${name} taze soslarla sicak servis edilen makarna secenegidir.`;
   }
 
-  return `${name} mutfağın mevcut menüsü içinde servis edilir.`;
+  return `${name} mutfagin mevcut menusu icinde servis edilir.`;
 }
 
 function scoreProduct(product) {
   const name = String(product.name ?? '');
   let score = 0;
 
-  if (!/[ÃÅÄ]/.test(name)) {
+  if (!/[\u00c3\u00c4\u00c5]/.test(name)) {
     score += 10;
   }
 
-  score += (name.match(/[çğıöşüÇĞİÖŞÜ]/g) ?? []).length * 2;
   score += Number(product.available) * 2;
   score += Math.min(Number(product.stock ?? 0), 999) / 1000;
 
@@ -235,7 +270,7 @@ function scoreProduct(product) {
 
 export function enrichProduct(rawProduct) {
   const id = Number(rawProduct?.id);
-  const name = repairText(rawProduct?.name ?? 'Ürün');
+  const name = repairText(rawProduct?.name ?? 'Urun');
   const price = Number(rawProduct?.price ?? 0);
   const stock = Number(rawProduct?.stock ?? 0);
   const normalizedCategory = normalizeCategoryLabel(rawProduct?.category?.trim());
@@ -283,7 +318,7 @@ export function prepareMenuProducts(rawProducts) {
 
 export function groupProductsByCategory(products) {
   return products.reduce((groups, product) => {
-    const categoryKey = product.category || 'Diğer';
+    const categoryKey = product.category || CATEGORY_LABELS.other;
     if (!groups[categoryKey]) {
       groups[categoryKey] = [];
     }

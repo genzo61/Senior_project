@@ -169,6 +169,22 @@ public class CustomerAiService {
     }
 
     private DeterministicDecision evaluateDeterministicDecision(String message, String normalizedMessage, List<Product> products) {
+        if (normalizedMessage.contains("hafif")) {
+            List<CustomerAiSuggestedProduct> suggestions = inferSuggestionsFromMessage(message, products);
+            if (!suggestions.isEmpty()) {
+                return DeterministicDecision.resolved(
+                        new CustomerAiChatResponse(
+                                CustomerAiIntent.MENU_ASSISTANT.value(),
+                                buildMenuAssistantMessage(normalizedMessage, suggestions),
+                                Collections.emptyList(),
+                                suggestions),
+                        "light_menu_suggestions");
+            }
+            return DeterministicDecision.resolved(
+                    CustomerAiChatResponse.clarification("Bu kategori icin su an stokta urun bulamadim."),
+                    "light_menu_no_suggestions");
+        }
+
         CustomerAiChatResponse directMenuResponse = maybeBuildDirectMenuResponse(normalizedMessage, products);
         if (directMenuResponse != null) {
             return DeterministicDecision.resolved(directMenuResponse, "direct_menu_listing");
@@ -180,18 +196,12 @@ public class CustomerAiService {
                     "thanks");
         }
 
-        boolean cartIntentHint = hasCartKeywordOrModifier(normalizedMessage)
+        boolean explicitCartIntent = hasCartKeywordOrModifier(normalizedMessage);
+        boolean cartIntentHint = explicitCartIntent
                 || hasQuantityBackedByProduct(normalizedMessage, products);
         boolean menuIntentHint = hasMenuIntentHint(normalizedMessage);
 
-        if (cartIntentHint) {
-            DeterministicDecision cartDecision = evaluateDeterministicCartUpdate(normalizedMessage, products);
-            if (cartDecision.response() != null || !cartDecision.shouldCallLlm()) {
-                return cartDecision;
-            }
-        }
-
-        if (menuIntentHint) {
+        if (menuIntentHint && !explicitCartIntent) {
             List<CustomerAiSuggestedProduct> suggestions = inferSuggestionsFromMessage(message, products);
             if (!suggestions.isEmpty()) {
                 return DeterministicDecision.resolved(
@@ -205,6 +215,13 @@ public class CustomerAiService {
             return DeterministicDecision.resolved(
                     CustomerAiChatResponse.clarification("Bu kategori icin su an stokta urun bulamadim."),
                     "menu_no_suggestions");
+        }
+
+        if (cartIntentHint) {
+            DeterministicDecision cartDecision = evaluateDeterministicCartUpdate(normalizedMessage, products);
+            if (cartDecision.response() != null || !cartDecision.shouldCallLlm()) {
+                return cartDecision;
+            }
         }
 
         if (looksAmbiguous(normalizedMessage)) {
@@ -580,6 +597,11 @@ public class CustomerAiService {
             return ProductMatchResult.none();
         }
 
+        ProductMatchResult databaseMatch = findDatabaseBackedProductMatch(query, products);
+        if (databaseMatch.confidence() == MatchConfidence.HIGH) {
+            return databaseMatch;
+        }
+
         List<Product> inStock = products.stream().filter(this::isInStock).toList();
         if (inStock.isEmpty()) {
             return ProductMatchResult.none();
@@ -622,6 +644,36 @@ public class CustomerAiService {
                 .toList();
 
         return new ProductMatchResult(top.product(), confidence, top.score(), secondScore, alternatives);
+    }
+
+    private ProductMatchResult findDatabaseBackedProductMatch(String normalizedQuery, List<Product> products) {
+        List<Product> matches = productRepository.searchByNormalizedName(normalizedQuery).stream()
+                .filter(candidate -> products.stream().anyMatch(product -> product.getId().equals(candidate.getId())))
+                .filter(this::isInStock)
+                .toList();
+
+        if (matches.isEmpty()) {
+            return ProductMatchResult.none();
+        }
+
+        Product top = matches.get(0);
+        List<String> alternatives = matches.stream()
+                .limit(3)
+                .map(Product::getName)
+                .toList();
+
+        String normalizedTopName = normalize(top.getName());
+        long distinctNormalizedNames = matches.stream()
+                .map(Product::getName)
+                .map(this::normalize)
+                .distinct()
+                .count();
+
+        MatchConfidence confidence = (matches.size() == 1
+                || (normalizedTopName.equals(normalizedQuery) && distinctNormalizedNames == 1))
+                ? MatchConfidence.HIGH
+                : MatchConfidence.MEDIUM;
+        return new ProductMatchResult(top, confidence, matches.size() == 1 ? 9.0 : 0.9, 0.0, alternatives);
     }
 
     private Map<String, Long> buildTokenFrequency(List<Product> products) {
@@ -1034,7 +1086,8 @@ public class CustomerAiService {
         }
 
         String categoryFilter = detectCategoryFromMessage(normalizedMessage);
-        boolean listingIntent = containsAny(normalizedMessage, MENU_LISTING_KEYWORDS);
+        boolean listingIntent = containsAny(normalizedMessage, MENU_LISTING_KEYWORDS)
+                || containsAny(normalizedMessage, MENU_KEYWORDS);
 
         if (isBlank(categoryFilter) && !listingIntent) {
             return null;

@@ -390,8 +390,8 @@ export async function sendAssistantMessage({ message, menuItems, tableNo, cartIt
       const response = await axios.post(
         aiEndpoint,
         {
-          tableNo: Number(tableNo),
-          message: trimmedMessage,
+          tableId: Number(tableNo),
+          message: normalizeText(trimmedMessage),
           cart: cartItems.map((line) => ({
             productId: Number(line.productId),
             quantity: Number(line.quantity ?? 1),
@@ -414,13 +414,14 @@ export async function sendAssistantMessage({ message, menuItems, tableNo, cartIt
   const hasMenuListingWords = messageHasAny(normalizedMessage, MENU_LISTING_WORDS);
   const hasSmallTalk = messageHasAny(normalizedMessage, SMALL_TALK_WORDS) || messageHasAny(normalizedMessage, THANK_WORDS);
   const matchedProducts = matchProductsFromMessage(normalizedMessage, menuItems);
+  const menuIntentHint = hasMenuWords || hasMenuListingWords;
+
+  if (menuIntentHint && !hasCartWords) {
+    return buildMenuAssistantResponse(normalizedMessage, menuItems);
+  }
 
   if (hasCartWords || matchedProducts.length > 0) {
     return buildCartAssistantResponse(normalizedMessage, menuItems);
-  }
-
-  if (hasMenuWords || hasMenuListingWords) {
-    return buildMenuAssistantResponse(normalizedMessage, menuItems);
   }
 
   if (hasSmallTalk) {
