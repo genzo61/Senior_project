@@ -163,34 +163,31 @@ function matchProductsFromMessage(normalizedMessage, menuItems) {
 
 function detectCategoryFromMessage(normalizedMessage) {
   if (messageHasAny(normalizedMessage, ['icecek', 'kola', 'ayran', 'kahve', 'cay', 'limonata', 'soda', 'salgam'])) {
-    return 'Icecek';
+    return 'İçecekler';
   }
   if (messageHasAny(normalizedMessage, ['tatli', 'sutlu', 'brownie', 'cheesecake', 'kunefe', 'baklava', 'profiterol'])) {
-    return 'Tatli';
+    return 'Tatlılar';
   }
   if (messageHasAny(normalizedMessage, ['salata', 'vegan'])) {
-    return 'Salata';
-  }
-  if (messageHasAny(normalizedMessage, ['corba', 'mercimek', 'ezogelin', 'domates', 'tavuk suyu'])) {
-    return 'Corba';
+    return 'Salatalar';
   }
   if (messageHasAny(normalizedMessage, ['kahvalti', 'menemen', 'tost', 'simit', 'pankek', 'serpme'])) {
-    return 'Kahvaltilik';
+    return 'Kahvaltılıklar';
   }
   if (messageHasAny(normalizedMessage, ['atistirmalik', 'patates', 'halkasi', 'nugget', 'mozzarella'])) {
-    return 'Atistirmalik';
+    return 'Atıştırmalıklar';
   }
   if (messageHasAny(normalizedMessage, ['burger', 'hamburger'])) {
-    return 'Burger';
+    return 'Hamburgerler';
   }
   if (messageHasAny(normalizedMessage, ['pizza'])) {
-    return 'Pizza';
+    return 'Pizzalar';
   }
   if (messageHasAny(normalizedMessage, ['kebap', 'lahmacun', 'doner', 'kofte', 'sis', 'urfa', 'iskender'])) {
-    return 'Kebap';
+    return 'Kebablar';
   }
   if (messageHasAny(normalizedMessage, ['makarna', 'penne', 'alfredo', 'fettuccine', 'arabiata', 'napoliten'])) {
-    return 'Makarna';
+    return 'Makarnalar';
   }
   return '';
 }
@@ -208,7 +205,7 @@ function buildMenuSuggestions(normalizedMessage, menuItems) {
   }
 
   if (includesPhrase(normalizedMessage, 'hafif')) {
-    return inStock.filter((item) => ['Salata', 'Icecek', 'Tatli', 'Corba'].includes(item.category)).slice(0, 6);
+    return inStock.filter((item) => ['Salatalar', 'İçecekler', 'Tatlılar'].includes(item.category)).slice(0, 6);
   }
 
   if (includesPhrase(normalizedMessage, 'tavuk')) {

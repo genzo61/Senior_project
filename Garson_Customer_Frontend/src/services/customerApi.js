@@ -1,10 +1,10 @@
 import { apiClient } from './apiClient';
-import { enrichProduct, sortProducts } from '../utils/menuUtils';
+import { prepareMenuProducts } from '../utils/menuUtils';
 
 export async function fetchProducts() {
   const response = await apiClient.get('/api/products');
   const rows = Array.isArray(response.data) ? response.data : [];
-  return sortProducts(rows.map(enrichProduct));
+  return prepareMenuProducts(rows);
 }
 
 export async function fetchTables() {

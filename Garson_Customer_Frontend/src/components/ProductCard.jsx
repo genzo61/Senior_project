@@ -3,6 +3,7 @@ import { formatPrice } from '../utils/textUtils';
 
 function ProductCard({ product, onAdd }) {
   const [imageError, setImageError] = useState(false);
+  const hasImage = Boolean(product.imageUrl) && !imageError;
 
   const fallbackCode = useMemo(
     () =>
@@ -18,7 +19,7 @@ function ProductCard({ product, onAdd }) {
   return (
     <article className="group w-full min-w-0 overflow-hidden rounded-2xl border border-cyan-200/20 bg-slate-900/80 shadow-[0_8px_18px_rgba(2,12,27,0.35)] sm:rounded-3xl sm:shadow-[0_15px_45px_rgba(2,12,27,0.55)]">
       <div className="relative h-32 overflow-hidden sm:h-48">
-        {!imageError ? (
+        {hasImage ? (
           <img
             src={product.imageUrl}
             alt={product.name}
